@@ -1,0 +1,25 @@
+{
+  "name": "plataforma-de-estudos",
+  "version": "1.0.0",
+  "description": "projeto pensado desdo ensino medio",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node --watch server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Isac2006/Plataforma-de-estudos.git"
+  },
+  "author": "isac",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Isac2006/Plataforma-de-estudos/issues"
+  },
+  "homepage": "https://github.com/Isac2006/Plataforma-de-estudos#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.2.1"
+  }
+}
