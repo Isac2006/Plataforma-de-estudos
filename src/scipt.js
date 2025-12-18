@@ -32,12 +32,27 @@ async function aparecerquestoes() {
             questaoCard.innerHTML = `
                 <h3>Questão ${i + 1}</h3>
                 <p class="enunciado">${questao.enunciado}</p>
-                <ul class="alternativas">
-                    <li>A) ${questao.alternativas[0]}</li>
-                    <li>B) ${questao.alternativas[1]}</li>
-                    <li>C) ${questao.alternativas[2]}</li>
-                    <li>D) ${questao.alternativas[3]}</li>
-                </ul>
+              <div class="alternativas">
+    <label class="alternativa-item">
+        <input type="radio" name="questao" value="0">
+        <span>A) ${questao.alternativas[0]}</span>
+    </label>
+
+    <label class="alternativa-item">
+        <input type="radio" name="questao" value="1">
+        <span>B) ${questao.alternativas[1]}</span>
+    </label>
+
+    <label class="alternativa-item">
+        <input type="radio" name="questao" value="2">
+        <span>C) ${questao.alternativas[2]}</span>
+    </label>
+
+    <label class="alternativa-item">
+        <input type="radio" name="questao" value="3">
+        <span>D) ${questao.alternativas[3]}</span>
+    </label>
+</div>
                 <hr>
             `;
             divquetao.appendChild(questaoCard);
