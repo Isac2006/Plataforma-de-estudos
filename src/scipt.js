@@ -53,6 +53,9 @@ async function aparecerquestoes() {
         <span>D) ${questao.alternativas[3]}</span>
     </label>
 </div>
+<button onclick="responder(this)">Responder</button>
+<button onclick="verResposta()">Ver Resposta</button>
+
                 <hr>
             `;
             divquetao.appendChild(questaoCard);
