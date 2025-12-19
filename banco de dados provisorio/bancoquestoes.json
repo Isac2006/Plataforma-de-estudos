@@ -73,5 +73,18 @@
       "2"
     ],
     "resposta_correta": "14"
+  },
+  {
+    "id": 1766161883221,
+    "disciplina": "historia",
+    "tema": "roma",
+    "enunciado": "qual desses e romano",
+    "alternativas": [
+      "dasda",
+      "romadasdadsna",
+      "sdasdasa",
+      "julio cesar"
+    ],
+    "resposta_correta": "julio cesar"
   }
 ]
