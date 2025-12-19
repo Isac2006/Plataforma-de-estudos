@@ -1,32 +1,40 @@
-// 1. Importamos os módulos nativos do Node.js
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
+// 1. Configuração necessária para módulos ES (import/export) encontrar caminhos no Node.js
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export function pegarquestoesdobanco(disciplina, tema) {
     
-    // 2. Ajuste do Caminho (Baseado na sua foto do VS Code)
-    // O arquivo está em: banco de dados provisorio/bancoquestoes.json
-    const caminhoArquivo = path.resolve('banco de dados provisorio', 'bancoquestoes.json');
+    // 2. Ajuste do Caminho Dinâmico
+    // '..' sai de 'modulos', '..' sai de 'src' e entra na pasta do banco
+    const caminhoArquivo = path.join(__dirname, '..', '..', 'banco de dados provisorio', 'bancoquestoes.json');
 
     try {
-        // 3. Lemos o arquivo JSON
+        // 3. Verificação de existência (evita erro de 'file not found')
+        if (!fs.existsSync(caminhoArquivo)) {
+            console.error("❌ Arquivo não encontrado em:", caminhoArquivo);
+            return [];
+        }
+
+        // 4. Leitura síncrona (compatível com a chamada sem 'await' no server)
         const dadosRaw = fs.readFileSync(caminhoArquivo, 'utf-8');
 
-        // 4. Transformamos em Objeto JS
-        const todasAsQuestoes = JSON.parse(dadosRaw);
+        // 5. Tratamento de JSON vazio
+        const todasAsQuestoes = JSON.parse(dadosRaw.trim() || '[]');
 
-        // 5. Filtramos as questões
-        const questoesFiltradas = todasAsQuestoes.filter(questao => {
-            // Usamos .toLowerCase() para evitar erros de maiúsculas/minúsculas
-            return questao.disciplina.toLowerCase() === disciplina.toLowerCase() && 
-                   questao.tema.toLowerCase() === tema.toLowerCase();
+        // 6. Filtro com validação de segurança
+        return todasAsQuestoes.filter(questao => {
+            return (
+                questao.disciplina?.toLowerCase() === disciplina?.toLowerCase() && 
+                questao.tema?.toLowerCase() === tema?.toLowerCase()
+            );
         });
 
-        return questoesFiltradas;
-
     } catch (erro) {
-        console.error("Erro ao ler o arquivo JSON:", erro.message);
-        return []; // Retorna um array vazio se der erro (ex: arquivo não encontrado)
+        console.error("❌ Erro no módulo de banco:", erro.message);
+        return [];
     }
 }
