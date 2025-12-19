@@ -1,62 +1,58 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Sistema de Questões</title>
 </head>
 <body>
-    <h1>Sistema de questoes</h1>
+    <h1>Sistema de Questões</h1>
+
     <select id="diciplinapedido">
+        <option value="">Selecione uma Matéria</option>
         <option value="matematica">Matematica</option>
         <option value="portugues">Portugues</option>
         <option value="historia">Historia</option>
         <option value="geografia">Geografia</option>
         <option value="ciencias">Ciencias</option>
-        <!-- diciplinas fixas temporariamente -->
-
     </select>   
-    <select id="temapedido">
-        <option value="algebra">Algebra</option>
-        <option value="analisecombinatoria">Analise Combinatoria</option>
-        <option value="aritmetica">Aritmetica</option>
-        <option value="geometria">Geometria</option>
-        <option value="trigonometria">Trigonometria</option>
-        <option value="roma">roma</option>
-        <!-- temas fixos temporariamente -->
 
+    <select id="temapedido" disabled>
+        <option value="">Aguardando matéria...</option>
     </select>
-    <button id="gerar-questao" onclick="aparecerquestoes()">Gerar questao</button>
-    <div id="questao-container">                    
 
+    <button id="gerar-questao" onclick="aparecerquestoes()">Gerar questão</button>
+
+    <div id="questao-container">
+        </div>
+
+    <hr> <div id="formulario-cadastro">
+        <h2>Cadastrar Nova Questão</h2>
+        
+        <select id="ins-disciplina">
+            <option value="">Selecione a Disciplina</option>
+            <option value="matematica">Matematica</option>
+            <option value="portugues">Portugues</option>
+            <option value="historia">Historia</option>
+            <option value="geografia">Geografia</option>
+            <option value="ciencias">Ciencias</option>
+        </select>
+
+        <input type="text" id="ins-tema" placeholder="Tema (ex: algebra)">
+        <textarea id="ins-enunciado" placeholder="Digite o enunciado da questão"></textarea>
+        
+        <div class="grupo-alternativas">
+            <input type="text" class="alt-input" placeholder="Alternativa A">
+            <input type="text" class="alt-input" placeholder="Alternativa B">
+            <input type="text" class="alt-input" placeholder="Alternativa C">
+            <input type="text" class="alt-input" placeholder="Alternativa D">
+        </div>
+
+        <input type="text" id="ins-correta" placeholder="Resposta exata (ex: 3)">
+        
+        <button onclick="cadastrarQuestao()">Gravar questão</button>
     </div>
 
-<div id="formulario-cadastro">
-    <h2>Cadastrar Nova Questão</h2>
-    <select type="text" id="ins-disciplina" placeholder="Disciplina (ex: matematica)">
-        <option value="matematica">Matematica</option>
-        <option value="portugues">Portugues</option>
-        <option value="historia">Historia</option>
-        <option value="geografia">Geografia</option>
-        <option value="ciencias">Ciencias</option>
-    </select>
-    <input type="text" id="ins-tema" placeholder="Tema (ex: algebra)">
-    <textarea id="ins-enunciado" placeholder="Digite o enunciado da questão"></textarea>
-    
-    <div class="grupo-alternativas">
-        <input type="text" class="alt-input" placeholder="Alternativa A">
-        <input type="text" class="alt-input" placeholder="Alternativa B">
-        <input type="text" class="alt-input" placeholder="Alternativa C">
-        <input type="text" class="alt-input" placeholder="Alternativa D">
-    </div>
-
-    <input type="text" id="ins-correta" placeholder="Resposta exata (ex: 3)">
-    
-    <button onclick="cadastrarQuestao()">Gravar questao</button>
-</div>
-
-<script src="src/scipt.js"></script>
-
-
+    <script src="src/scipt.js"></script>
 </body>
 </html>
