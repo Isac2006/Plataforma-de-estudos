@@ -2,11 +2,7 @@
 import fs from 'fs';
 import path from 'path';
 
-/**
- * Função que lê o arquivo JSON e filtra as questões
- * @param {string} disciplina - A disciplina vinda do select
- * @param {string} tema - O tema vindo do segundo select
- */
+
 export function pegarquestoesdobanco(disciplina, tema) {
     
     // 2. Ajuste do Caminho (Baseado na sua foto do VS Code)

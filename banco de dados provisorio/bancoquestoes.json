@@ -3,6 +3,21 @@
     "disciplina": "matematica",
     "tema": "algebra",
     "enunciado": "Quanto é 2+2?",
-    "alternativas": ["1", "2", "3", "4"]
+    "alternativas": ["1", "2", "3", "4"],
+   "resposta_correta": 4
+  },
+   {
+    "disciplina": "matematica",
+    "tema": "algebra",
+    "enunciado": "Quanto é 2+3?",
+    "alternativas": ["1", "5", "3", "4"],
+   "resposta_correta": 5
+  },
+   {
+    "disciplina": "matematica",
+    "tema": "algebra",
+    "enunciado": "Quanto é 1+2?",
+    "alternativas": ["1", "2", "3", "4"],
+   "resposta_correta": 3
   }
 ]
