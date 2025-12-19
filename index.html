@@ -30,7 +30,23 @@
 
     </div>
 
+<div id="formulario-cadastro">
+    <h2>Cadastrar Nova Questão</h2>
+    <input type="text" id="ins-disciplina" placeholder="Disciplina (ex: matematica)">
+    <input type="text" id="ins-tema" placeholder="Tema (ex: algebra)">
+    <textarea id="ins-enunciado" placeholder="Digite o enunciado da questão"></textarea>
+    
+    <div class="grupo-alternativas">
+        <input type="text" class="alt-input" placeholder="Alternativa A">
+        <input type="text" class="alt-input" placeholder="Alternativa B">
+        <input type="text" class="alt-input" placeholder="Alternativa C">
+        <input type="text" class="alt-input" placeholder="Alternativa D">
+    </div>
 
+    <input type="text" id="ins-correta" placeholder="Resposta exata (ex: 3)">
+    
+    <button onclick="cadastrarQuestao()">Gravar questao</button>
+</div>
 
 <script src="src/scipt.js"></script>
 

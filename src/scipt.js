@@ -68,39 +68,89 @@ async function aparecerquestoes() {
 }
 
 // 4. Função para Ver Resposta (Gabarito)
+// Esta função apenas mostra o que está escrito no campo 'resposta_correta'
 function verResposta(indice) {
     const questao = window.listaDeQuestoes[indice];
     const feedback = document.getElementById(`res-${indice}`);
     
-    // Como seu JSON já tem o valor (ex: 4), mostramos ele direto
+    // Mostra o valor direto (ex: 4), sem tentar converter para letra A, B, C
     feedback.innerHTML = `Gabarito: ${questao.resposta_correta}`;
     feedback.style.color = "blue";
 }
 
 // 5. Função para Corrigir (Responder)
+// Esta função compara o TEXTO da alternativa clicada com o valor do banco
 function responder(indice) {
     const questao = window.listaDeQuestoes[indice];
     const feedback = document.getElementById(`res-${indice}`);
     
-    // Pegamos o rádio marcado
+    // 1. Pega qual "bolinha" o usuário marcou
     const marcado = document.querySelector(`input[name="questao-${indice}"]:checked`);
 
     if (!marcado) {
-        alert("Selecione uma opção!");
+        alert("Selecione uma opção antes de responder!");
         return;
     }
 
-    // Pegamos o TEXTO da alternativa que o usuário clicou
-    // marcado.value é o índice (0, 1, 2...). Usamos isso para pegar o texto no array.
+    // 2. Transforma a posição (0, 1, 2...) no TEXTO da alternativa
+    // Ex: Se clicou na quarta opção (valor 3), pega o texto "4" no array de alternativas
     const textoSelecionado = questao.alternativas[parseInt(marcado.value)];
 
-    // Comparamos o texto selecionado com a resposta_correta do JSON
-    // Usamos String() para garantir que números virem texto na comparação
+    // 3. Compara o texto da tela com a resposta do JSON
+    // Usamos String() para garantir que números e textos sejam comparados corretamente
     if (String(textoSelecionado) === String(questao.resposta_correta)) {
         feedback.innerHTML = "✅ Resposta Correta!";
         feedback.style.color = "green";
     } else {
         feedback.innerHTML = `❌ Errado! Você marcou ${textoSelecionado}, mas o correto é ${questao.resposta_correta}.`;
         feedback.style.color = "red";
+    }
+}
+  async function cadastrarQuestao() {
+    // 1. Captura os valores dos inputs de texto simples
+    const disciplina = document.getElementById("ins-disciplina").value;
+    const tema = document.getElementById("ins-tema").value;
+    const enunciado = document.getElementById("ins-enunciado").value;
+    const resposta_correta = document.getElementById("ins-correta").value;
+
+    // 2. Captura os valores das 4 alternativas e transforma em um Array []
+    const inputsAlt = document.querySelectorAll(".alt-input");
+    const alternativas = Array.from(inputsAlt).map(input => input.value);
+
+    // 3. Monta o objeto exatamente como o servidor espera
+    const dados = {
+        disciplina: disciplina.toLowerCase().trim(),
+        tema: tema.toLowerCase().trim(),
+        enunciado: enunciado,
+        alternativas: alternativas,
+        resposta_correta: resposta_correta
+    };
+
+    // Validação básica para não enviar vazio
+    if (!disciplina || !enunciado || alternativas.includes("")) {
+        alert("Por favor, preencha todos os campos!");
+        return;
+    }
+
+    // 4. Envia para o seu servidor Node.js
+    try {
+        const response = await fetch('http://localhost:3000/questoes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dados)
+        });
+
+        const result = await response.json();
+        
+        if (response.ok) {
+            alert("✅ Sucesso: " + result.mensagem);
+            // Limpa os campos após salvar
+            document.querySelectorAll('input, textarea').forEach(i => i.value = "");
+        } else {
+            alert("❌ Erro: " + result.mensagem);
+        }
+    } catch (erro) {
+        console.error("Erro na conexão:", erro);
+        alert("Não foi possível conectar ao servidor.");
     }
 }

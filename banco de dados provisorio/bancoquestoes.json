@@ -3,21 +3,75 @@
     "disciplina": "matematica",
     "tema": "algebra",
     "enunciado": "Quanto é 2+2?",
-    "alternativas": ["1", "2", "3", "4"],
-   "resposta_correta": 4
+    "alternativas": [
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
+    "resposta_correta": 4
   },
-   {
+  {
     "disciplina": "matematica",
     "tema": "algebra",
     "enunciado": "Quanto é 2+3?",
-    "alternativas": ["1", "5", "3", "4"],
-   "resposta_correta": 5
+    "alternativas": [
+      "1",
+      "5",
+      "3",
+      "4"
+    ],
+    "resposta_correta": 5
   },
-   {
+  {
     "disciplina": "matematica",
     "tema": "algebra",
     "enunciado": "Quanto é 1+2?",
-    "alternativas": ["1", "2", "3", "4"],
-   "resposta_correta": 3
+    "alternativas": [
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
+    "resposta_correta": 3
+  },
+  {
+    "id": 1766160243099,
+    "disciplina": "matematica",
+    "tema": "geometria",
+    "enunciado": "figura com tres lados",
+    "alternativas": [
+      "circulo",
+      "quadrado ",
+      "retangulo",
+      "triangulo"
+    ],
+    "resposta_correta": "triangulo"
+  },
+  {
+    "id": 1766160640652,
+    "disciplina": "dsad",
+    "tema": "asda",
+    "enunciado": "DASD",
+    "alternativas": [
+      "ASDA",
+      "DASD",
+      "ASD",
+      "ASDAS"
+    ],
+    "resposta_correta": "DASDSA"
+  },
+  {
+    "id": 1766160767287,
+    "disciplina": "matematica",
+    "tema": "algebra",
+    "enunciado": "QUANTO E 5+9",
+    "alternativas": [
+      "10",
+      "14",
+      "10",
+      "2"
+    ],
+    "resposta_correta": "14"
   }
 ]
