@@ -1,54 +1,5 @@
 [
   {
-    "disciplina": "matematica",
-    "tema": "algebra",
-    "enunciado": "Quanto é 2+2?",
-    "alternativas": [
-      "1",
-      "2",
-      "3",
-      "4"
-    ],
-    "resposta_correta": 4
-  },
-  {
-    "disciplina": "matematica",
-    "tema": "algebra",
-    "enunciado": "Quanto é 2+3?",
-    "alternativas": [
-      "1",
-      "5",
-      "3",
-      "4"
-    ],
-    "resposta_correta": 5
-  },
-  {
-    "disciplina": "matematica",
-    "tema": "algebra",
-    "enunciado": "Quanto é 1+2?",
-    "alternativas": [
-      "1",
-      "2",
-      "3",
-      "4"
-    ],
-    "resposta_correta": 3
-  },
-  {
-    "id": 1766160243099,
-    "disciplina": "matematica",
-    "tema": "geometria",
-    "enunciado": "figura com tres lados",
-    "alternativas": [
-      "circulo",
-      "quadrado ",
-      "retangulo",
-      "triangulo"
-    ],
-    "resposta_correta": "triangulo"
-  },
-  {
     "id": 1766160640652,
     "disciplina": "dsad",
     "tema": "asda",
@@ -62,19 +13,6 @@
     "resposta_correta": "DASDSA"
   },
   {
-    "id": 1766160767287,
-    "disciplina": "matematica",
-    "tema": "algebra",
-    "enunciado": "QUANTO E 5+9",
-    "alternativas": [
-      "10",
-      "14",
-      "10",
-      "2"
-    ],
-    "resposta_correta": "14"
-  },
-  {
     "id": 1766161883221,
     "disciplina": "historia",
     "tema": "roma",
@@ -83,47 +21,8 @@
       "dasda",
       "romadasdadsna",
       "sdasdasa",
-      "julio cesar"
+      "julio cesar,m,m"
     ],
     "resposta_correta": "julio cesar"
-  },
-  {
-    "id": 1766166413064,
-    "disciplina": "geografia",
-    "tema": "dsad",
-    "enunciado": "sda",
-    "alternativas": [
-      "sdasd",
-      "asda",
-      "dasdsa",
-      "sdasd"
-    ],
-    "resposta_correta": "asd"
-  },
-  {
-    "id": 1766168063636,
-    "disciplina": "matematica",
-    "tema": "dsadaasd",
-    "enunciado": "dasd",
-    "alternativas": [
-      "asda",
-      "sdasd",
-      "ads",
-      "sdasd"
-    ],
-    "resposta_correta": "ads"
-  },
-  {
-    "id": 1766168077214,
-    "disciplina": "ciencias",
-    "tema": "dsd",
-    "enunciado": "sdsd",
-    "alternativas": [
-      "sdsd",
-      "sdsd",
-      "sds",
-      "sdsd"
-    ],
-    "resposta_correta": "sdsd"
   }
 ]

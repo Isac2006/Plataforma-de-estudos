@@ -68,7 +68,38 @@ app.get('/questoes', async (req, res) => {
         res.status(500).json({ mensagem: "Erro interno ao buscar questões" });
     }
 });
+app.put('/questoes/:id', async (req, res) => {
+    try {
+        const idParaEditar = parseInt(req.params.id);
+        const { enunciado, alternativas, resposta_correta } = req.body;
 
+        const conteudo = await fs.readFile(CAMINHO_BANCO, 'utf-8');
+        let banco = JSON.parse(conteudo || '[]');
+
+        // Encontra o índice da questão no array
+        const index = banco.findIndex(q => q.id === idParaEditar);
+
+        if (index === -1) return res.status(404).json({ mensagem: "Não encontrada" });
+
+        // Atualiza os dados mantendo a disciplina e o tema originais
+        banco[index] = { ...banco[index], enunciado, alternativas, resposta_correta };
+
+        await fs.writeFile(CAMINHO_BANCO, JSON.stringify(banco, null, 2), 'utf-8');
+        res.json({ mensagem: "Editado com sucesso!" });
+    } catch (erro) {
+        res.status(500).json({ mensagem: "Erro no servidor" });
+    }
+});
+// --- ROTA: APAGAR QUESTÃO ---
+app.delete('/questoes/:id', async (req, res) => {
+    const idParaRemover = parseInt(req.params.id);
+    const conteudo = await fs.readFile(CAMINHO_BANCO, 'utf-8');
+    let banco = JSON.parse(conteudo || '[]');
+    
+    const novoBanco = banco.filter(q => q.id !== idParaRemover);
+    await fs.writeFile(CAMINHO_BANCO, JSON.stringify(novoBanco, null, 2));
+    res.json({ mensagem: "Apagado!" });
+});
 // --- ROTA: CADASTRAR NOVA QUESTÃO ---
 app.post('/questoes', async (req, res) => {
     try {
