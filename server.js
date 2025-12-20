@@ -4,140 +4,167 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs/promises'; 
 
-// Importa a função do seu módulo de banco de dados
 import { pegarquestoesdobanco } from './src/modulos/pegararrayquestoes.js';
 
-// Configuração de caminhos para ES Modules no Node.js
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 const porta = 3000;
 
-// Caminho absoluto para o arquivo JSON de questões
-const CAMINHO_BANCO = path.join(__dirname, 'banco de dados provisorio', 'bancoquestoes.json');
+// --- CAMINHOS DOS BANCOS ---
+const CAMINHO_BANCO_QUESTOES = path.join(__dirname, 'banco de dados provisorio', 'bancoquestoes.json');
+const CAMINHO_BANCO_REDACOES = path.join(__dirname, 'banco de dados provisorio', 'redacao.json');
 
-// --- MIDDLEWARES ---
 app.use(cors()); 
 app.use(express.json()); 
-
-// Serve os arquivos da raiz. 
-// Isso permite que o index.html acesse /src/script.js corretamente.
 app.use(express.static(__dirname)); 
 
-// --- ROTA: BUSCAR TEMAS DINÂMICOS ---
+// ==========================================
+//    ROTAS DE QUESTÕES (Sua lógica atual)
+// ==========================================
+
 app.get('/temas', async (req, res) => {
     const { disciplina } = req.query;
-
-    if (!disciplina) {
-        return res.status(400).json({ mensagem: "Disciplina não informada" });
-    }
-
+    if (!disciplina) return res.status(400).json({ mensagem: "Disciplina não informada" });
     try {
-        const conteudo = await fs.readFile(CAMINHO_BANCO, 'utf-8');
+        const conteudo = await fs.readFile(CAMINHO_BANCO_QUESTOES, 'utf-8');
         const bancoTotal = JSON.parse(conteudo.trim() || '[]');
-
-        // Filtra os temas daquela disciplina e remove duplicados
         const temasDaDisciplina = bancoTotal
             .filter(q => q.disciplina.toLowerCase() === disciplina.toLowerCase())
             .map(q => q.tema);
-
         const temasUnicos = [...new Set(temasDaDisciplina)];
         res.json(temasUnicos);
     } catch (erro) {
-        console.error("❌ Erro ao buscar temas:", erro);
         res.status(500).json([]);
     }
 });
 
-// --- ROTA: PÁGINA INICIAL ---
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-// --- ROTA: BUSCAR QUESTÕES ---
 app.get('/questoes', async (req, res) => {
     const { disciplina, tema } = req.query;
-    console.log(`🔍 Requisição recebida - Disciplina: ${disciplina}, Tema: ${tema}`);
-    
     try {
         const resultado = await pegarquestoesdobanco(disciplina, tema);
         res.json(resultado);
     } catch (erro) {
-        console.error("❌ Erro ao processar questões:", erro);
-        res.status(500).json({ mensagem: "Erro interno ao buscar questões" });
+        res.status(500).json({ mensagem: "Erro interno" });
     }
 });
-app.put('/questoes/:id', async (req, res) => {
-    try {
-        const idParaEditar = parseInt(req.params.id);
-        const { enunciado, alternativas, resposta_correta } = req.body;
 
-        const conteudo = await fs.readFile(CAMINHO_BANCO, 'utf-8');
-        let banco = JSON.parse(conteudo || '[]');
-
-        // Encontra o índice da questão no array
-        const index = banco.findIndex(q => q.id === idParaEditar);
-
-        if (index === -1) return res.status(404).json({ mensagem: "Não encontrada" });
-
-        // Atualiza os dados mantendo a disciplina e o tema originais
-        banco[index] = { ...banco[index], enunciado, alternativas, resposta_correta };
-
-        await fs.writeFile(CAMINHO_BANCO, JSON.stringify(banco, null, 2), 'utf-8');
-        res.json({ mensagem: "Editado com sucesso!" });
-    } catch (erro) {
-        res.status(500).json({ mensagem: "Erro no servidor" });
-    }
-});
-// --- ROTA: APAGAR QUESTÃO ---
-app.delete('/questoes/:id', async (req, res) => {
-    const idParaRemover = parseInt(req.params.id);
-    const conteudo = await fs.readFile(CAMINHO_BANCO, 'utf-8');
-    let banco = JSON.parse(conteudo || '[]');
-    
-    const novoBanco = banco.filter(q => q.id !== idParaRemover);
-    await fs.writeFile(CAMINHO_BANCO, JSON.stringify(novoBanco, null, 2));
-    res.json({ mensagem: "Apagado!" });
-});
-// --- ROTA: CADASTRAR NOVA QUESTÃO ---
 app.post('/questoes', async (req, res) => {
     try {
         const novaQuestao = req.body;
-        
-        if (!novaQuestao.enunciado || !novaQuestao.alternativas || !novaQuestao.resposta_correta) {
-            return res.status(400).json({ mensagem: "Dados incompletos no formulário" });
-        }
-
-        const conteudo = await fs.readFile(CAMINHO_BANCO, 'utf-8');
+        const conteudo = await fs.readFile(CAMINHO_BANCO_QUESTOES, 'utf-8');
         const bancoTotal = JSON.parse(conteudo.trim() || '[]');
-
         const questaoFormatada = {
             id: Date.now(),
+            ...novaQuestao,
             disciplina: String(novaQuestao.disciplina).toLowerCase().trim(),
-            tema: String(novaQuestao.tema).toLowerCase().trim(),
-            enunciado: novaQuestao.enunciado,
-            alternativas: novaQuestao.alternativas,
-            resposta_correta: novaQuestao.resposta_correta
+            tema: String(novaQuestao.tema).toLowerCase().trim()
         };
-
         bancoTotal.push(questaoFormatada);
-
-        await fs.writeFile(CAMINHO_BANCO, JSON.stringify(bancoTotal, null, 2), 'utf-8');
-
-        console.log("✅ Nova questão cadastrada com sucesso!");
-        res.status(201).json({ mensagem: "Questão gravada com sucesso!", questao: questaoFormatada });
+        await fs.writeFile(CAMINHO_BANCO_QUESTOES, JSON.stringify(bancoTotal, null, 2));
+        res.status(201).json(questaoFormatada);
     } catch (erro) {
-        console.error("❌ Erro ao gravar nova questão:", erro);
-        res.status(500).json({ mensagem: "Erro ao gravar no banco de dados" });
+        res.status(500).json({ mensagem: "Erro ao gravar" });
     }
 });
 
-// Inicialização do servidor
+// ==========================================
+//    ROTAS DE REDAÇÕES (Nova Integração)
+// ==========================================
+
+// 1. Aluno envia redação
+app.post('/redacoes', async (req, res) => {
+    try {
+        const { usuario, titulo, conteudo_html } = req.body;
+        
+        const conteudo = await fs.readFile(CAMINHO_BANCO_REDACOES, 'utf-8').catch(() => '[]');
+        const banco = JSON.parse(conteudo || '[]');
+
+        const novaRedacao = {
+            id: Date.now(),
+            usuario: usuario, // Aqui o nome do aluno é gravado no banco
+            titulo: titulo,
+            conteudo_html: conteudo_html,
+            comentarios: [],
+            status: "pendente",
+            data_envio: new Date().toISOString()
+        };
+
+        banco.push(novaRedacao);
+        await fs.writeFile(CAMINHO_BANCO_REDACOES, JSON.stringify(banco, null, 2));
+        res.status(201).json({ mensagem: "Enviado com sucesso!" });
+    } catch (erro) {
+        res.status(500).json({ mensagem: "Erro ao salvar no servidor" });
+    }
+});
+app.get('/redacoes/aluno', async (req, res) => {
+    try {
+        const { nome } = req.query;
+        const conteudo = await fs.readFile(CAMINHO_BANCO_REDACOES, 'utf-8').catch(() => '[]');
+        const banco = JSON.parse(conteudo);
+
+        // Filtra todas as redações daquele aluno
+        const minhasRedacoes = banco.filter(r => r.usuario.toLowerCase() === nome.toLowerCase());
+
+        res.json(minhasRedacoes);
+    } catch (erro) {
+        res.status(500).json({ mensagem: "Erro ao buscar" });
+    }
+});
+
+// 2. Professor busca a mais antiga não corrigida (FILA)
+app.get('/redacoes/proxima', async (req, res) => {
+    try {
+        const conteudo = await fs.readFile(CAMINHO_BANCO_REDACOES, 'utf-8').catch(() => '[]');
+        const banco = JSON.parse(conteudo || '[]');
+
+        // Filtra apenas pendentes e ordena por data (mais antiga primeiro)
+        const fila = banco
+            .filter(r => r.status === "pendente")
+            .sort((a, b) => new Date(a.data_envio) - new Date(b.data_envio));
+
+        if (fila.length === 0) return res.status(404).json({ mensagem: "Fila vazia" });
+
+        res.json(fila[0]);
+    } catch (erro) {
+        res.status(500).json({ mensagem: "Erro ao buscar fila" });
+    }
+});
+
+// 3. Professor envia redação corrigida
+app.put('/redacoes/corrigir/:id', async (req, res) => {
+    try {
+        const idParaCorrigir = parseInt(req.params.id);
+        const { conteudo_html, comentarios } = req.body;
+
+        const conteudo = await fs.readFile(CAMINHO_BANCO_REDACOES, 'utf-8');
+        let banco = JSON.parse(conteudo);
+
+        const index = banco.findIndex(r => r.id === idParaCorrigir);
+        if (index === -1) return res.status(404).json({ mensagem: "Não encontrada" });
+
+        // Atualiza para corrigida
+        banco[index] = {
+            ...banco[index],
+            conteudo_html,
+            comentarios,
+            status: "corrigida",
+            data_correcao: new Date().toISOString()
+        };
+
+        await fs.writeFile(CAMINHO_BANCO_REDACOES, JSON.stringify(banco, null, 2));
+        res.json({ mensagem: "Redação corrigida com sucesso!" });
+    } catch (erro) {
+        res.status(500).json({ mensagem: "Erro ao salvar correção" });
+    }
+});
+
+// --- INICIALIZAÇÃO ---
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+
 app.listen(porta, () => {
-    console.log(`
-    🚀 Servidor pronto!
-    📡 Rodando em: http://localhost:${porta}
-    📂 Banco de dados: ${CAMINHO_BANCO}
-    `);
+    console.log(`🚀 Servidor rodando em http://localhost:${porta}`);
+    console.log(`📂 Questoes: ${CAMINHO_BANCO_QUESTOES}`);
+    console.log(`📂 Redações: ${CAMINHO_BANCO_REDACOES}`);
 });

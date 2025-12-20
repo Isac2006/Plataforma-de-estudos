@@ -73,7 +73,7 @@ export function iniciarEdicao(indice) {
                     <span style="margin-right: 5px;">${String.fromCharCode(65 + altIdx)})</span>
                     <input type="text" class="edit-alt-${indice}" value="${alt}" style="width: 100%;">
                 </div>
-            `).join('')}
+            `).join('')} 
         </div>
         <p style="margin-top: 10px;"><strong>Gabarito:</strong></p>
         <input type="text" id="edit-correta-${indice}" value="${questao.resposta_correta}" style="width: 100%; margin-bottom: 15px;">

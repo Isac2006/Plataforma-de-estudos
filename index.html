@@ -6,6 +6,227 @@
     <title>Sistema de Questões</title>
 </head>
 <body>
+    <style>
+    * {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #eef2f7, #f9fbff);
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    min-height: 100vh;
+    color: #333;
+}
+
+/* TÍTULO */
+h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+/* SELECTS E INPUTS */
+select,
+input[type="text"],
+textarea {
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+select:focus,
+input:focus,
+textarea:focus {
+    outline: none;
+    border-color: #6f42c1;
+    box-shadow: 0 0 0 2px rgba(111, 66, 193, 0.15);
+}
+
+/* BOTÕES */
+button {
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.25s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+button:hover {
+    transform: translateY(-1px);
+    opacity: 0.9;
+}
+
+/* VARIAÇÕES DE BOTÕES */
+.btn-destaque {
+    background: linear-gradient(135deg, #ffe259, #ffa751);
+    color: #000;
+}
+
+.btn-aluno {
+    background: linear-gradient(135deg, #28a745, #5fd38a);
+    color: white;
+}
+
+.btn-fila {
+    background: linear-gradient(135deg, #007bff, #4da3ff);
+    color: white;
+}
+
+.btn-salvar {
+    background: linear-gradient(135deg, #fd7e14, #ff9f43);
+    color: white;
+}
+
+/* CONTAINERS */
+.editor-container,
+.comments-container,
+#formulario-cadastro,
+.consulta-container,
+#questao-container {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+/* ÁREA PRINCIPAL DA REDAÇÃO */
+#redação {
+    display: flex;
+    gap: 20px;
+    height: 80vh;
+}
+
+/* EDITOR */
+.editor-container {
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+}
+
+#editor {
+    flex-grow: 1;
+    border: 1px solid #e1e1e1;
+    padding: 18px;
+    border-radius: 10px;
+    outline: none;
+    overflow-y: auto;
+    line-height: 1.7;
+    font-size: 16px;
+    background: #fcfcff;
+}
+
+/* TOOLBAR */
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding-right: 12px;
+    border-right: 1px solid #ddd;
+}
+
+.group:last-child {
+    border-right: none;
+}
+
+/* COMENTÁRIOS */
+.comments-container {
+    width: 30%;
+    display: flex;
+    flex-direction: column;
+}
+
+#listaComentarios {
+    overflow-y: auto;
+    flex-grow: 1;
+    padding-right: 5px;
+}
+
+.comment {
+    border-left: 5px solid #6f42c1;
+    padding: 12px;
+    margin-bottom: 12px;
+    background: #f8f9ff;
+    border-radius: 8px;
+    font-size: 14px;
+    animation: fadeIn 0.3s ease;
+}
+
+.comment span {
+    display: block;
+    font-weight: 700;
+    color: #6f42c1;
+    margin-bottom: 6px;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+/* INPUT DE COR */
+input[type="color"] {
+    border: none;
+    width: 38px;
+    height: 38px;
+    cursor: pointer;
+    background: none;
+}
+
+/* FORMULÁRIO DE CADASTRO */
+#formulario-cadastro {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.grupo-alternativas {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+/* CONSULTA */
+#resultado-consulta {
+    background: #f4f5ff;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+/* ANIMAÇÃO */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* RESPONSIVO */
+@media (max-width: 900px) {
+    #redação {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .editor-container,
+    .comments-container {
+        width: 100%;
+    }
+} </style>
     <h1>Sistema de Questões</h1>
 
     <select id="diciplinapedido">
@@ -53,6 +274,51 @@
         <button type="button" id="btn-salvar-questao">Cadastrar Questão</button>
     </div>
 
+
+
+
+
+
+
+    <div id="redação">
+<div class="editor-container">
+    <div class="toolbar">
+        <div class="group">
+            <input type="color" id="cor" value="#ffeb3b">
+            <button class="btn-destaque" onclick="destacar()">✨ Destacar e Comentar</button>
+        </div>
+        
+        <div class="group">
+            <button class="btn-aluno" onclick="enviarRedacao()">📤 Aluno: Enviar Redação</button>
+        </div>
+
+        <div class="group" style="border: none;">
+            <button class="btn-fila" onclick="buscarProximaFila()">🔍 Professor: Próxima da Fila</button>
+            <button class="btn-salvar" onclick="salvarCorrecaoProfessor()">✅ Finalizar Correção</button>
+        </div>
+    </div>
+
+    <h3 id="info-redacao">📝 Nova Redação</h3>
+    <div id="editor" contenteditable="true">Comece a escrever aqui...</div>
+</div>
+
+<div class="comments-container">
+    <h3>💬 Observações do Professor</h3>
+    <div id="listaComentarios">
+        <p style="color: #999; font-style: italic;">Nenhum comentário adicionado.</p>
+    </div>
+</div>
+<div class="consulta-container" style="background: white; padding: 20px; border-radius: 12px; margin-top: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
+    <h3>🔍 Ver minha correção</h3>
+    <div style="display: flex; gap: 10px;">
+        <input type="text" id="consulta-nome" placeholder="Digite seu nome completo exatamente como enviou" style="flex-grow: 1; padding: 10px; border-radius: 6px; border: 1px solid #ddd;">
+        <button onclick="consultarMinhaRedacao()" style="background: #6f42c1; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer;">Buscar</button>
+    </div>
+    <div id="resultado-consulta" style="margin-top: 20px;"></div>
+</div>
+
+
+    </div>
 <script type="module" src="src/script.js"></script>
 </body>
 </html>
