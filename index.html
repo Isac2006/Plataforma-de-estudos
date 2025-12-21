@@ -190,7 +190,8 @@ input[type="color"] {
 }
 
 /* FORMULÁRIO DE CADASTRO */
-#formulario-cadastro {
+#formulario-cadastro,
+#formulario-cadastro-materia {
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -273,6 +274,47 @@ input[type="color"] {
         
         <button type="button" id="btn-salvar-questao">Cadastrar Questão</button>
     </div>
+
+    <hr>
+
+<hr>
+
+<!-- 🔴 PASSO 1: MENSAGEM (OBRIGATÓRIA) -->
+<div id="mensagem-topo" style="
+    display: none;
+    background: #ffe5e5;
+    color: #a10000;
+    padding: 15px;
+    border-radius: 10px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    border: 1px solid #ffb3b3;
+"></div>
+
+<!-- FORMULÁRIO -->
+<div id="formulario-cadastro">
+    <h2>Cadastrar Nova Matéria</h2>
+
+    <select id="materia-disciplina">
+        <option value="">Selecione a Disciplina</option>
+        <option value="matematica">Matemática</option>
+        <option value="portugues">Português</option>
+        <option value="historia">História</option>
+        <option value="geografia">Geografia</option>
+        <option value="ciencias">Ciências</option>
+    </select>
+
+    <input type="text" id="materia-tema" placeholder="Tema da matéria">
+    <textarea id="materia-resumo" placeholder="Resumo da matéria"></textarea>
+    <textarea id="materia-conteudo" placeholder="Conteúdo completo"></textarea>
+
+    <button type="button" id="btn-cadastrar-materia">
+        📘 Cadastrar Matéria
+    </button>
+</div>
+
+
+
 
 
 

@@ -15,6 +15,7 @@ const porta = 3000;
 // --- CAMINHOS DOS BANCOS ---
 const CAMINHO_BANCO_QUESTOES = path.join(__dirname, 'banco de dados provisorio', 'bancoquestoes.json');
 const CAMINHO_BANCO_REDACOES = path.join(__dirname, 'banco de dados provisorio', 'redacao.json');
+const CAMINHO_BANCO_MATERIAS = path.join(__dirname, 'banco de dados provisorio', 'bancomaterias.json');
 
 app.use(cors()); 
 app.use(express.json()); 
@@ -160,6 +161,40 @@ app.put('/redacoes/corrigir/:id', async (req, res) => {
     }
 });
 
+// ==========================================
+//    ROTAS DE MATÉRIAS (Nova Integração)
+// ==========================================
+
+app.post('/materias', async (req, res) => {
+    try {
+        const { disciplina, tema, resumo, conteudoCompleto } = req.body;
+
+        const novaMateria = {
+            id: Date.now(),
+            disciplina: String(disciplina).toLowerCase().trim(),
+            tema: String(tema).toLowerCase().trim(),
+            resumo,
+            conteudoCompleto,
+            dataCriacao: new Date().toISOString()
+        };
+
+        const conteudo = await fs.readFile(CAMINHO_BANCO_MATERIAS, 'utf-8')
+            .catch(() => '[]');
+
+        const banco = JSON.parse(conteudo || '[]');
+        banco.push(novaMateria);
+
+        await fs.writeFile(
+            CAMINHO_BANCO_MATERIAS,
+            JSON.stringify(banco, null, 2)
+        );
+
+        res.status(201).json({ mensagem: "Matéria cadastrada com sucesso!" });
+    } catch (erro) {
+        res.status(500).json({ mensagem: "Erro ao salvar matéria" });
+    }
+});
+
 // --- INICIALIZAÇÃO ---
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
@@ -167,4 +202,5 @@ app.listen(porta, () => {
     console.log(`🚀 Servidor rodando em http://localhost:${porta}`);
     console.log(`📂 Questoes: ${CAMINHO_BANCO_QUESTOES}`);
     console.log(`📂 Redações: ${CAMINHO_BANCO_REDACOES}`);
+    console.log(`📂 Matérias: ${CAMINHO_BANCO_MATERIAS}`);
 });

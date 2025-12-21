@@ -1,5 +1,6 @@
 // 1. Importação de funções externas
 import { aparecerquestoes } from './modulos/questoes.js';
+import { cadastrarMateria } from './modulos/cadastrarmateria.js';
 
 console.log("✅ Script carregado com sucesso!");
 
@@ -50,6 +51,12 @@ if (btnGerar) {
 const btnSalvar = document.getElementById("btn-salvar-questao");
 if (btnSalvar) {
     btnSalvar.addEventListener("click", cadastrarQuestao);
+}
+
+// Botão para cadastrar matéria
+const btnCadastrarMateria = document.getElementById("btn-cadastrar-materia");
+if (btnCadastrarMateria) {
+    btnCadastrarMateria.addEventListener("click", cadastrarMateria);
 }
 
 // --- FUNÇÃO DE CADASTRO ---
