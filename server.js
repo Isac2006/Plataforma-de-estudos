@@ -16,6 +16,7 @@ const porta = 3000;
 const CAMINHO_BANCO_QUESTOES = path.join(__dirname, 'banco de dados provisorio', 'bancoquestoes.json');
 const CAMINHO_BANCO_REDACOES = path.join(__dirname, 'banco de dados provisorio', 'redacao.json');
 const CAMINHO_BANCO_MATERIAS = path.join(__dirname, 'banco de dados provisorio', 'bancomaterias.json');
+const CAMINHO_BANCO_AULAS = path.join(__dirname, 'banco de dados provisorio', 'bancoaulas.json');
 
 app.use(cors()); 
 app.use(express.json()); 
@@ -194,6 +195,75 @@ app.post('/materias', async (req, res) => {
         res.status(500).json({ mensagem: "Erro ao salvar matéria" });
     }
 });
+// ==========================================
+//    ROTAS DE AULAS (Vídeos YouTube)
+// ==========================================
+
+// 1. Professor cadastra aula
+app.post('/aulas', async (req, res) => {
+    try {
+        const { disciplina, tema, url } = req.body;
+
+        const conteudo = await fs.readFile(CAMINHO_BANCO_AULAS, 'utf-8').catch(() => '[]');
+        const banco = JSON.parse(conteudo || '[]');
+
+        const novaAula = {
+            id: Date.now(),
+            disciplina: String(disciplina).toLowerCase().trim(),
+            tema: String(tema).toLowerCase().trim(),
+            url: url, 
+            data_cadastro: new Date().toISOString()
+        };
+
+        banco.push(novaAula);
+        await fs.writeFile(CAMINHO_BANCO_AULAS, JSON.stringify(banco, null, 2));
+        res.status(201).json({ mensagem: "Aula salva com sucesso!" });
+    } catch (erro) {
+        res.status(500).json({ mensagem: "Erro ao salvar aula no servidor" });
+    }
+});
+
+// 2. Aluno busca temas disponíveis (Para preencher o Select Dinâmico)
+app.get('/aulas/temas', async (req, res) => {
+    const { disciplina } = req.query;
+    if (!disciplina) return res.json([]); // Retorna vazio se não escolher a matéria
+
+    try {
+        const conteudo = await fs.readFile(CAMINHO_BANCO_AULAS, 'utf-8').catch(() => '[]');
+        const aulas = JSON.parse(conteudo);
+        
+        // Filtra os temas pela disciplina selecionada
+        const temasFiltrados = aulas
+            .filter(a => a.disciplina === disciplina.toLowerCase().trim())
+            .map(a => a.tema);
+            
+        // Remove temas duplicados
+        const temasUnicos = [...new Set(temasFiltrados)];
+        res.json(temasUnicos);
+    } catch (erro) {
+        res.status(500).json([]);
+    }
+});
+
+// 3. Aluno busca a aula específica após selecionar Disciplina e Tema
+app.get('/aulas/buscar', async (req, res) => {
+    try {
+        const { disciplina, tema } = req.query;
+        const conteudo = await fs.readFile(CAMINHO_BANCO_AULAS, 'utf-8').catch(() => '[]');
+        const banco = JSON.parse(conteudo || '[]');
+
+        const aula = banco.find(a => 
+            a.disciplina === disciplina.toLowerCase().trim() && 
+            a.tema === tema.toLowerCase().trim()
+        );
+
+        if (!aula) return res.status(404).json({ mensagem: "Aula não encontrada" });
+
+        res.json(aula);
+    } catch (erro) {
+        res.status(500).json({ mensagem: "Erro ao buscar aula" });
+    }
+});
 
 // --- INICIALIZAÇÃO ---
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
@@ -203,4 +273,5 @@ app.listen(porta, () => {
     console.log(`📂 Questoes: ${CAMINHO_BANCO_QUESTOES}`);
     console.log(`📂 Redações: ${CAMINHO_BANCO_REDACOES}`);
     console.log(`📂 Matérias: ${CAMINHO_BANCO_MATERIAS}`);
+    console.log(`📂 Aulas: ${CAMINHO_BANCO_AULAS}`); 
 });

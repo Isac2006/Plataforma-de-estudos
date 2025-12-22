@@ -2,6 +2,8 @@
 import { aparecerquestoes } from './modulos/questoes.js';
 import { cadastrarMateria } from './modulos/cadastrarmateria.js';
 import { destacar, enviarRedacao, consultarMinhaRedacao, buscarProximaFila, salvarCorrecaoProfessor } from './modulos/redaçao.js';;
+import { cadastrarAula, carregarAula } from './modulos/aula.js';
+
 
 console.log("✅ Script carregado com sucesso!");
 
@@ -122,7 +124,7 @@ async function cadastrarQuestao() {
 
 
 
-// redação nao mexer por equanto 
+// redação 
 
 
 
@@ -133,3 +135,69 @@ document.getElementById('btnDestacar').addEventListener('click', destacar);
     window.consultarMinhaRedacao = consultarMinhaRedacao;
     window.buscarProximaFila = buscarProximaFila;
     window.salvarCorrecaoProfessor = salvarCorrecaoProfessor;
+
+
+
+// aula nao mexer por enquanto
+// --- CONFIGURAÇÃO AULAS/VÍDEOS ---
+
+// --- LÓGICA DE TEMAS DINÂMICOS PARA AULAS (ALUNO) ---
+
+// Botão de Salvar (Professor)
+const btnSalvarAula = document.getElementById("btn-salvar-aula");
+if (btnSalvarAula) {
+    // Removemos qualquer onclick antigo e adicionamos o evento via JS
+    btnSalvarAula.onclick = null; 
+    btnSalvarAula.addEventListener("click", (e) => {
+        e.preventDefault();
+        cadastrarAula();
+    });
+}
+
+// Botão de Buscar (Aluno)
+const btnBuscarAula = document.getElementById("btn-buscar-aula");
+if (btnBuscarAula) {
+    btnBuscarAula.onclick = null;
+    btnBuscarAula.addEventListener("click", (e) => {
+        e.preventDefault();
+        carregarAula();
+    });
+}
+
+// --- LÓGICA DO SELECT DINÂMICO (O código que você enviou) ---
+const selectDisciplinaAula = document.getElementById("select-disciplina");
+const selectTemaAula = document.getElementById("select-tema-aula");
+
+if (selectDisciplinaAula && selectTemaAula) {
+    selectDisciplinaAula.addEventListener("change", async () => {
+        const disciplina = selectDisciplinaAula.value;
+
+        if (!disciplina) {
+            selectTemaAula.innerHTML = '<option value="">Selecione a matéria primeiro</option>';
+            selectTemaAula.disabled = true;
+            return;
+        }
+
+        try {
+            const resposta = await fetch(`http://localhost:3000/aulas/temas?disciplina=${disciplina}`);
+            const temas = await resposta.json();
+
+            selectTemaAula.innerHTML = '<option value="">Selecione o tema da aula</option>';
+            selectTemaAula.disabled = false;
+
+            temas.forEach(tema => {
+                const option = document.createElement("option");
+                option.value = tema; 
+                option.textContent = tema.charAt(0).toUpperCase() + tema.slice(1);
+                selectTemaAula.appendChild(option);
+            });
+
+            if (temas.length === 0) {
+                selectTemaAula.innerHTML = '<option value="">Nenhuma aula encontrada</option>';
+                selectTemaAula.disabled = true;
+            }
+        } catch (erro) {
+            console.error("❌ Erro ao carregar temas de aula:", erro);
+        }
+    });
+}

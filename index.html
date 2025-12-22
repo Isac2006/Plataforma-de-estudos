@@ -361,6 +361,53 @@ input[type="color"] {
 
 
     </div>
+
+
+   <div class="container">
+    <div class="editor-container" style="margin-top: 20px;">
+        <h2>👨‍🏫 Cadastrar Aula (Professor)</h2>
+        
+        <select id="cad-disciplina">
+            <option value="">Selecione a Disciplina</option>
+            <option value="matematica">Matemática</option>
+            <option value="portugues">Português</option>
+            <option value="historia">História</option>
+            <option value="geografia">Geografia</option>
+            <option value="ciencias">Ciências</option>
+        </select>
+
+        <input type="text" id="cad-tema" placeholder="Tema da Aula (ex: Equações)">
+        <input type="text" id="cad-link" placeholder="Link do YouTube ou código Iframe">
+        
+        <button id="btn-salvar-aula" class="btn-salvar">Salvar no Banco</button>
+    </div>
+
+    <hr>
+
+    <div class="editor-container">
+        <h2>🎓 Assistir Aula (Aluno)</h2>
+        
+        <select id="select-disciplina">
+            <option value="">Selecione a Disciplina</option>
+            <option value="matematica">Matemática</option>
+            <option value="portugues">Português</option>
+            <option value="historia">História</option>
+            <option value="geografia">Geografia</option>
+            <option value="ciencias">Ciências</option>
+        </select>
+
+        <select id="select-tema-aula" disabled>
+            <option value="">Selecione a matéria primeiro</option>
+        </select>
+
+        <button id="btn-buscar-aula" class="btn-fila">Carregar Aula</button>
+        <p id="status-aula"></p>
+
+        <div class="video-wrapper" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; background: #000; border-radius: 12px; margin-top: 15px;">
+            <iframe id="video-player" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;" src="" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        </div>
+    </div>
+</div>
 <script type="module" src="src/script.js"></script>
 </body>
 </html>
