@@ -29,15 +29,35 @@ app.use(express.static(__dirname));
 app.get('/temas', async (req, res) => {
     const { disciplina } = req.query;
     if (!disciplina) return res.status(400).json({ mensagem: "Disciplina não informada" });
+
     try {
-        const conteudo = await fs.readFile(CAMINHO_BANCO_QUESTOES, 'utf-8');
-        const bancoTotal = JSON.parse(conteudo.trim() || '[]');
-        const temasDaDisciplina = bancoTotal
-            .filter(q => q.disciplina.toLowerCase() === disciplina.toLowerCase())
+        // Busca temas nos dois bancos simultaneamente
+        const [questoesRaw, aulasRaw] = await Promise.all([
+            fs.readFile(CAMINHO_BANCO_QUESTOES, 'utf-8').catch(() => '[]'),
+            fs.readFile(CAMINHO_BANCO_AULAS, 'utf-8').catch(() => '[]')
+        ]);
+
+        const bancoQuestoes = JSON.parse(questoesRaw || '[]');
+        const bancoAulas = JSON.parse(aulasRaw || '[]');
+
+        const disc = disciplina.toLowerCase().trim();
+
+        // Extrai temas de questões
+        const temasQuestoes = bancoQuestoes
+            .filter(q => q.disciplina.toLowerCase() === disc)
             .map(q => q.tema);
-        const temasUnicos = [...new Set(temasDaDisciplina)];
+
+        // Extrai temas de aulas
+        const temasAulas = bancoAulas
+            .filter(a => a.disciplina.toLowerCase() === disc)
+            .map(a => a.tema);
+
+        // Une os dois e remove duplicados
+        const temasUnicos = [...new Set([...temasQuestoes, ...temasAulas])];
+        
         res.json(temasUnicos);
     } catch (erro) {
+        console.error("Erro ao buscar temas unificados:", erro);
         res.status(500).json([]);
     }
 });
@@ -262,6 +282,113 @@ app.get('/aulas/buscar', async (req, res) => {
         res.json(aula);
     } catch (erro) {
         res.status(500).json({ mensagem: "Erro ao buscar aula" });
+    }
+});
+
+// ==========================================
+//    ROTAS DO CONSTRUTOR DE MÓDULOS
+// ==========================================
+
+const CAMINHO_BANCO_MODULOS = path.join(__dirname, 'banco de dados provisorio', 'modulos_completos.json');
+
+// 1. Busca TUDO que existe sobre um tema para o montador
+app.get('/construtor/dados', async (req, res) => {
+    const { disciplina, tema } = req.query;
+    if (!disciplina || !tema) return res.status(400).json({ mensagem: "Disciplina e Tema são obrigatórios" });
+
+    try {
+        const [aulasRaw, materiasRaw, questoesRaw] = await Promise.all([
+            fs.readFile(CAMINHO_BANCO_AULAS, 'utf-8').catch(() => '[]'),
+            fs.readFile(CAMINHO_BANCO_MATERIAS, 'utf-8').catch(() => '[]'),
+            fs.readFile(CAMINHO_BANCO_QUESTOES, 'utf-8').catch(() => '[]')
+        ]);
+
+        const d = disciplina.toLowerCase().trim();
+        const t = tema.toLowerCase().trim();
+
+        const aulas = JSON.parse(aulasRaw || '[]');
+        const materias = JSON.parse(materiasRaw || '[]');
+        const questoes = JSON.parse(questoesRaw || '[]');
+
+        const aulaEncontrada = aulas.find(a => a.disciplina === d && a.tema === t);
+        const materiaEncontrada = materias.find(m => m.disciplina === d && m.tema === t);
+        const questoesDisponiveis = questoes.filter(q => q.disciplina === d && q.tema === t);
+
+        res.json({
+            aula: aulaEncontrada || null,
+            // Prioriza o resumo da matéria, se não houver, manda vazio
+            resumo: materiaEncontrada ? (materiaEncontrada.resumo || materiaEncontrada.conteudoCompleto || "") : "",
+            questoes: questoesDisponiveis
+        });
+    } catch (erro) {
+        console.error("Erro no Construtor:", erro);
+        res.status(500).json({ mensagem: "Erro ao compilar dados" });
+    }
+});
+
+// 2. Salva a estrutura do módulo
+app.post('/modulos/salvar', async (req, res) => {
+    try {
+        const novoModulo = req.body; 
+        
+        // Garante que o diretório existe e tenta ler o arquivo
+        let banco = [];
+        try {
+            const conteudo = await fs.readFile(CAMINHO_BANCO_MODULOS, 'utf-8');
+            banco = JSON.parse(conteudo);
+        } catch (e) {
+            // Se o arquivo não existir, o banco continua como []
+            banco = [];
+        }
+
+        const moduloEstruturado = {
+            id: Date.now(),
+            ...novoModulo,
+            data_criacao: new Date().toISOString()
+        };
+
+        banco.push(moduloEstruturado);
+        
+        // Salva com indentação para facilitar leitura humana
+        await fs.writeFile(CAMINHO_BANCO_MODULOS, JSON.stringify(banco, null, 2));
+        
+        res.status(201).json({ mensagem: "Módulo estruturado com sucesso!", id: moduloEstruturado.id });
+    } catch (erro) {
+        console.error("Erro ao salvar módulo:", erro);
+        res.status(500).json({ mensagem: "Erro ao salvar estrutura no servidor" });
+    }
+});
+app.get('/modulos/visualizar', async (req, res) => {
+    const { disciplina, tema } = req.query;
+    try {
+        const conteudo = await fs.readFile(CAMINHO_BANCO_MODULOS, 'utf-8').catch(() => '[]');
+        const modulos = JSON.parse(conteudo);
+
+        // Busca o módulo que combine com a disciplina e o tema
+        const moduloEncontrado = modulos.find(m => 
+            m.disciplina.toLowerCase() === disciplina.toLowerCase() && 
+            m.tema.toLowerCase() === tema.toLowerCase()
+        );
+
+        if (!moduloEncontrado) {
+            return res.status(404).json({ mensagem: "Módulo ainda não construído pelo professor." });
+        }
+
+        // Agora buscamos o texto completo das questões que estão no módulo
+        const questoesRaw = await fs.readFile(CAMINHO_BANCO_QUESTOES, 'utf-8');
+        const todasQuestoes = JSON.parse(questoesRaw);
+
+        // Filtramos apenas as questões que o professor escolheu para este módulo
+        const detalhesQuestoes = todasQuestoes.filter(q => 
+            moduloEncontrado.questoes_ids.includes(String(q.id))
+        );
+
+        res.json({
+            ...moduloEncontrado,
+            questoes_completas: detalhesQuestoes
+        });
+    } catch (erro) {
+        res.status(500).json({ mensagem: "Erro ao carregar módulo" });
     }
 });
 

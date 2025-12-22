@@ -71,10 +71,22 @@
     "id": 1766279776783,
     "usuario": "isac",
     "titulo": "isac",
-    "conteudo_html": "Comece a escrever aquiasdasdas...",
-    "comentarios": [],
-    "status": "pendente",
-    "data_envio": "2025-12-21T01:16:16.783Z"
+    "conteudo_html": "Comece a<span style=\"background-color: rgb(255, 235, 59); padding: 2px; border-radius: 3px;\"> escrever aquias</span><span style=\"background-color: rgb(61, 84, 255); padding: 2px; border-radius: 3px;\">dasdas</span>...",
+    "comentarios": [
+      {
+        "trecho": " escrever aquiasdasd",
+        "comentario": "DSAD",
+        "cor": "#ffeb3b"
+      },
+      {
+        "trecho": "dasdas",
+        "comentario": "DSASD",
+        "cor": "#3d54ff"
+      }
+    ],
+    "status": "corrigida",
+    "data_envio": "2025-12-21T01:16:16.783Z",
+    "data_correcao": "2025-12-22T11:38:46.084Z"
   },
   {
     "id": 1766343339340,
@@ -84,5 +96,14 @@
     "comentarios": [],
     "status": "pendente",
     "data_envio": "2025-12-21T18:55:39.340Z"
+  },
+  {
+    "id": 1766403508289,
+    "usuario": "DASDAS",
+    "titulo": "DSAD",
+    "conteudo_html": "Comece a<span style=\"background-color: rgb(255, 235, 59); padding: 2px; border-radius: 3px;\"> escrev</span>er FSDAFSFAaqui...",
+    "comentarios": [],
+    "status": "pendente",
+    "data_envio": "2025-12-22T11:38:28.290Z"
   }
 ]

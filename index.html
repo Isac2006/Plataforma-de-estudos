@@ -23,6 +23,7 @@ body {
     color: #333;
 }
 
+
 /* TÍTULO */
 h1 {
     font-size: 28px;
@@ -227,6 +228,133 @@ input[type="color"] {
     .comments-container {
         width: 100%;
     }
+    /* Container Principal */
+#construtor-modulo {
+    background-color: #f9f9f9;
+    border-radius: 12px;
+    padding: 25px;
+    max-width: 900px;
+    margin: 20px auto;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#construtor-modulo h3 {
+    color: #2c3e50;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+/* Áreas de Input e Texto */
+.campo-grupo {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.campo-grupo label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #444;
+}
+
+#modulo-aula-id, 
+#modulo-resumo-texto {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+#modulo-resumo-texto {
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* Lista de Seleção de Questões */
+#area-selecao-questoes {
+    margin-top: 25px;
+}
+
+#lista-disponivel {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    max-height: 350px;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+/* Estilo de cada item de questão */
+.item-selecao-questao {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.2s;
+}
+
+.item-selecao-questao:hover {
+    background-color: #f1f8ff;
+}
+
+.item-selecao-questao input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    margin-right: 15px;
+}
+
+.item-selecao-questao label {
+    cursor: pointer;
+    flex: 1;
+    font-size: 14px;
+    color: #555;
+    line-height: 1.4;
+}
+
+.item-selecao-questao strong {
+    color: #3498db;
+}
+
+/* Botão de Salvar */
+#btn-salvar-modulo-completo {
+    display: block;
+    width: 100%;
+    background-color: #27ae60;
+    color: white;
+    padding: 15px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background 0.3s ease;
+}
+
+#btn-salvar-modulo-completo:hover {
+    background-color: #219150;
+}
+
+/* Scrollbar personalizada para a lista */
+#lista-disponivel::-webkit-scrollbar {
+    width: 8px;
+}
+
+#lista-disponivel::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+#lista-disponivel::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+}
+
+#lista-disponivel::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
 } </style>
     <h1>Sistema de Questões</h1>
 
@@ -243,7 +371,7 @@ input[type="color"] {
         <option value="">Aguardando matéria...</option>
     </select>
 
-    <button id="gerar-questao" onclick="aparecerquestoes()">Gerar questão</button>
+<button id="gerar-questao">Gerar questão</button>
 
     <div id="questao-container">
         </div>
@@ -406,6 +534,80 @@ input[type="color"] {
         <div class="video-wrapper" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; background: #000; border-radius: 12px; margin-top: 15px;">
             <iframe id="video-player" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;" src="" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
         </div>
+    </div>
+</div>
+
+
+
+
+
+<div id="container-construtor" class="editor-container" style="margin-top: 30px; border: 2px solid #27ae60;">
+    <h2>🔨 Construtor de Módulo Dinâmico</h2>
+    <p>Selecione os filtros para puxar os conteúdos existentes nos bancos de dados.</p>
+
+    <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+        <select id="construtor-disciplina" style="flex: 1;">
+            <option value="">Escolha a matéria...</option>
+            <option value="matematica">Matematica</option>
+            <option value="portugues">Portugues</option>
+            <option value="historia">Historia</option>
+            <option value="geografia">Geografia</option>
+            <option value="ciencias">Ciencias</option>
+        </select>
+
+        <select id="construtor-tema" disabled style="flex: 1;">
+            <option value="">Aguardando disciplina...</option>
+        </select>
+    </div>
+
+    <div class="layout-construcao" style="display: flex; gap: 20px; margin-bottom: 20px;">
+        <div style="flex: 1;">
+            <label>🎥 Link da Aula:</label>
+            <input type="text" id="modulo-aula-id" style="width: 100%;" readonly>
+        </div>
+        <div style="flex: 1;">
+            <label>📝 Resumo:</label>
+            <textarea id="modulo-resumo-texto" style="width: 100%; min-height: 80px;" readonly></textarea>
+        </div>
+    </div>
+
+    <div id="area-selecao-questoes">
+        <h3>✍️ Selecione as Questões</h3>
+        <div id="lista-disponivel" style="background: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; max-height: 250px; overflow-y: auto; padding: 10px;">
+            <p style="color: gray;">Selecione um tema...</p>
+        </div>
+    </div>
+
+    <button id="btn-salvar-modulo-completo" style="background: #27ae60; color: white; width: 100%; margin-top: 15px; padding: 15px;">
+        🚀 SALVAR MÓDULO PARA O ALUNO
+    </button>
+</div>
+
+<hr style="margin: 40px 0;">
+
+<div id="visualizacao-modulo-aluno" class="editor-container">
+    <h2>📖 Área de Estudos (Aluno)</h2>
+    
+    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <select id="view-disciplina">
+            <option value="">Matéria...</option>
+            <option value="matematica">Matemática</option>
+            <option value="portugues">Português</option>
+        </select>
+        <select id="view-tema" disabled>
+            <option value="">Tema...</option>
+        </select>
+        <button id="btn-carregar-tudo" class="btn-fila">📚 Abrir Módulo</button>
+    </div>
+
+    <div id="conteudo-modulo-pronto" style="display: none;">
+        <div class="video-wrapper">
+            <iframe id="video-final" src="" allowfullscreen></iframe>
+        </div>
+
+        <div id="area-resumo-aluno"></div>
+
+        <div id="lista-questoes-aluno"></div>
     </div>
 </div>
 <script type="module" src="src/script.js"></script>

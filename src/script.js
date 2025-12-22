@@ -1,11 +1,9 @@
 // 1. Importação de funções externas
 import { aparecerquestoes } from './modulos/questoes.js';
 import { cadastrarMateria } from './modulos/cadastrarmateria.js';
-import { destacar, enviarRedacao, consultarMinhaRedacao, buscarProximaFila, salvarCorrecaoProfessor } from './modulos/redaçao.js';;
+import { destacar, enviarRedacao, consultarMinhaRedacao, buscarProximaFila, salvarCorrecaoProfessor } from './modulos/redaçao.js';
 import { cadastrarAula, carregarAula } from './modulos/aula.js';
-
-
-console.log("✅ Script carregado com sucesso!");
+import { buscarDadosParaModulo, finalizarModulo, carregarModuloCompleto } from './modulos/construtor.js';
 
 // --- LÓGICA DE TEMAS DINÂMICOS ---
 const selectDiciplina = document.getElementById("diciplinapedido");
@@ -63,62 +61,6 @@ if (btnCadastrarMateria) {
 }
 
 // --- FUNÇÃO DE CADASTRO ---
-async function cadastrarQuestao() {
-    // Captura os elementos
-    const disciplinaEl = document.getElementById("ins-disciplina");
-    const temaEl = document.getElementById("ins-tema");
-    const enunciadoEl = document.getElementById("ins-enunciado");
-    const respostaCorretaEl = document.getElementById("ins-correta");
-
-    if (!disciplinaEl || !temaEl || !enunciadoEl || !respostaCorretaEl) {
-        console.error("Campos do formulário não encontrados!");
-        return;
-    }
-
-    const disciplina = disciplinaEl.value;
-    const tema = temaEl.value;
-    const enunciado = enunciadoEl.value;
-    const resposta_correta = respostaCorretaEl.value;
-
-    const inputsAlt = document.querySelectorAll(".alt-input");
-    const alternativas = Array.from(inputsAlt).map(input => input.value);
-
-    // Validação básica
-    if (!disciplina || !tema || !enunciado || alternativas.includes("")) {
-        alert("Por favor, preencha todos os campos e todas as alternativas!");
-        return;
-    }
-
-    const dados = {
-        disciplina: disciplina.toLowerCase().trim(),
-        tema: tema.toLowerCase().trim(),
-        enunciado: enunciado,
-        alternativas: alternativas,
-        resposta_correta: resposta_correta
-    };
-
-    try {
-        const response = await fetch('http://localhost:3000/questoes', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dados)
-        });
-
-        const result = await response.json();
-        
-        if (response.ok) {
-            alert("✅ Sucesso: " + result.mensagem);
-            // Limpa os campos após o sucesso
-            [disciplinaEl, temaEl, enunciadoEl, respostaCorretaEl].forEach(el => el.value = "");
-            inputsAlt.forEach(el => el.value = "");
-        } else {
-            alert("❌ Erro: " + result.mensagem);
-        }
-    } catch (erro) {
-        console.error("Erro na conexão:", erro);
-        alert("Não foi possível conectar ao servidor.");
-    }
-}
 
 
 
@@ -201,3 +143,121 @@ if (selectDisciplinaAula && selectTemaAula) {
         }
     });
 }
+
+
+
+
+// contruto de modulo 
+
+
+console.log("✅ Script carregado com sucesso!");
+
+// 2. Configuração Global (Para o onclick do HTML)
+window.destacar = destacar;
+window.enviarRedacao = enviarRedacao;
+window.consultarMinhaRedacao = consultarMinhaRedacao;
+window.buscarProximaFila = buscarProximaFila;
+window.salvarCorrecaoProfessor = salvarCorrecaoProfessor;
+
+// 3. Função de Cadastro de Questão (Única)
+async function cadastrarQuestao() {
+    const disciplinaEl = document.getElementById("ins-disciplina");
+    const temaEl = document.getElementById("ins-tema");
+    const enunciadoEl = document.getElementById("ins-enunciado");
+    const respostaCorretaEl = document.getElementById("ins-correta");
+    const inputsAlt = document.querySelectorAll(".alt-input");
+
+    if (!disciplinaEl || !temaEl || !enunciadoEl || !respostaCorretaEl) return;
+
+    const alternativas = Array.from(inputsAlt).map(input => input.value.trim());
+
+    if (!disciplinaEl.value || !temaEl.value || !enunciadoEl.value || alternativas.includes("")) {
+        alert("⚠️ Por favor, preencha todos os campos!");
+        return;
+    }
+
+    const dados = {
+        disciplina: disciplinaEl.value.toLowerCase().trim(),
+        tema: temaEl.value.toLowerCase().trim(),
+        enunciado: enunciadoEl.value.trim(),
+        alternativas: alternativas,
+        resposta_correta: respostaCorretaEl.value.trim()
+    };
+
+    try {
+        const response = await fetch('http://localhost:3000/questoes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dados)
+        });
+
+        if (response.ok) {
+            alert("✅ Questão cadastrada com sucesso!");
+            [disciplinaEl, temaEl, enunciadoEl, respostaCorretaEl].forEach(el => el.value = "");
+            inputsAlt.forEach(el => el.value = "");
+        }
+    } catch (erro) {
+        console.error("❌ Erro na conexão:", erro);
+    }
+}
+
+// 4. Ouvintes de Eventos (Configurados uma única vez)
+document.getElementById("gerar-questao")?.addEventListener("click", aparecerquestoes);
+document.getElementById("btn-salvar-questao")?.addEventListener("click", cadastrarQuestao);
+document.getElementById("btn-cadastrar-materia")?.addEventListener("click", cadastrarMateria);
+document.getElementById('btnDestacar')?.addEventListener('click', destacar);
+
+document.getElementById("btn-salvar-aula")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    cadastrarAula();
+});
+
+document.getElementById("btn-buscar-aula")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    carregarAula();
+});
+
+document.getElementById("construtor-tema")?.addEventListener("change", buscarDadosParaModulo);
+document.getElementById("btn-salvar-modulo-completo")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    finalizarModulo();
+});
+
+document.getElementById("btn-carregar-tudo")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    carregarModuloCompleto();
+});
+
+// 5. Lógica de Selects Dinâmicos (Genérica)
+async function atualizarTemas(idDisciplina, idTema, isAula = false) {
+    const discEl = document.getElementById(idDisciplina);
+    const temaEl = document.getElementById(idTema);
+    if (!discEl || !temaEl) return;
+
+    discEl.addEventListener("change", async () => {
+        const disciplina = discEl.value;
+        if (!disciplina) return;
+        
+        try {
+            const rota = isAula ? 'aulas/temas' : 'temas';
+            const res = await fetch(`http://localhost:3000/${rota}?disciplina=${disciplina}`);
+            const temas = await res.json();
+            
+            temaEl.innerHTML = `<option value="">Selecione o tema${isAula ? ' da aula' : ''}</option>`;
+            temaEl.disabled = false;
+
+            temas.forEach(t => {
+                const opt = document.createElement("option");
+                opt.value = t;
+                opt.textContent = isAula ? t.charAt(0).toUpperCase() + t.slice(1) : t;
+                temaEl.appendChild(opt);
+            });
+        } catch (e) { console.error("Erro no select dinâmico:", e); }
+    });
+}
+
+// Ativando os campos de tema
+atualizarTemas("diciplinapedido", "temapedido");
+atualizarTemas("construtor-disciplina", "construtor-tema");
+atualizarTemas("view-disciplina", "view-tema");
+atualizarTemas("select-disciplina", "select-tema-aula", true);
