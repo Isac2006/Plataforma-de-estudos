@@ -391,7 +391,109 @@ app.get('/modulos/visualizar', async (req, res) => {
         res.status(500).json({ mensagem: "Erro ao carregar módulo" });
     }
 });
+// ==========================================
+//    ROTA DE CRONOGRAMA (Salvamento JSON)
+// ==========================================
 
+// Defina o caminho do banco de usuários no topo com os outros caminhos
+const CAMINHO_BANCO_USUARIOS = path.join(__dirname, 'banco de dados provisorio', 'usuarios.json');
+
+app.post('/salvar', async (req, res) => {
+    try {
+        const dadosRecebidos = req.body; // { usuario: "Isac", cronograma: [...] }
+        
+        // 1. Lê o arquivo atual ou cria um array vazio se não existir
+        let usuarios = [];
+        try {
+            const conteudo = await fs.readFile(CAMINHO_BANCO_USUARIOS, 'utf-8');
+            usuarios = JSON.parse(conteudo || '[]');
+        } catch (e) {
+            usuarios = [];
+        }
+
+        // 2. Procura se o usuário já existe no array
+        const index = usuarios.findIndex(u => u.nome.toLowerCase() === dadosRecebidos.usuario.toLowerCase());
+
+        const dadosUsuario = {
+            nome: dadosRecebidos.usuario,
+            ultimaAtualizacao: new Date().toISOString(),
+            totalHoras: dadosRecebidos.totalHoras,
+            cronograma: dadosRecebidos.cronograma
+        };
+
+        if (index !== -1) {
+            // Se existir, atualiza os dados dele
+            usuarios[index] = dadosUsuario;
+        } else {
+            // Se não existir, adiciona um novo registro
+            usuarios.push(dadosUsuario);
+        }
+
+        // 3. Salva o array completo de volta no arquivo único
+        await fs.writeFile(CAMINHO_BANCO_USUARIOS, JSON.stringify(usuarios, null, 2));
+        
+        res.status(200).send(`Cronograma de ${dadosRecebidos.usuario} atualizado com sucesso no banco de dados!`);
+    } catch (erro) {
+        console.error("Erro ao salvar no banco de usuários:", erro);
+        res.status(500).json({ mensagem: "Erro interno ao salvar." });
+    }
+});
+
+// ==========================================
+//    ROTA PARA REGISTRO AUTOMÁTICO (CHAMAR AO ESTUDAR)
+// ==========================================
+
+app.post('/registrar-estudo-agora', async (req, res) => {
+    try {
+        const { usuario, materia } = req.body;
+        
+        if (!usuario || !materia) {
+            return res.status(400).json({ mensagem: "Usuário e Matéria são obrigatórios" });
+        }
+
+        // 1. Pega a hora e o dia exatos do servidor
+        const agora = new Date();
+        const diasMap = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+        const diaAtual = diasMap[agora.getDay()]; 
+        const horaAtual = String(agora.getHours()).padStart(2, '0') + ':00';
+
+        // 2. Lê o banco de dados de usuários
+        const conteudo = await fs.readFile(CAMINHO_BANCO_USUARIOS, 'utf-8').catch(() => '[]');
+        let usuarios = JSON.parse(conteudo);
+
+        // 3. Localiza o usuário
+        const index = usuarios.findIndex(u => u.nome.toLowerCase() === usuario.toLowerCase());
+        if (index === -1) return res.status(404).json({ mensagem: "Usuário não encontrado" });
+
+        // 4. Atualiza ou Cria o registro no cronograma
+        let encontrou = false;
+        usuarios[index].cronograma = usuarios[index].cronograma.map(item => {
+            if (item.dia === diaAtual && item.hora === horaAtual) {
+                encontrou = true;
+                return { ...item, materia: materia, status: "concluido" };
+            }
+            return item;
+        });
+
+        if (!encontrou) {
+            usuarios[index].cronograma.push({
+                dia: diaAtual, hora: horaAtual, materia: materia, status: "concluido"
+            });
+        }
+
+        // 5. Grava no arquivo
+        await fs.writeFile(CAMINHO_BANCO_USUARIOS, JSON.stringify(usuarios, null, 2));
+        
+        res.json({ 
+            mensagem: `Sucesso! Registrado: ${materia} em ${diaAtual} às ${horaAtual}`,
+            dia: diaAtual,
+            hora: horaAtual
+        });
+
+    } catch (erro) {
+        res.status(500).json({ mensagem: "Erro ao registrar estudo" });
+    }
+});
 // --- INICIALIZAÇÃO ---
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 

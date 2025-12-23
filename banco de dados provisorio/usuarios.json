@@ -1,0 +1,52 @@
+[
+  {
+    "nome": "sada",
+    "ultimaAtualizacao": "2025-12-22T21:55:35.387Z",
+    "totalHoras": 3,
+    "cronograma": [
+      {
+        "dia": "Seg",
+        "hora": "08:00",
+        "materia": "Português",
+        "status": "pendente"
+      },
+      {
+        "dia": "Qua",
+        "hora": "08:00",
+        "materia": "Física",
+        "status": "concluido"
+      },
+      {
+        "dia": "Ter",
+        "hora": "10:00",
+        "materia": "Redação",
+        "status": "pendente"
+      }
+    ]
+  },
+  {
+    "nome": "joao",
+    "ultimaAtualizacao": "2025-12-23T18:41:13.869Z",
+    "totalHoras": 3,
+    "cronograma": [
+      {
+        "dia": "Ter",
+        "hora": "14:00",
+        "materia": "Matemática",
+        "status": "pendente"
+      },
+      {
+        "dia": "Ter",
+        "hora": "15:00",
+        "materia": "matematica",
+        "status": "concluido"
+      },
+      {
+        "dia": "Ter",
+        "hora": "16:00",
+        "materia": "Matemática",
+        "status": "pendente"
+      }
+    ]
+  }
+]

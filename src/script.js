@@ -4,6 +4,19 @@ import { cadastrarMateria } from './modulos/cadastrarmateria.js';
 import { destacar, enviarRedacao, consultarMinhaRedacao, buscarProximaFila, salvarCorrecaoProfessor } from './modulos/redaçao.js';
 import { cadastrarAula, carregarAula } from './modulos/aula.js';
 import { buscarDadosParaModulo, finalizarModulo, carregarModuloCompleto } from './modulos/construtor.js';
+import { inicializarCronograma, salvarCronograma, registrarEstudoAutomatico } from './modulos/cronograma.js';
+
+// para login trabalhar depois(provisorio)
+
+
+const usuarioLogado = "Joao"
+
+inicializarCronograma();
+
+
+
+
+
 
 // --- LÓGICA DE TEMAS DINÂMICOS ---
 const selectDiciplina = document.getElementById("diciplinapedido");
@@ -100,9 +113,18 @@ if (btnSalvarAula) {
 const btnBuscarAula = document.getElementById("btn-buscar-aula");
 if (btnBuscarAula) {
     btnBuscarAula.onclick = null;
-    btnBuscarAula.addEventListener("click", (e) => {
+    btnBuscarAula.addEventListener("click", async (e) => {
         e.preventDefault();
-        carregarAula();
+        
+        // 1. Carrega o vídeo na tela
+        await carregarAula();
+        
+        // 2. Pega a matéria selecionada e registra o estudo
+        const disciplina = document.getElementById("select-disciplina").value;
+        if (disciplina) {
+            registrarEstudoAutomatico(usuarioLogado, disciplina);
+            console.log(`Estudo registrado para ${usuarioLogado} na matéria ${disciplina}`);
+        }
     });
 }
 
@@ -261,3 +283,30 @@ atualizarTemas("diciplinapedido", "temapedido");
 atualizarTemas("construtor-disciplina", "construtor-tema");
 atualizarTemas("view-disciplina", "view-tema");
 atualizarTemas("select-disciplina", "select-tema-aula", true);
+
+
+
+
+
+
+// cronograma 
+// 3. Configure o botão de salvar:
+const btnSalvarCronograma = document.querySelector(".btn-salvar");
+if (btnSalvarCronograma) {
+    btnSalvarCronograma.addEventListener("click", (e) => {
+        e.preventDefault();
+        salvarCronograma();
+    });
+}
+
+
+
+
+
+
+
+
+
+
+
+
