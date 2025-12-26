@@ -398,10 +398,45 @@ input[type="color"] {
     background: #999;
 }
 } </style>
-<div id="login-container" style="background: #f4f4f4; padding: 10px; border-bottom: 2px solid #ddd; display: flex; align-items: center; gap: 10px;">
-    <span id="nome-exibicao">Carregando...</span>
+<div id="login-container" style="background: #1976d2; color: white; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; border-radius: 8px; margin-bottom: 20px;">
+    <div>
+        <span id="nome-exibicao" style="font-weight: bold; font-size: 1.1rem;">Carregando...</span>
+    </div>
+    <button onclick="trocarUsuario()" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 5px 15px; border-radius: 4px; cursor: pointer;">
+        Trocar Usuário / Sair
+    </button>
+</div>
+
+<div id="painel-estatisticas" style="background: #fff; padding: 25px; border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); margin-bottom: 30px;">
+    <h2 style="margin-top: 0; color: #2c3e50; border-bottom: 2px solid #eef2f7; padding-bottom: 10px;">📊 Meu Desempenho</h2>
     
-    <button onclick="trocarUsuario()" style="padding: 5px 10px; cursor: pointer;">Trocar Usuário</button>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px;">
+        <div style="background: #e3f2fd; padding: 20px; border-radius: 12px; border-left: 5px solid #1976d2;">
+            <strong style="display: block; color: #1976d2; text-transform: uppercase; font-size: 12px;">Questões Feitas</strong>
+            <span id="stats-questoes" style="font-size: 28px; font-weight: 800;">0</span>
+        </div>
+
+        <div style="background: #e8f5e9; padding: 20px; border-radius: 12px; border-left: 5px solid #2e7d32;">
+            <strong style="display: block; color: #2e7d32; text-transform: uppercase; font-size: 12px;">Taxa de Acerto</strong>
+            <span id="stats-taxa-geral" style="font-size: 28px; font-weight: 800;">0%</span>
+        </div>
+
+        <div style="background: #fff3e0; padding: 20px; border-radius: 12px; border-left: 5px solid #ef6c00;">
+            <strong style="display: block; color: #ef6c00; text-transform: uppercase; font-size: 12px;">Aulas Assistidas</strong>
+            <span id="stats-aulas" style="font-size: 28px; font-weight: 800;">0</span>
+        </div>
+
+        <div style="background: #f3e5f5; padding: 20px; border-radius: 12px; border-left: 5px solid #7b1fa2;">
+            <strong style="display: block; color: #7b1fa2; text-transform: uppercase; font-size: 12px;">Redações</strong>
+            <span id="stats-redacoes" style="font-size: 28px; font-weight: 800;">0</span>
+        </div>
+    </div>
+
+    <div style="margin-top: 25px; background: #fcfcff; padding: 15px; border-radius: 8px;">
+        <h4 style="margin: 0 0 10px 0; color: #555;">🎯 Detalhes por Matéria:</h4>
+        <ul id="lista-taxas-materias" style="list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;">
+            </ul>
+    </div>
 </div>
     <h1>Sistema de Questões</h1>
 
@@ -732,37 +767,6 @@ input[type="color"] {
 
 
 
-<div id="painel-estatisticas" style="background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px;">
-    <h2 style="margin-top: 0;">📊 Meu Desempenho</h2>
-    
-    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-        <div style="flex: 1; min-width: 150px; background: #e3f2fd; padding: 15px; border-radius: 8px;">
-            <strong style="display: block; color: #1976d2;">Questões Feitas</strong>
-            <span id="stats-questoes" style="font-size: 24px; font-weight: bold;">0</span>
-        </div>
-
-        <div style="flex: 1; min-width: 150px; background: #e8f5e9; padding: 15px; border-radius: 8px;">
-            <strong style="display: block; color: #2e7d32;">Taxa de Acerto</strong>
-            <span id="stats-taxa-geral" style="font-size: 24px; font-weight: bold;">0%</span>
-        </div>
-
-        <div style="flex: 1; min-width: 150px; background: #fff3e0; padding: 15px; border-radius: 8px;">
-            <strong style="display: block; color: #ef6c00;">Aulas Assistidas</strong>
-            <span id="stats-aulas" style="font-size: 24px; font-weight: bold;">0</span>
-        </div>
-
-        <div style="flex: 1; min-width: 150px; background: #f3e5f5; padding: 15px; border-radius: 8px;">
-            <strong style="display: block; color: #7b1fa2;">Redações</strong>
-            <span id="stats-redacoes" style="font-size: 24px; font-weight: bold;">0</span>
-        </div>
-    </div>
-
-    <div style="margin-top: 20px;">
-        <h4>🎯 Acertos por Matéria:</h4>
-        <ul id="lista-taxas-materias" style="list-style: none; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            </ul>
-    </div>
-</div>
 <script type="module" src="src/script.js"></script>
 </body>
 </html>

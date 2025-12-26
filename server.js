@@ -406,45 +406,38 @@ const CAMINHO_BANCO_USUARIOS = path.join(__dirname, 'banco de dados provisorio',
 
 app.post('/salvar', async (req, res) => {
     try {
-        const dadosRecebidos = req.body; // { usuario: "Isac", cronograma: [...] }
-        
-        // 1. Lê o arquivo atual ou cria um array vazio se não existir
-        let usuarios = [];
-        try {
-            const conteudo = await fs.readFile(CAMINHO_BANCO_USUARIOS, 'utf-8');
-            usuarios = JSON.parse(conteudo || '[]');
-        } catch (e) {
-            usuarios = [];
-        }
+        const { usuario, totalHoras, cronograma } = req.body;
+        const conteudo = await fs.readFile(CAMINHO_BANCO_USUARIOS, 'utf-8').catch(() => '[]');
+        let usuarios = JSON.parse(conteudo);
 
-        // 2. Procura se o usuário já existe no array
-        const index = usuarios.findIndex(u => u.nome.toLowerCase() === dadosRecebidos.usuario.toLowerCase());
-
-        const dadosUsuario = {
-            nome: dadosRecebidos.usuario,
-            ultimaAtualizacao: new Date().toISOString(),
-            totalHoras: dadosRecebidos.totalHoras,
-            cronograma: dadosRecebidos.cronograma
-        };
+        const index = usuarios.findIndex(u => u.nome.toLowerCase() === usuario.toLowerCase());
 
         if (index !== -1) {
-            // Se existir, atualiza os dados dele
-            usuarios[index] = dadosUsuario;
+            // MANTÉM estatísticas antigas usando o spread (...)
+            usuarios[index] = {
+                ...usuarios[index],
+                totalHoras,
+                cronograma,
+                ultimaAtualizacao: new Date().toISOString()
+            };
         } else {
-            // Se não existir, adiciona um novo registro
-            usuarios.push(dadosUsuario);
+            // Cria novo se não existir
+            usuarios.push({
+                nome: usuario,
+                aulasAssistidas: 0,
+                redacoesFeitas: 0,
+                estatisticas: { questoes: { totalAcertos: 0, totalErros: 0, porMateria: {} } },
+                cronograma,
+                totalHoras
+            });
         }
 
-        // 3. Salva o array completo de volta no arquivo único
         await fs.writeFile(CAMINHO_BANCO_USUARIOS, JSON.stringify(usuarios, null, 2));
-        
-        res.status(200).send(`Cronograma de ${dadosRecebidos.usuario} atualizado com sucesso no banco de dados!`);
-    } catch (erro) {
-        console.error("Erro ao salvar no banco de usuários:", erro);
-        res.status(500).json({ mensagem: "Erro interno ao salvar." });
+        res.status(200).send("Salvo com sucesso!");
+    } catch (e) {
+        res.status(500).send("Erro ao salvar.");
     }
 });
-
 // ==========================================
 //    ROTA PARA REGISTRO AUTOMÁTICO (CHAMAR AO ESTUDAR)
 // ==========================================

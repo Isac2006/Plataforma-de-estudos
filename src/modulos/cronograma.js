@@ -10,6 +10,7 @@ const dias = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
 
 
 
+
 export async function inicializarCronograma(nomeUsuario) {
     const tbody = document.querySelector('#cronograma tbody');
     if (!tbody) return;
@@ -155,41 +156,67 @@ export function atualizarMetas() {
 // --- COMUNICAÇÃO COM O SERVIDOR (FETCH) ---
 
 export async function salvarCronograma() {
-    const usuarioEl = document.getElementById('nomeUsuario') || { value: "Joao" };
-    const usuario = usuarioEl.value;
+    // 1. Pega o usuário logado no localStorage em vez do input
+    const usuarioLogado = localStorage.getItem("nomeUsuario");
     
-    if (!usuario) {
-        alert("Por favor, digite o nome do usuário.");
+    // Fallback: se não achar no localStorage, tenta pegar do input como última opção
+    const usuarioEl = document.getElementById('nomeUsuario');
+    const usuario = usuarioLogado || (usuarioEl ? usuarioEl.value : null);
+    
+    if (!usuario || usuario === "Visitante") {
+        alert("⚠️ Erro: Usuário não identificado. Por favor, faça login novamente.");
         return;
     }
 
+    // 2. Coleta os itens do cronograma
     const itensCronograma = [];
-    document.querySelectorAll('td[data-materia]').forEach(td => {
-        itensCronograma.push({
-            dia: td.dataset.dia,
-            hora: td.dataset.hora,
-            materia: td.dataset.materia,
-            status: td.dataset.status
-        });
+    const celulas = document.querySelectorAll('td[data-materia]');
+    
+    celulas.forEach(td => {
+        // Só salva se houver uma matéria preenchida na célula
+        if (td.dataset.materia) {
+            itensCronograma.push({
+                dia: td.dataset.dia,
+                hora: td.dataset.hora,
+                materia: td.dataset.materia,
+                status: td.dataset.status || "pendente"
+            });
+        }
     });
 
+    // 3. Monta o pacote de dados (Payload)
     const payload = {
         usuario: usuario,
         totalHoras: itensCronograma.length,
-        cronograma: itensCronograma
+        cronograma: itensCronograma,
+        ultimaAtualizacao: new Date().toISOString()
     };
 
+    console.log("Enviando dados para o servidor:", payload);
+
     try {
-        const response = await fetch('http://localhost:3000/salvar', {
+        // 4. Envia para o endpoint correto
+        // Dica: verifique se seu servidor usa /salvar ou /cronograma
+        const response = await fetch('http://localhost:3000/salvar', { 
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
 
-        if (response.ok) alert("✅ Cronograma salvo com sucesso!");
-        else alert("❌ Erro ao salvar.");
+        if (response.ok) {
+            alert(`✅ Cronograma de ${usuario} salvo com sucesso!`);
+            
+            // Opcional: Atualiza a interface de estatísticas após salvar
+            if (typeof atualizarEstatisticas === "function") {
+                atualizarEstatisticas(usuario);
+            }
+        } else {
+            const erroTxt = await response.text();
+            throw new Error(erroTxt || "Erro no servidor");
+        }
     } catch (error) {
-        console.error("Erro ao salvar:", error);
+        console.error("❌ Erro ao salvar cronograma:", error);
+        alert("❌ Falha ao conectar com o servidor. Verifique se o backend está rodando.");
     }
 }
 

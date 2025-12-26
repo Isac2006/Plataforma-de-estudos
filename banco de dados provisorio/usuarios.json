@@ -39,8 +39,33 @@
         "hora": "11:00",
         "materia": "Matemática",
         "status": "pendente"
+      },
+      {
+        "dia": "Sex",
+        "hora": "12:00",
+        "materia": "ciencias",
+        "status": "concluido"
       }
-    ]
+    ],
+    "questoesFeitas": 4,
+    "estatisticas": {
+      "questoes": {
+        "totalAcertos": 1,
+        "totalErros": 1,
+        "porMateria": {
+          "matematica": {
+            "acertos": 0,
+            "erros": 1
+          },
+          "historia": {
+            "acertos": 1,
+            "erros": 0
+          }
+        }
+      }
+    },
+    "redacoesFeitas": 1,
+    "aulasAssistidas": 2
   },
   {
     "nome": "joao",
@@ -49,12 +74,18 @@
     "modulosConcluidos": 0,
     "estatisticas": {
       "questoes": {
-        "totalAcertos": 0,
+        "totalAcertos": 1,
         "totalErros": 0,
-        "porMateria": {}
+        "porMateria": {
+          "historia": {
+            "acertos": 1,
+            "erros": 0
+          }
+        }
       }
     },
     "cronograma": [],
-    "ultimaAtualizacao": "2025-12-26T14:07:57.494Z"
+    "ultimaAtualizacao": "2025-12-26T14:07:57.494Z",
+    "questoesFeitas": 2
   }
 ]

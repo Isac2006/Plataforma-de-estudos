@@ -55,7 +55,20 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 // Botão de Trocar Usuário
 window.trocarUsuario = () => {
+    // 1. Limpa o nome do usuário do navegador
     localStorage.removeItem("nomeUsuario");
+    
+    // 2. Opcional: Limpa os dados da interface antes de recarregar (evita "flash" de dados antigos)
+    const campos = ["stats-questoes", "stats-aulas", "stats-redacoes", "stats-taxa-geral"];
+    campos.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = id.includes('taxa') ? "0%" : "0";
+    });
+    
+    const lista = document.getElementById("lista-taxas-materias");
+    if (lista) lista.innerHTML = "";
+
+    // 3. Força o recarregamento para o estado de "Visitante"
     location.reload();
 };
 
