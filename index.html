@@ -398,6 +398,11 @@ input[type="color"] {
     background: #999;
 }
 } </style>
+<div id="login-container" style="background: #f4f4f4; padding: 10px; border-bottom: 2px solid #ddd; display: flex; align-items: center; gap: 10px;">
+    <span id="nome-exibicao">Carregando...</span>
+    
+    <button onclick="trocarUsuario()" style="padding: 5px 10px; cursor: pointer;">Trocar Usuário</button>
+</div>
     <h1>Sistema de Questões</h1>
 
     <select id="diciplinapedido">
@@ -722,6 +727,41 @@ input[type="color"] {
         💾 Salvar Cronograma
     </button>
 </div>
+</div>
+
+
+
+
+<div id="painel-estatisticas" style="background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px;">
+    <h2 style="margin-top: 0;">📊 Meu Desempenho</h2>
+    
+    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 150px; background: #e3f2fd; padding: 15px; border-radius: 8px;">
+            <strong style="display: block; color: #1976d2;">Questões Feitas</strong>
+            <span id="stats-questoes" style="font-size: 24px; font-weight: bold;">0</span>
+        </div>
+
+        <div style="flex: 1; min-width: 150px; background: #e8f5e9; padding: 15px; border-radius: 8px;">
+            <strong style="display: block; color: #2e7d32;">Taxa de Acerto</strong>
+            <span id="stats-taxa-geral" style="font-size: 24px; font-weight: bold;">0%</span>
+        </div>
+
+        <div style="flex: 1; min-width: 150px; background: #fff3e0; padding: 15px; border-radius: 8px;">
+            <strong style="display: block; color: #ef6c00;">Aulas Assistidas</strong>
+            <span id="stats-aulas" style="font-size: 24px; font-weight: bold;">0</span>
+        </div>
+
+        <div style="flex: 1; min-width: 150px; background: #f3e5f5; padding: 15px; border-radius: 8px;">
+            <strong style="display: block; color: #7b1fa2;">Redações</strong>
+            <span id="stats-redacoes" style="font-size: 24px; font-weight: bold;">0</span>
+        </div>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <h4>🎯 Acertos por Matéria:</h4>
+        <ul id="lista-taxas-materias" style="list-style: none; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            </ul>
+    </div>
 </div>
 <script type="module" src="src/script.js"></script>
 </body>

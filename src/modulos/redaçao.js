@@ -1,3 +1,6 @@
+import { registrarProgresso } from './estatisticas.js';
+
+
 // moduloRedacao.js
 
 let comentarios = [];
@@ -52,6 +55,7 @@ function atualizarVisualComentarios() {
 
 /* 3. ALUNO: ENVIAR PARA O BANCO (POST) */
 export async function enviarRedacao() {
+    // Usamos o prompt para o nome conforme seu código original
     const nomeAluno = prompt("Digite seu nome completo para identificação:");
     const tituloRedacao = prompt("Título da redação:");
 
@@ -72,7 +76,13 @@ export async function enviarRedacao() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(dados)
         });
+
         if (res.ok) {
+            // --- LÓGICA DE ESTATÍSTICA ADICIONADA AQUI ---
+            // Registra o progresso usando o nome fornecido no prompt
+            await registrarProgresso(nomeAluno, "redacoesFeitas");
+            // ---------------------------------------------
+
             alert(`Sucesso, ${nomeAluno}! Sua redação foi enviada.`);
             location.reload();
         }
@@ -80,6 +90,8 @@ export async function enviarRedacao() {
         alert("Erro ao conectar ao servidor."); 
     }
 }
+
+
 
 /* 4. CONSULTAR REDAÇÃO */
 export async function consultarMinhaRedacao() {

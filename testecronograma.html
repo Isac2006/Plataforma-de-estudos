@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Cronograma de Estudos</title>
+
+<style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f6f8; padding: 20px; color: #333; }
+    h1 { text-align: center; color: #1976d2; margin-bottom: 25px; }
+    .container { display: flex; gap: 20px; align-items: flex-start; }
+
+    /* LATERAL */
+    .lateral { width: 320px; display: flex; flex-direction: column; gap: 15px; position: sticky; top: 20px; }
+    .materias, .painel-metas { background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    h3 { margin-top: 0; font-size: 1.1rem; border-bottom: 1px solid #eee; padding-bottom: 10px; color: #555; }
+
+    .materia { background: #4caf50; color: white; padding: 10px; margin: 8px 0; border-radius: 5px; cursor: grab; text-align: center; font-weight: bold; transition: 0.2s; }
+    .materia:hover { filter: brightness(1.1); }
+
+    /* PAINEL METAS */
+    .resumo-geral { background: #e3f2fd; padding: 12px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #bbdefb; }
+    .resumo-item { display: flex; justify-content: space-between; font-size: 14px; margin: 5px 0; }
+    
+    .painel-metas ul { list-style: none; padding: 0; }
+    .painel-metas li { 
+        display: flex; flex-direction: column; padding: 10px; margin-bottom: 6px; 
+        border-radius: 4px; font-size: 13px; border-left: 4px solid #ccc;
+    }
+    .status-badge { display: flex; justify-content: space-between; margin-top: 4px; }
+    
+    .ok { background: #c8e6c9; color: #1b5e20; border-left-color: #4caf50; }
+    .falta { background: #f5f5f5; color: #616161; border-left-color: #bdbdbd; }
+    .em-progresso { background: #fff9c4; color: #856404; border-left-color: #fbc02d; }
+
+    /* TABELA */
+    .tabela-wrapper { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); flex-grow: 1; overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; min-width: 800px; table-layout: fixed; }
+    th, td { border: 1px solid #e0e0e0; padding: 4px; height: 60px; text-align: center; position: relative; }
+    th { background: #1976d2; color: white; font-weight: 500; }
+    .hora { background: #f8f9fa; font-weight: bold; width: 70px; color: #666; }
+
+    /* BLOCOS */
+    .bloco { padding: 5px; border-radius: 4px; font-size: 11px; cursor: pointer; height: 100%; display: flex; flex-direction: column; justify-content: center; box-sizing: border-box; }
+    .pendente { background: #fff9c4; color: #856404; border: 1px solid #ffeeba; }
+    .concluido { background: #c8e6c9; color: #1b5e20; border: 1px solid #a5d6a7; text-decoration: line-through; }
+    
+    .btn-remover { position: absolute; top: 1px; right: 1px; background: none; border: none; color: #999; cursor: pointer; font-size: 10px; font-weight: bold; }
+    .btn-remover:hover { color: #f44336; }
+</style>
+</head>
+
+<body>
+
+<h1>📅 Cronograma de Estudos</h1>
+
+<div class="container">
+    <div class="lateral">
+        <div class="materias">
+            <h3>📌 Matérias</h3>
+            <div class="materia" draggable="true" data-materia="Matemática">Matemática</div>
+            <div class="materia" draggable="true" data-materia="Português">Português</div>
+            <div class="materia" draggable="true" data-materia="Redação">Redação</div>
+            <div class="materia" draggable="true" data-materia="Física">Física</div>
+            <div class="materia" draggable="true" data-materia="Química">Química</div>
+            <div class="materia" draggable="true" data-materia="Biologia">Biologia</div>
+            <div class="materia" draggable="true" data-materia="História">História</div>
+            <div class="materia" draggable="true" data-materia="Geografia">Geografia</div>
+            <div class="materia" draggable="true" data-materia="Filosofia">Filosofia</div>
+            <div class="materia" draggable="true" data-materia="Sociologia">Sociologia</div>
+            <div class="materia" draggable="true" data-materia="Inglês">Inglês</div>
+        </div>
+
+        <div class="painel-metas">
+            <h3>📊 Status por Matéria</h3>
+            <div class="resumo-geral">
+                <div class="resumo-item"><span>Total Planejado:</span> <b id="totalPlanejado">0h</b></div>
+                <div class="resumo-item"><span>Total Concluído:</span> <b id="totalConcluido">0h</b></div>
+            </div>
+            <ul id="listaMetas"></ul>
+        </div>
+    </div>
+
+    <div class="tabela-wrapper">
+        <table id="cronograma">
+            <thead>
+                <tr>
+                    <th style="width: 70px;">Hora</th>
+                    <th>Seg</th><th>Ter</th><th>Qua</th><th>Qui</th><th>Sex</th><th>Sáb</th><th>Dom</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <div class="card">
+    <h3>👤 Usuário</h3>
+    <input type="text" id="nomeUsuario" placeholder="Digite seu nome...">
+    <button class="btn-salvar" onclick="salvarCronograma()" style="width: 100%; padding: 10px; background: #1976d2; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+        💾 Salvar Cronograma
+    </button>
+</div>
+</div>
+
+<script>
+const metasAlvo = {
+    "Matemática": 8, "Português": 6, "Redação": 4, "Física": 4, "Química": 4,
+    "Biologia": 4, "História": 3, "Geografia": 3, "Filosofia": 2, "Sociologia": 2, "Inglês": 2
+};
+
+const dias = ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+const tbody = document.querySelector('#cronograma tbody');
+
+document.querySelectorAll('.materia').forEach(m => {
+    m.addEventListener('dragstart', e => e.dataTransfer.setData("text/plain", m.dataset.materia));
+});
+
+for (let h = 7; h <= 23; h++) {
+    const horaStr = String(h).padStart(2,'0') + ':00';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="hora">${horaStr}</td>` + 
+        dias.map(dia => `<td data-dia="${dia}" data-hora="${horaStr}"></td>`).join('');
+    tbody.appendChild(tr);
+}
+
+document.querySelectorAll('td:not(.hora)').forEach(td => {
+    td.addEventListener('dragover', e => e.preventDefault());
+    td.addEventListener('drop', e => {
+        e.preventDefault();
+        const mat = e.dataTransfer.getData("text/plain");
+        if (mat) adicionarMateria(td, mat);
+    });
+});
+
+function adicionarMateria(td, materia) {
+    td.dataset.materia = materia;
+    td.dataset.status = "pendente";
+    td.innerHTML = `
+        <div class="bloco pendente" onclick="alternarStatus(this.parentElement)">
+            <button class="btn-remover" onclick="event.stopPropagation(); removerMateria(this.parentElement.parentElement)">×</button>
+            <b>${materia}</b>
+        </div>`;
+    atualizarMetas();
+}
+
+function alternarStatus(td) {
+    td.dataset.status = (td.dataset.status === "pendente") ? "concluido" : "pendente";
+    td.querySelector('.bloco').className = `bloco ${td.dataset.status}`;
+    atualizarMetas();
+}
+
+function removerMateria(td) {
+    td.innerHTML = "";
+    delete td.dataset.materia;
+    delete td.dataset.status;
+    atualizarMetas();
+}
+
+function atualizarMetas() {
+    const dados = {};
+    for (const m in metasAlvo) dados[m] = { planejado: 0, concluido: 0 };
+
+    let totalP = 0, totalC = 0;
+
+    document.querySelectorAll('td[data-materia]').forEach(td => {
+        const m = td.dataset.materia;
+        if (dados[m]) {
+            dados[m].planejado++;
+            totalP++;
+            if (td.dataset.status === "concluido") {
+                dados[m].concluido++;
+                totalC++;
+            }
+        }
+    });
+
+    document.getElementById('totalPlanejado').textContent = totalP + "h";
+    document.getElementById('totalConcluido').textContent = totalC + "h";
+
+    const ul = document.getElementById('listaMetas');
+    ul.innerHTML = '';
+
+    for (const m in metasAlvo) {
+        const { concluido, planejado } = dados[m];
+        const meta = metasAlvo[m];
+        
+        let classe = 'falta';
+        if (concluido >= meta) classe = 'ok';
+        else if (planejado > 0) classe = 'em-progresso';
+
+        const li = document.createElement('li');
+        li.className = classe;
+        li.innerHTML = `
+            <strong>${m}</strong>
+            <div class="status-badge">
+                <span>Feito: <b>${concluido}h</b></span>
+                <span>Total: <b>${planejado}h</b></span>
+                <span>Meta: <b>${meta}h</b></span>
+            </div>
+        `;
+        ul.appendChild(li);
+    }
+}
+async function salvarCronograma() {
+    const usuario = document.getElementById('nomeUsuario').value;
+    
+    if (!usuario) {
+        alert("Por favor, digite o nome do usuário para salvar o arquivo.");
+        return;
+    }
+
+    // Mapeia todas as células que possuem matérias
+    const itensCronograma = [];
+    document.querySelectorAll('td[data-materia]').forEach(td => {
+        itensCronograma.push({
+            dia: td.dataset.dia,
+            hora: td.dataset.hora,
+            materia: td.dataset.materia,
+            status: td.dataset.status
+        });
+    });
+
+    // Monta o objeto final conforme solicitado (JSON)
+    const payload = {
+        usuario: usuario,
+        dataCriacao: new Date().toLocaleString('pt-BR'),
+        totalHoras: itensCronograma.length,
+        cronograma: itensCronograma
+    };
+
+    try {
+        const response = await fetch('http://localhost:3000/salvar', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+            const mensagem = await response.text();
+            alert("Sucesso: " + mensagem);
+        } else {
+            alert("Erro ao salvar no servidor.");
+        }
+    } catch (error) {
+        console.error("Erro na requisição:", error);
+        alert("Não foi possível conectar ao servidor Node.js.");
+    }
+}
+atualizarMetas();
+</script>
+
+</body>
+</html>

@@ -8,24 +8,47 @@ const dias = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
 
 // --- FUNÇÕES DE INICIALIZAÇÃO ---
 
-/**
- * Cria a estrutura da tabela e ativa os ouvintes de eventos
- */
-export function inicializarCronograma() {
+
+
+export async function inicializarCronograma(nomeUsuario) {
     const tbody = document.querySelector('#cronograma tbody');
     if (!tbody) return;
 
-    tbody.innerHTML = ''; // Limpa antes de gerar
-
+    // 1. Gera a estrutura visual vazia
+    tbody.innerHTML = ''; 
     for (let h = 7; h <= 23; h++) {
         const horaStr = String(h).padStart(2, '0') + ':00';
         const tr = document.createElement('tr');
         tr.innerHTML = `<td class="hora">${horaStr}</td>` +
-            dias.map(dia => `<td data-dia="${dia}" data-hora="${horaStr}"></td>`).join('');
+            dias.map(dia => `<td data-dia="${dia}" data-hora="${horaStr}" class="celula-horario"></td>`).join('');
         tbody.appendChild(tr);
     }
 
-    configurarInteracoes();
+    // 2. Busca os dados salvos do usuário no servidor
+    try {
+        const resposta = await fetch(`http://localhost:3000/usuario/dados?nome=${nomeUsuario}`);
+        const dadosUsuario = await resposta.json();
+
+        if (dadosUsuario.cronograma && Array.isArray(dadosUsuario.cronograma)) {
+            // 3. Preenche as células com as matérias salvas
+            dadosUsuario.cronograma.forEach(item => {
+                // Encontra a célula exata usando seletores de atributo
+                const seletor = `td[data-dia="${item.dia}"][data-hora="${item.hora}"]`;
+                const celula = tbody.querySelector(seletor);
+                
+                if (celula) {
+                    celula.innerText = item.materia;
+                    celula.classList.add('preenchida');
+                    if (item.status === 'concluido') celula.classList.add('concluido');
+                }
+            });
+        }
+    } catch (erro) {
+        console.error("Erro ao carregar dados do cronograma:", erro);
+    }
+
+    // 4. Ativa as funções de clique e cálculos
+    configurarInteracoes(); 
     atualizarMetas();
 }
 

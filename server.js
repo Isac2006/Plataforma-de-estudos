@@ -4,6 +4,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs/promises'; 
 
+
+
 import { pegarquestoesdobanco } from './src/modulos/pegararrayquestoes.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -498,6 +500,140 @@ app.post('/registrar-estudo-agora', async (req, res) => {
         res.status(500).json({ mensagem: "Erro ao registrar estudo" });
     }
 });
+
+// ==========================================
+//    ROTAS DE ESTATÍSTICAS E DESEMPENHO
+// ==========================================
+
+// 1. Buscar dados completos do usuário (Estatísticas, Redações, etc)
+app.get('/usuario/dados', async (req, res) => {
+    try {
+        const { nome } = req.query;
+        if (!nome) return res.status(400).json({ mensagem: "Nome é obrigatório" });
+
+        // Tenta ler o arquivo. Se falhar ou estiver vazio, assume uma lista vazia []
+        let conteudo = "";
+        try {
+            conteudo = await fs.readFile(CAMINHO_BANCO_USUARIOS, 'utf-8');
+        } catch (err) {
+            conteudo = "[]";
+        }
+
+        let usuarios = [];
+        try {
+            usuarios = JSON.parse(conteudo);
+        } catch (err) {
+            console.error("Erro ao converter JSON, resetando para lista vazia");
+            usuarios = [];
+        }
+        
+        // Busca o usuário
+        let usuario = usuarios.find(u => u.nome && u.nome.toLowerCase() === nome.toLowerCase());
+
+        // Se não existir, cria o novo
+        if (!usuario) {
+            console.log(`Criando novo perfil para: ${nome}`);
+            usuario = {
+                nome: nome,
+                aulasAssistidas: 0,
+                redacoesFeitas: 0,
+                modulosConcluidos: 0,
+                estatisticas: { 
+                    questoes: { totalAcertos: 0, totalErros: 0, porMateria: {} } 
+                },
+                cronograma: [],
+                ultimaAtualizacao: new Date().toISOString()
+            };
+            usuarios.push(usuario);
+            await fs.writeFile(CAMINHO_BANCO_USUARIOS, JSON.stringify(usuarios, null, 2));
+        }
+        
+        res.json(usuario);
+    } catch (e) {
+        // Isso vai mostrar no seu terminal PRETO o motivo exato do erro 500
+        console.error("ERRO CRÍTICO NO GET DADOS:", e); 
+        res.status(500).json({ erro: "Erro interno no servidor", detalhe: e.message });
+    }
+});
+
+// 2. Incrementar contadores simples (Aulas, Redações, Módulos)
+app.post('/usuario/incrementar', async (req, res) => {
+    try {
+        const { usuario, campo } = req.body; 
+        // campo: "aulasAssistidas", "redacoesFeitas", ou "modulosConcluidos"
+
+        const conteudo = await fs.readFile(CAMINHO_BANCO_USUARIOS, 'utf-8').catch(() => '[]');
+        let usuarios = JSON.parse(conteudo);
+        const index = usuarios.findIndex(u => u.nome.toLowerCase() === usuario.toLowerCase());
+        
+        if (index === -1) return res.status(404).json({ mensagem: "Usuário não encontrado" });
+
+        // Inicializa o campo caso ele não exista no JSON
+        if (usuarios[index][campo] === undefined) {
+            usuarios[index][campo] = 0;
+        }
+
+        usuarios[index][campo] += 1;
+
+        await fs.writeFile(CAMINHO_BANCO_USUARIOS, JSON.stringify(usuarios, null, 2));
+        res.json({ sucesso: true, campo, novoValor: usuarios[index][campo] });
+    } catch (erro) {
+        console.error("Erro ao incrementar:", erro);
+        res.status(500).json({ mensagem: "Erro ao salvar progresso" });
+    }
+});
+
+// 3. Registrar respostas de questões (Acertos/Erros por Matéria)
+app.post('/usuario/registrar-resposta', async (req, res) => {
+    try {
+        const { usuario, disciplina, acertou } = req.body;
+
+        if (!usuario || !disciplina) {
+            return res.status(400).json({ mensagem: "Dados incompletos" });
+        }
+
+        const conteudo = await fs.readFile(CAMINHO_BANCO_USUARIOS, 'utf-8').catch(() => '[]');
+        let usuarios = JSON.parse(conteudo);
+        
+        const index = usuarios.findIndex(u => u.nome.toLowerCase() === usuario.toLowerCase());
+        if (index === -1) return res.status(404).json({ mensagem: "Usuário não encontrado" });
+
+        let user = usuarios[index];
+
+        // 1. GARANTE A ESTRUTURA (Aqui usamos 'user')
+        if (!user.estatisticas) user.estatisticas = {};
+        if (!user.estatisticas.questoes) {
+            user.estatisticas.questoes = { totalAcertos: 0, totalErros: 0, porMateria: {} };
+        }
+
+        const disc = disciplina.toLowerCase().trim();
+        if (!user.estatisticas.questoes.porMateria[disc]) {
+            user.estatisticas.questoes.porMateria[disc] = { acertos: 0, erros: 0 };
+        }
+
+        // 2. LOGICA DE INCREMENTO
+        const isCorrect = (acertou === true || acertou === 'true');
+
+        if (isCorrect) {
+            user.estatisticas.questoes.totalAcertos++;
+            user.estatisticas.questoes.porMateria[disc].acertos++;
+        } else {
+            user.estatisticas.questoes.totalErros++;
+            user.estatisticas.questoes.porMateria[disc].erros++;
+        }
+
+        // 3. ATUALIZA O CONTADOR SIMPLES (para manter o 'questoesFeitas' atualizado também)
+        user.questoesFeitas = (user.questoesFeitas || 0) + 1;
+
+        await fs.writeFile(CAMINHO_BANCO_USUARIOS, JSON.stringify(usuarios, null, 2));
+        res.json({ sucesso: true });
+
+    } catch (e) {
+        console.error("ERRO NO SERVIDOR:", e); 
+        res.status(500).json({ erro: e.message });
+    }
+});
+
 // --- INICIALIZAÇÃO ---
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 

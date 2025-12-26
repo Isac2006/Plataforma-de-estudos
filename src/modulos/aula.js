@@ -1,3 +1,6 @@
+import { registrarProgresso } from './estatisticas.js';
+
+
 // --- FUNÇÃO AUXILIAR PARA EXTRAIR ID (Para não repetir código) ---
 function extrairVideoID(linkRaw) {
     if (!linkRaw) return "";
@@ -53,14 +56,13 @@ export async function cadastrarAula() {
     } catch (e) { alert("Erro ao conectar ao servidor."); }
 }
 
-export async function carregarAula() {
+export async function carregarAula(usuarioLogado) {
     const disciplina = document.getElementById("select-disciplina").value;
     const tema = document.getElementById("select-tema-aula").value;
     
-    // Elementos dos Players
     const iframe1 = document.getElementById("video-player");
-    const iframe2 = document.getElementById("video-player-2"); // Novo iframe no HTML
-    const containerVideo2 = document.getElementById("container-video-2"); // Div que envolve o segundo video
+    const iframe2 = document.getElementById("video-player-2");
+    const containerVideo2 = document.getElementById("container-video-2");
     const status = document.getElementById("status-aula");
 
     if (!disciplina || !tema) return alert("Selecione a disciplina e o tema!");
@@ -70,10 +72,8 @@ export async function carregarAula() {
         if (res.ok) {
             const aula = await res.json();
             
-            // Vídeo 1 (Sempre aparece)
             iframe1.src = aula.url;
             
-            // Vídeo 2 (Aparece apenas se existir no banco)
             if (aula.url2 && iframe2) {
                 iframe2.src = aula.url2;
                 if (containerVideo2) containerVideo2.style.display = "block";
@@ -83,6 +83,13 @@ export async function carregarAula() {
             }
 
             if (status) status.innerText = `Reproduzindo: ${aula.tema}`;
+
+            // --- ADIÇÃO PARA ESTATÍSTICA ---
+            // Registra que uma aula foi assistida/carregada
+            
+            registrarProgresso(usuarioLogado, "aulasAssistidas");
+            // ------------------------------
+
         } else {
             alert("❌ Vídeo não encontrado no banco de dados.");
         }

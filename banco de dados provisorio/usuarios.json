@@ -1,58 +1,60 @@
 [
   {
-    "nome": "sada",
-    "ultimaAtualizacao": "2025-12-22T21:55:35.387Z",
-    "totalHoras": 3,
+    "nome": "isac",
+    "ultimaAtualizacao": "2025-12-26T14:18:41.539Z",
+    "totalHoras": 6,
     "cronograma": [
       {
-        "dia": "Seg",
+        "dia": "Ter",
         "hora": "08:00",
-        "materia": "Português",
+        "materia": "Redação",
+        "status": "pendente"
+      },
+      {
+        "dia": "Seg",
+        "hora": "09:00",
+        "materia": "Química",
         "status": "pendente"
       },
       {
         "dia": "Qua",
-        "hora": "08:00",
+        "hora": "09:00",
+        "materia": "História",
+        "status": "pendente"
+      },
+      {
+        "dia": "Sex",
+        "hora": "10:00",
+        "materia": "Redação",
+        "status": "pendente"
+      },
+      {
+        "dia": "Seg",
+        "hora": "11:00",
         "materia": "Física",
-        "status": "concluido"
+        "status": "pendente"
       },
       {
         "dia": "Ter",
-        "hora": "10:00",
-        "materia": "Redação",
+        "hora": "11:00",
+        "materia": "Matemática",
         "status": "pendente"
       }
     ]
   },
   {
     "nome": "joao",
-    "ultimaAtualizacao": "2025-12-23T18:41:13.869Z",
-    "totalHoras": 3,
-    "cronograma": [
-      {
-        "dia": "Ter",
-        "hora": "14:00",
-        "materia": "Matemática",
-        "status": "pendente"
-      },
-      {
-        "dia": "Ter",
-        "hora": "15:00",
-        "materia": "matematica",
-        "status": "concluido"
-      },
-      {
-        "dia": "Ter",
-        "hora": "16:00",
-        "materia": "Matemática",
-        "status": "pendente"
-      },
-      {
-        "dia": "Sex",
-        "hora": "01:00",
-        "materia": "matematica",
-        "status": "concluido"
+    "aulasAssistidas": 0,
+    "redacoesFeitas": 0,
+    "modulosConcluidos": 0,
+    "estatisticas": {
+      "questoes": {
+        "totalAcertos": 0,
+        "totalErros": 0,
+        "porMateria": {}
       }
-    ]
+    },
+    "cronograma": [],
+    "ultimaAtualizacao": "2025-12-26T14:07:57.494Z"
   }
 ]
