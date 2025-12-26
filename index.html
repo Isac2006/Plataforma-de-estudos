@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
     <title>Sistema de Questões</title>
 </head>
 <body>
@@ -766,7 +767,31 @@ input[type="color"] {
 
 
 
+<div id="login-container" class="glass-card p-8 rounded-2xl w-96 mx-auto mt-20 border border-white/10 text-white">
+    <h2 id="titulo-auth" class="text-2xl font-bold mb-6 text-center">Entrar na Plataforma</h2>
+  <input type="email" id="auth-email" placeholder="E-mail" class="w-full p-3 mb-4 bg-zinc-900 border border-zinc-700 rounded-lg">
+<input type="password" id="auth-pass" placeholder="Senha" class="w-full p-3 mb-6 bg-zinc-900 border border-zinc-700 rounded-lg">
 
+<button id="btn-login-confirmar" style="width: 100%; background: #10b981; color: white; padding: 12px; border-radius: 8px; font-weight: bold;">Entrar</button>
+    
+    <p class="text-center text-sm text-gray-400">
+        Não tem conta? <a href="#" onclick="alternarModo()" class="text-emerald-400 hover:underline">Cadastre-se</a>
+    </p>
+</div>
+<div id="auth-reg-container" class="glass-card p-8 rounded-2xl w-full max-w-md mx-auto mt-10 text-white border border-white/10" style="background: #34495e; padding: 20px; border-radius: 15px; margin-top: 20px;">
+    <h2 class="text-2xl font-bold mb-6 text-center">Crie sua conta</h2>
+    
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+        <input type="text" id="reg-nome" placeholder="Nome Completo" style="padding: 10px;">
+        <input type="email" id="reg-email" placeholder="Seu melhor e-mail" style="padding: 10px;">
+        <input type="password" id="reg-pass" placeholder="Crie uma senha forte" style="padding: 10px;">
+        <input type="text" id="reg-cpf" placeholder="CPF (000.000.000-00)" class="p-3 bg-zinc-900 rounded-lg border border-zinc-700">
+    <input type="date" id="reg-nascimento" id="reg-nascimento" class="p-3 bg-zinc-900 rounded-lg border border-zinc-700 text-gray-400">
+        <button id="btn-registrar-confirmar" style="width: 100%; background: #27ae60; color: white; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;">
+            Finalizar Cadastro
+        </button>
+    </div>
+</div>
 <script type="module" src="src/script.js"></script>
 </body>
 </html>

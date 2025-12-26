@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/Isac2006/Plataforma-de-estudos#readme",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "express": "^5.2.1"
   }

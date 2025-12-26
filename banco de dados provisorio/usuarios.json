@@ -1,52 +1,9 @@
 [
   {
-    "nome": "isac",
-    "ultimaAtualizacao": "2025-12-26T14:18:41.539Z",
-    "totalHoras": 6,
-    "cronograma": [
-      {
-        "dia": "Ter",
-        "hora": "08:00",
-        "materia": "Redação",
-        "status": "pendente"
-      },
-      {
-        "dia": "Seg",
-        "hora": "09:00",
-        "materia": "Química",
-        "status": "pendente"
-      },
-      {
-        "dia": "Qua",
-        "hora": "09:00",
-        "materia": "História",
-        "status": "pendente"
-      },
-      {
-        "dia": "Sex",
-        "hora": "10:00",
-        "materia": "Redação",
-        "status": "pendente"
-      },
-      {
-        "dia": "Seg",
-        "hora": "11:00",
-        "materia": "Física",
-        "status": "pendente"
-      },
-      {
-        "dia": "Ter",
-        "hora": "11:00",
-        "materia": "Matemática",
-        "status": "pendente"
-      },
-      {
-        "dia": "Sex",
-        "hora": "12:00",
-        "materia": "ciencias",
-        "status": "concluido"
-      }
-    ],
+    "nome": "testefinal",
+    "aulasAssistidas": 4,
+    "redacoesFeitas": 1,
+    "modulosConcluidos": 0,
     "questoesFeitas": 4,
     "estatisticas": {
       "questoes": {
@@ -64,28 +21,14 @@
         }
       }
     },
-    "redacoesFeitas": 1,
-    "aulasAssistidas": 2
-  },
-  {
-    "nome": "joao",
-    "aulasAssistidas": 0,
-    "redacoesFeitas": 0,
-    "modulosConcluidos": 0,
-    "estatisticas": {
-      "questoes": {
-        "totalAcertos": 1,
-        "totalErros": 0,
-        "porMateria": {
-          "historia": {
-            "acertos": 1,
-            "erros": 0
-          }
-        }
+    "cronograma": [
+      {
+        "dia": "Sex",
+        "hora": "16:00",
+        "materia": "matematica",
+        "status": "concluido"
       }
-    },
-    "cronograma": [],
-    "ultimaAtualizacao": "2025-12-26T14:07:57.494Z",
-    "questoesFeitas": 2
+    ],
+    "ultimaAtualizacao": "2025-12-26T19:00:19.273Z"
   }
 ]
