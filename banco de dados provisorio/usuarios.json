@@ -46,6 +46,12 @@
         "hora": "16:00",
         "materia": "Matemática",
         "status": "pendente"
+      },
+      {
+        "dia": "Sex",
+        "hora": "01:00",
+        "materia": "matematica",
+        "status": "concluido"
       }
     ]
   }

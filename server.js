@@ -219,10 +219,12 @@ app.post('/materias', async (req, res) => {
 //    ROTAS DE AULAS (Vídeos YouTube)
 // ==========================================
 
-// 1. Professor cadastra aula
+
+// 1. Professor cadastra aula 
 app.post('/aulas', async (req, res) => {
     try {
-        const { disciplina, tema, url } = req.body;
+        // Agora aceitamos url2 vindo do body
+        const { disciplina, tema, url, url2 } = req.body;
 
         const conteudo = await fs.readFile(CAMINHO_BANCO_AULAS, 'utf-8').catch(() => '[]');
         const banco = JSON.parse(conteudo || '[]');
@@ -232,6 +234,7 @@ app.post('/aulas', async (req, res) => {
             disciplina: String(disciplina).toLowerCase().trim(),
             tema: String(tema).toLowerCase().trim(),
             url: url, 
+            url2: url2 || "", // NOVO: Salva a segunda URL se ela existir
             data_cadastro: new Date().toISOString()
         };
 
@@ -239,6 +242,7 @@ app.post('/aulas', async (req, res) => {
         await fs.writeFile(CAMINHO_BANCO_AULAS, JSON.stringify(banco, null, 2));
         res.status(201).json({ mensagem: "Aula salva com sucesso!" });
     } catch (erro) {
+        console.error("Erro ao salvar aula:", erro);
         res.status(500).json({ mensagem: "Erro ao salvar aula no servidor" });
     }
 });
@@ -329,27 +333,29 @@ app.get('/construtor/dados', async (req, res) => {
 // 2. Salva a estrutura do módulo
 app.post('/modulos/salvar', async (req, res) => {
     try {
-        const novoModulo = req.body; 
+        const { disciplina, tema, aula_url, aula_url_2, resumo, questoes_ids } = req.body; 
         
-        // Garante que o diretório existe e tenta ler o arquivo
         let banco = [];
         try {
             const conteudo = await fs.readFile(CAMINHO_BANCO_MODULOS, 'utf-8');
             banco = JSON.parse(conteudo);
         } catch (e) {
-            // Se o arquivo não existir, o banco continua como []
             banco = [];
         }
 
         const moduloEstruturado = {
             id: Date.now(),
-            ...novoModulo,
+            disciplina: disciplina,
+            tema: tema,
+            aula_url: aula_url,
+            aula_url_2: aula_url_2 || "", // NOVO: Armazena o segundo vídeo
+            resumo: resumo,
+            questoes_ids: questoes_ids,
             data_criacao: new Date().toISOString()
         };
 
         banco.push(moduloEstruturado);
         
-        // Salva com indentação para facilitar leitura humana
         await fs.writeFile(CAMINHO_BANCO_MODULOS, JSON.stringify(banco, null, 2));
         
         res.status(201).json({ mensagem: "Módulo estruturado com sucesso!", id: moduloEstruturado.id });
@@ -364,7 +370,6 @@ app.get('/modulos/visualizar', async (req, res) => {
         const conteudo = await fs.readFile(CAMINHO_BANCO_MODULOS, 'utf-8').catch(() => '[]');
         const modulos = JSON.parse(conteudo);
 
-        // Busca o módulo que combine com a disciplina e o tema
         const moduloEncontrado = modulos.find(m => 
             m.disciplina.toLowerCase() === disciplina.toLowerCase() && 
             m.tema.toLowerCase() === tema.toLowerCase()
@@ -374,15 +379,14 @@ app.get('/modulos/visualizar', async (req, res) => {
             return res.status(404).json({ mensagem: "Módulo ainda não construído pelo professor." });
         }
 
-        // Agora buscamos o texto completo das questões que estão no módulo
         const questoesRaw = await fs.readFile(CAMINHO_BANCO_QUESTOES, 'utf-8');
         const todasQuestoes = JSON.parse(questoesRaw);
 
-        // Filtramos apenas as questões que o professor escolheu para este módulo
         const detalhesQuestoes = todasQuestoes.filter(q => 
             moduloEncontrado.questoes_ids.includes(String(q.id))
         );
 
+        // O moduloEncontrado agora contém aula_url e aula_url_2
         res.json({
             ...moduloEncontrado,
             questoes_completas: detalhesQuestoes

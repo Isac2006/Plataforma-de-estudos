@@ -532,8 +532,7 @@ input[type="color"] {
 
     </div>
 
-
-   <div class="container">
+<div class="container">
     <div class="editor-container" style="margin-top: 20px;">
         <h2>👨‍🏫 Cadastrar Aula (Professor)</h2>
         
@@ -547,8 +546,9 @@ input[type="color"] {
         </select>
 
         <input type="text" id="cad-tema" placeholder="Tema da Aula (ex: Equações)">
-        <input type="text" id="cad-link" placeholder="Link do YouTube ou código Iframe">
-        
+        <input type="text" id="cad-link" placeholder="Link do YouTube 1">
+        <input type="text" id="cad-link-2" placeholder="Link do vídeo 2 (opcional)">
+
         <button id="btn-salvar-aula" class="btn-salvar">Salvar no Banco</button>
     </div>
 
@@ -574,7 +574,11 @@ input[type="color"] {
         <p id="status-aula"></p>
 
         <div class="video-wrapper" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; background: #000; border-radius: 12px; margin-top: 15px;">
-            <iframe id="video-player" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;" src="" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+            <iframe id="video-player" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;" src="" allowfullscreen></iframe>
+        </div>
+
+        <div id="container-video-2" style="display: none; position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; background: #000; border-radius: 12px; margin-top: 20px;">
+            <iframe id="video-player-2" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;" src="" allowfullscreen></iframe>
         </div>
     </div>
 </div>
@@ -603,16 +607,21 @@ input[type="color"] {
     </div>
 
     <div class="layout-construcao" style="display: flex; gap: 20px; margin-bottom: 20px;">
-        <div style="flex: 1;">
-            <label>🎥 Link da Aula:</label>
+    <div style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
+        <div>
+            <label>🎥 Link da Aula 1:</label>
             <input type="text" id="modulo-aula-id" style="width: 100%;" readonly>
         </div>
-        <div style="flex: 1;">
-            <label>📝 Resumo:</label>
-            <textarea id="modulo-resumo-texto" style="width: 100%; min-height: 80px;" readonly></textarea>
+        <div>
+            <label>🎥 Link da Aula 2 (Opcional):</label>
+            <input type="text" id="modulo-aula-id-2" style="width: 100%;" placeholder="Cole o segundo link aqui">
         </div>
     </div>
-
+    <div style="flex: 1;">
+        <label>📝 Resumo:</label>
+        <textarea id="modulo-resumo-texto" style="width: 100%; min-height: 115px;" readonly></textarea>
+    </div>
+</div>
     <div id="area-selecao-questoes">
         <h3>✍️ Selecione as Questões</h3>
         <div id="lista-disponivel" style="background: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; max-height: 250px; overflow-y: auto; padding: 10px;">
@@ -642,15 +651,22 @@ input[type="color"] {
         <button id="btn-carregar-tudo" class="btn-fila">📚 Abrir Módulo</button>
     </div>
 
-    <div id="conteudo-modulo-pronto" style="display: none;">
-        <div class="video-wrapper">
-            <iframe id="video-final" src="" allowfullscreen></iframe>
-        </div>
-
-        <div id="area-resumo-aluno"></div>
-
-        <div id="lista-questoes-aluno"></div>
+   <div id="conteudo-modulo-pronto" style="display: none;">
+    <h4>📺 Vídeo 1</h4>
+    <div class="video-wrapper" style="margin-bottom: 20px;">
+        <iframe id="video-final" src="" allowfullscreen></iframe>
     </div>
+
+    <div id="box-video-2" style="display: none; margin-bottom: 20px;">
+        <h4>📺 Vídeo 2</h4>
+        <div class="video-wrapper">
+            <iframe id="video-final-2" src="" allowfullscreen></iframe>
+        </div>
+    </div>
+
+    <div id="area-resumo-aluno"></div>
+    <div id="lista-questoes-aluno"></div>
+</div>
 </div>
 
 

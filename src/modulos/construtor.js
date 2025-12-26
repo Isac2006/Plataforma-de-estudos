@@ -14,27 +14,29 @@ export async function buscarDadosParaModulo() {
     if (!disciplina || !tema) return;
 
     try {
-        console.log(`Buscando dados para: ${disciplina} - ${tema}`);
-        // Rota unificada para preparar o módulo
         const resposta = await fetch(`http://localhost:3000/construtor/dados?disciplina=${disciplina}&tema=${tema}`);
-        
-        if (!resposta.ok) throw new Error("Erro na requisição ao servidor");
+        if (!resposta.ok) throw new Error("Erro na requisição");
         
         const dados = await resposta.json();
 
-        // 1. Preenche os campos de Aula e Resumo no formulário do Professor
         const campoAula = document.getElementById("modulo-aula-id");
+        const campoAula2 = document.getElementById("modulo-aula-id-2"); 
         const campoResumo = document.getElementById("modulo-resumo-texto");
 
+        // PREENCHIMENTO DOS CAMPOS
         if (campoAula) campoAula.value = dados.aula ? dados.aula.url : "";
+        
+        // AJUSTE AQUI: Pega a url2 se ela existir na aula vinda do banco
+        if (campoAula2) {
+            campoAula2.value = (dados.aula && dados.aula.url2) ? dados.aula.url2 : "";
+        }
+
         if (campoResumo) campoResumo.value = dados.resumo || "";
 
-        // 2. Renderiza a lista de questões para seleção manual
         renderizarSelecaoQuestoes(dados.questoes);
 
     } catch (erro) {
-        console.error("❌ Erro ao buscar dados do construtor:", erro);
-        alert("Erro ao carregar dados. Verifique o console.");
+        console.error("❌ Erro ao buscar dados:", erro);
     }
 }
 
@@ -77,6 +79,7 @@ export async function finalizarModulo() {
     const disciplina = document.getElementById("construtor-disciplina").value;
     const tema = document.getElementById("construtor-tema").value;
     const aulaUrl = document.getElementById("modulo-aula-id")?.value;
+    const aulaUrl2 = document.getElementById("modulo-aula-id-2")?.value; // Captura vídeo 2
     const resumo = document.getElementById("modulo-resumo-texto")?.value || document.getElementById("construtor-resumo")?.value;
     
     const checkboxes = document.querySelectorAll(".check-questao:checked, .questoes-selecionadas:checked");
@@ -91,6 +94,7 @@ export async function finalizarModulo() {
         disciplina: disciplina,
         tema: tema,
         aula_url: aulaUrl,
+        aula_url_2: aulaUrl2, // Enviando segundo vídeo para o banco
         resumo: resumo,
         questoes_ids: questoesSelecionadas
     };
@@ -135,11 +139,25 @@ export async function carregarModuloCompleto() {
 
         document.getElementById("conteudo-modulo-pronto").style.display = "block";
 
-        // Vídeo
+        // --- Lógica Vídeo 1 ---
         const videoIframe = document.getElementById("video-final");
-        let urlEmbed = modulo.aula_url || "";
-        if (urlEmbed.includes("watch?v=")) urlEmbed = urlEmbed.replace("watch?v=", "embed/");
-        videoIframe.src = urlEmbed;
+        let urlEmbed1 = modulo.aula_url || "";
+        if (urlEmbed1.includes("watch?v=")) urlEmbed1 = urlEmbed1.replace("watch?v=", "embed/");
+        videoIframe.src = urlEmbed1;
+
+        // --- Lógica Vídeo 2 (Novo) ---
+        const boxVideo2 = document.getElementById("box-video-2");
+        const videoIframe2 = document.getElementById("video-final-2");
+        let urlEmbed2 = modulo.aula_url_2 || "";
+
+        if (urlEmbed2 && urlEmbed2.trim() !== "") {
+            if (urlEmbed2.includes("watch?v=")) urlEmbed2 = urlEmbed2.replace("watch?v=", "embed/");
+            videoIframe2.src = urlEmbed2;
+            boxVideo2.style.display = "block";
+        } else {
+            boxVideo2.style.display = "none";
+            videoIframe2.src = "";
+        }
 
         // Resumo
         document.getElementById("area-resumo-aluno").innerHTML = `
