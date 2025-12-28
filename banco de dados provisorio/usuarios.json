@@ -3,7 +3,7 @@
     "nome": "matheus marques souza da silva",
     "aulasAssistidas": 2,
     "redacoesFeitas": 1,
-    "modulosConcluidos": 1,
+    "modulosConcluidos": 2,
     "questoesFeitas": 6,
     "estatisticas": {
       "questoes": {
@@ -75,5 +75,25 @@
     ],
     "ultimaAtualizacao": "2025-12-28T14:33:33.580Z",
     "totalHoras": 9
+  },
+  {
+    "nome": "joao",
+    "senha": "$2b$10$9vRh/WVae3ttaOqrS6JPQuPa/gvWEMVbCrFzBDwqmPdvX7QCdewS2",
+    "email": "joao@gmail.com",
+    "cpf": "28590482006",
+    "nascimento": "2010-10-10",
+    "faculdade": "Não informado",
+    "curso": "Não informado",
+    "aulasAssistidas": 0,
+    "redacoesFeitas": 0,
+    "modulosConcluidos": 0,
+    "estatisticas": {
+      "questoes": {
+        "totalAcertos": 0,
+        "totalErros": 0,
+        "porMateria": {}
+      }
+    },
+    "cronograma": []
   }
 ]
