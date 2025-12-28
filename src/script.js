@@ -418,4 +418,126 @@ function trocarUsuario() {
 window.trocarUsuario = trocarUsuario;
 
 
+// --- FUNÇÃO DE REGISTRO COMPLETA ---
+async function finalizarRegistro() {
+    // 1. Captura os elementos
+    const nomeEl = document.getElementById("reg-nome");
+    const emailEl = document.getElementById("reg-email");
+    const senhaEl = document.getElementById("reg-pass");
+    const cpfEl = document.getElementById("reg-cpf");
+    const nascimentoEl = document.getElementById("reg-nascimento");
 
+    // 2. Verifica se existem no DOM
+    if (!nomeEl || !emailEl || !senhaEl || !cpfEl || !nascimentoEl) {
+        console.error("❌ Erro: Campos não encontrados.");
+        return;
+    }
+
+    // 3. Monta o objeto (Sincronizado com o seu server.js)
+    const dados = {
+        usuario: nomeEl.value.trim(), // O servidor espera 'usuario'
+        senha: senhaEl.value.trim(),
+        email: emailEl.value.trim(),
+        cpf: cpfEl.value.trim(),
+        nascimento: nascimentoEl.value,
+        faculdade: "Não informado",
+        curso: "Não informado"
+    };
+
+    // 4. Validação
+    if (Object.values(dados).some(valor => valor === "")) {
+        alert("⚠️ Por favor, preencha todos os campos!");
+        return;
+    }
+
+    try {
+        console.log("📤 Enviando dados:", dados);
+        
+        const resposta = await fetch('http://localhost:3000/auth/registrar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dados)
+        });
+
+        const resultado = await resposta.json();
+
+        if (resposta.ok) {
+            // AQUI ESTAVA O ERRO: 
+            // 1. Usamos 'dados.usuario' (o nome que você acabou de digitar)
+            // 2. Ou 'resultado.usuario' (se o seu servidor retornar o nome)
+            const nomeParaSalvar = resultado.usuario || dados.usuario;
+            
+            localStorage.setItem("nomeUsuario", nomeParaSalvar);
+            
+            alert(`✅ Sucesso! Bem-vindo(a), ${nomeParaSalvar}!`);
+            location.reload(); 
+        } else {
+            // Exibe o erro vindo do servidor (ajustado para 'resultado.erro')
+            alert("❌ Erro: " + (resultado.erro || resultado.error || "Falha ao registrar"));
+        }
+    } catch (erro) {
+        console.error("❌ Erro na conexão:", erro);
+        alert("O servidor não respondeu.");
+    }
+}
+
+// --- ATIVAÇÃO DO BOTÃO ---
+// Usamos delegação de evento para garantir que funcione mesmo se o HTML for dinâmico
+document.addEventListener("click", (event) => {
+    if (event.target && event.target.id === "btn-registrar-confirmar") {
+        event.preventDefault();
+        finalizarRegistro();
+    }
+});
+// --- FUNÇÃO PARA REALIZAR LOGIN ---
+async function realizarLogin() {
+    const emailEl = document.getElementById("auth-email");
+    const senhaEl = document.getElementById("auth-pass");
+
+    if (!emailEl || !senhaEl) {
+        console.error("❌ Erro: Campos de login (email ou senha) não encontrados no HTML.");
+        return;
+    }
+
+    const dados = {
+        email: emailEl.value.trim(),
+        senha: senhaEl.value.trim()
+    };
+
+    if (!dados.email || !dados.senha) {
+        alert("⚠️ Preencha todos os campos!");
+        return;
+    }
+
+    try {
+        console.log("🔑 Tentando login para:", dados.email);
+
+        const resposta = await fetch('http://localhost:3000/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dados)
+        });
+
+        const resultado = await resposta.json();
+
+        if (resposta.ok) {
+            // Salva o nome do usuário que veio do servidor
+            localStorage.setItem("nomeUsuario", resultado.usuario);
+            alert(`✅ Bem-vindo, ${resultado.usuario}!`);
+            location.reload(); // Recarrega para entrar na plataforma
+        } else {
+            alert("❌ " + (resultado.erro || "Falha no login"));
+        }
+    } catch (erro) {
+        console.error("❌ Erro de conexão:", erro);
+        alert("Servidor offline ou erro de rede.");
+    }
+}
+
+// --- ATIVAR O CLIQUE DO BOTÃO ---
+document.addEventListener("click", (e) => {
+    if (e.target && e.target.id === "btn-login-confirmar") {
+        e.preventDefault();
+        realizarLogin();
+    }
+});
