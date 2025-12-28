@@ -1,0 +1,41 @@
+[
+  {
+    "id": 1766932203057,
+    "disciplina": "matematica",
+    "tema": "função quadrática",
+    "enunciado": "Dada a função quadrática\nf(x) = 2x² − 4x + 1,\na concavidade da parábola é:",
+    "alternativas": [
+      "Voltada para baixo",
+      "Voltada para cima",
+      "Paralela ao eixo x",
+      "Indefinida"
+    ],
+    "resposta_correta": "Voltada para cima"
+  },
+  {
+    "id": 1766932246572,
+    "disciplina": "matematica",
+    "tema": "função quadrática",
+    "enunciado": "Considere a função\nf(x) = x² − 6x + 9.\nO número de raízes reais dessa função é:",
+    "alternativas": [
+      "Nenhuma raiz real",
+      "Uma raiz real",
+      "Duas raízes reais distintas",
+      "Três raízes reais"
+    ],
+    "resposta_correta": "Uma raiz real"
+  },
+  {
+    "id": 1766932313557,
+    "disciplina": "matematica",
+    "tema": "função quadrática",
+    "enunciado": "Na função quadrática\nf(x) = −x² + 5x − 4,\no valor de c e o ponto onde a parábola corta o eixo y são, respectivamente:",
+    "alternativas": [
+      "c = −4 e corta o eixo y em y = −4",
+      "c = 5 e corta o eixo y em y = 5",
+      "c = −1 e corta o eixo y em y = −1",
+      "c = 4 e corta o eixo y em y = 4"
+    ],
+    "resposta_correta": "c = −4 e corta o eixo y em y = −4"
+  }
+]

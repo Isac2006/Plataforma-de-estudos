@@ -1,0 +1,79 @@
+[
+  {
+    "nome": "matheus marques souza da silva",
+    "aulasAssistidas": 2,
+    "redacoesFeitas": 1,
+    "modulosConcluidos": 1,
+    "questoesFeitas": 6,
+    "estatisticas": {
+      "questoes": {
+        "totalAcertos": 2,
+        "totalErros": 2,
+        "porMateria": {
+          "matematica": {
+            "acertos": 2,
+            "erros": 2
+          }
+        }
+      }
+    },
+    "cronograma": [
+      {
+        "dia": "Seg",
+        "hora": "07:00",
+        "materia": "Matemática",
+        "status": "pendente"
+      },
+      {
+        "dia": "Seg",
+        "hora": "08:00",
+        "materia": "Português",
+        "status": "pendente"
+      },
+      {
+        "dia": "Ter",
+        "hora": "08:00",
+        "materia": "Português",
+        "status": "pendente"
+      },
+      {
+        "dia": "Ter",
+        "hora": "09:00",
+        "materia": "Redação",
+        "status": "pendente"
+      },
+      {
+        "dia": "Qua",
+        "hora": "09:00",
+        "materia": "Matemática",
+        "status": "pendente"
+      },
+      {
+        "dia": "Ter",
+        "hora": "10:00",
+        "materia": "Redação",
+        "status": "pendente"
+      },
+      {
+        "dia": "Dom",
+        "hora": "10:00",
+        "materia": "Matemática",
+        "status": "pendente"
+      },
+      {
+        "dia": "Dom",
+        "hora": "11:00",
+        "materia": "matematica",
+        "status": "concluido"
+      },
+      {
+        "dia": "Dom",
+        "hora": "12:00",
+        "materia": "Matemática",
+        "status": "pendente"
+      }
+    ],
+    "ultimaAtualizacao": "2025-12-28T14:33:33.580Z",
+    "totalHoras": 9
+  }
+]

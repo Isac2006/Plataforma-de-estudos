@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1766932373427,
+    "disciplina": "matematica",
+    "tema": "função quadrática",
+    "aula_url": "https://www.youtube.com/embed/ZpW9Xb5iyt4",
+    "aula_url_2": "",
+    "resumo": "A função quadrática é dada por f(x) = ax² + bx + c, com a ≠ 0. Seu polinômio é de grau 2.\nO domínio é ℝ e o contradomínio é ℝ; a imagem depende do vértice e da concavidade da parábola.\n\nO gráfico é uma parábola, que pode cortar o eixo x em até dois pontos (raízes), conforme o discriminante Δ:\n\nΔ > 0: duas raízes reais;\n\nΔ = 0: uma raiz real (tangencia o eixo x);\n\nΔ < 0: não há raízes reais.\n\nParâmetros:\n\na: define a concavidade (a > 0 para cima; a < 0 para baixo);\n\nb: indica se a parábola cruza o eixo y na subida (b > 0) ou descida (b < 0);\n\nc: é a ordenada do ponto onde a parábola corta o eixo y.\n\nAs raízes são os valores de x que tornam f(x) = 0 e podem ser encontradas pela Fórmula de Bhaskara.\nExemplo: em f(x) = x² − 5x + 6, as raízes são 2 e 3.\n",
+    "questoes_ids": [
+      "1766932203057",
+      "1766932246572",
+      "1766932313557"
+    ],
+    "data_criacao": "2025-12-28T14:32:53.427Z"
+  }
+]
