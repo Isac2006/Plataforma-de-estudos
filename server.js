@@ -191,7 +191,7 @@ app.put('/redacoes/corrigir/:id', async (req, res) => {
 
 app.post('/materias', async (req, res) => {
     try {
-        const { disciplina, tema, resumo, conteudoCompleto } = req.body;
+        const { disciplina, tema, resumo, conteudoCompleto, imagens } = req.body;
 
         const novaMateria = {
             id: Date.now(),
@@ -199,6 +199,7 @@ app.post('/materias', async (req, res) => {
             tema: String(tema).toLowerCase().trim(),
             resumo,
             conteudoCompleto,
+            imagens: Array.isArray(imagens) ? imagens : [],
             dataCriacao: new Date().toISOString()
         };
 

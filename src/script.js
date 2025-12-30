@@ -417,6 +417,20 @@ function trocarUsuario() {
 
 window.trocarUsuario = trocarUsuario;
 
+/* === PASSO 1 - adicionar campo de imagem === */
+function addInputImagem() {
+    const div = document.getElementById("inputs-imagens");
+    if (!div) return;
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.placeholder = "URL da imagem (opcional)";
+    input.classList.add("imagem-url");
+
+    div.appendChild(input);
+}
+
+window.addInputImagem = addInputImagem;
 
 // --- FUNÇÃO DE REGISTRO COMPLETA ---
 async function finalizarRegistro() {

@@ -82,6 +82,20 @@ export async function carregarAula(usuarioLogado) {
                 if (containerVideo2) containerVideo2.style.display = "none";
             }
 
+                // 🔽 IMAGENS DA AULA AQUI
+            const containerImgs = document.getElementById("imagens-aula");
+            if (containerImgs) containerImgs.innerHTML = "";
+
+            if (aula.imagens && aula.imagens.length > 0 && containerImgs) {
+                aula.imagens.forEach(url => {
+                const img = document.createElement("img");
+                img.src = url;
+                img.alt = "Imagem da aula";
+                img.classList.add("imagem-aula");
+                containerImgs.appendChild(img);
+            });
+            }
+            
             if (status) status.innerText = `Reproduzindo: ${aula.tema}`;
 
             // --- ADIÇÃO PARA ESTATÍSTICA ---

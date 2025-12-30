@@ -4,14 +4,13 @@ export async function cadastrarMateria() {
     const resumoEl = document.getElementById("materia-resumo");
     const conteudoEl = document.getElementById("materia-conteudo");
     const mensagemTopo = document.getElementById("mensagem-topo");
+    const imagensEls = document.querySelectorAll(".imagem-url");
 
-    // 🛑 SEGURANÇA
     if (!mensagemTopo) {
         console.error("Div mensagem-topo não encontrada no HTML");
         return;
     }
 
-    // ===== VALIDAÇÃO =====
     if (
         !disciplinaEl.value ||
         !temaEl.value ||
@@ -31,12 +30,35 @@ export async function cadastrarMateria() {
         return;
     }
 
+        const imagens = [];
+    imagensEls.forEach(input => {
+        if (input.value.trim() !== "") {
+            imagens.push(input.value.trim());
+        }
+    });
+
+    // 🔹 PREVIEW DAS IMAGENS 🔹
+    const preview = document.getElementById("preview-imagens");
+    if (preview) {
+        preview.innerHTML = "";
+
+        imagens.forEach(url => {
+            const img = document.createElement("img");
+            img.src = url;
+            img.alt = "Pré-visualização";
+            img.classList.add("imagem-preview");
+            preview.appendChild(img);
+        });
+    }
+
     const dados = {
         disciplina: disciplinaEl.value,
         tema: temaEl.value,
         resumo: resumoEl.value,
-        conteudoCompleto: conteudoEl.value
+        conteudoCompleto: conteudoEl.value,
+        imagens: imagens
     };
+
 
     try {
         const res = await fetch("http://localhost:3000/materias", {
@@ -56,6 +78,11 @@ export async function cadastrarMateria() {
             temaEl.value = "";
             resumoEl.value = "";
             conteudoEl.value = "";
+
+            document.querySelectorAll(".imagem-url").forEach((input, index) => {
+                if (index > 0) input.remove();
+                else input.value = "";
+            });
 
             setTimeout(() => {
                 mensagemTopo.style.display = "none";
