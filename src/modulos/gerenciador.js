@@ -75,6 +75,23 @@ export default class GerenciadorEducacional {
     if (usuario && mes >= 1 && mes <= 6) usuario.pagamentos[`mes${mes}`] = status;
     return usuario;
   }
+  // Adicione este bloco dentro da classe no arquivo Gerenciador.js
+  editarUsuario(nomeOriginal, novosDados) {
+    const index = this.usuarios.findIndex(u => u.nome.toLowerCase() === nomeOriginal.toLowerCase());
+    
+    if (index === -1) {
+      throw new Error("Usuário não encontrado para edição.");
+    }
+
+    // Mescla os dados antigos com os novos, garantindo que a data de atualização mude
+    this.usuarios[index] = {
+      ...this.usuarios[index],
+      ...novosDados,
+      ultimaAtualizacao: new Date().toISOString()
+    };
+
+    return this.usuarios[index];
+  }
 
   alternarBloqueio(nome) {
     const usuario = this.getUsuario(nome);

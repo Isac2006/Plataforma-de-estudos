@@ -381,7 +381,7 @@ document.getElementById("gerar-questao")?.addEventListener("click", () => {
 // 2. Ao carregar uma Aula Avulsa
 document.getElementById("btn-buscar-aula")?.addEventListener("click", () => {
     // Registra que o aluno assistiu uma aula
-    registrarProgresso(usuarioLogado, "aulasAssistidas");
+  
 });
 
 // 3. Ao enviar uma Redação

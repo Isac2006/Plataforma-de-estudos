@@ -1,9 +1,20 @@
 [
   {
-    "nome": "ISAC",
-    "aulasAssistidas": 5,
+    "nome": "matheus marques souza da silva",
+    "email": "isacqueirozmarques2006@gmail.com",
+    "acessoBloqueado": false,
+    "progressoCurso": 0,
+    "pagamentos": {
+      "mes1": "pendente",
+      "mes2": "pendente",
+      "mes3": "pago",
+      "mes4": "pendente",
+      "mes5": "pendente",
+      "mes6": "pendente"
+    },
+    "aulasAssistidas": 11,
     "redacoesFeitas": 0,
-    "modulosConcluidos": 0,
+    "modulosConcluidos": 1,
     "questoesFeitas": 0,
     "estatisticas": {
       "questoes": {
@@ -14,13 +25,17 @@
     },
     "cronograma": [
       {
-        "dia": "Ter",
-        "hora": "21:00",
+        "dia": "Qua",
+        "hora": "12:00",
         "materia": "matematica",
         "status": "concluido"
       }
     ],
-    "ultimaAtualizacao": "2025-12-31T00:25:31.253Z",
-    "progressoCurso": 100
+    "ultimaAtualizacao": "2025-12-31T15:36:51.243Z",
+    "senha": "$2b$10$Mci1as21GpFsYhN7uHkHpewKoG9urBdW1CMjK.luR0bcprUuJD/6m",
+    "cpf": "50733555047",
+    "nascimento": "1999-12-14",
+    "faculdade": "Não informado",
+    "curso": "Não informado"
   }
 ]
