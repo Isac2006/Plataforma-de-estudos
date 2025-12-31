@@ -20,6 +20,7 @@ const CAMINHO_BANCO_REDACOES = path.join(__dirname, 'banco de dados provisorio',
 const CAMINHO_BANCO_MATERIAS = path.join(__dirname, 'banco de dados provisorio', 'bancomaterias.json');
 const CAMINHO_BANCO_AULAS = path.join(__dirname, 'banco de dados provisorio', 'bancoaulas.json');
 const CAMINHO_BANCO_USUARIOS = path.join(__dirname, 'banco de dados provisorio', 'usuarios.json');
+const USERS_FILE = path.join(__dirname, 'banco de dados provisorio', 'usuarios.json');
 
 app.use(cors()); 
 app.use(express.json()); 
@@ -751,6 +752,76 @@ app.post('/auth/login', async (req, res) => {
         res.status(500).json({ erro: "Erro ao processar login." });
     }
 });
+// ==========================================
+//    ROTA DE gerenciamento usuarios (Admin)
+// ==========================================
+// Rota para buscar todos os usuários
+app.get('/api/usuarios', async (req, res) => {
+    try {
+        console.log("Lendo arquivo de usuários em:", USERS_FILE); 
+        
+        // Em fs/promises, usamos readFile com await. 
+        // O .catch(() => '[]') garante que se o arquivo não existir, retorna array vazio.
+        const data = await fs.readFile(USERS_FILE, 'utf8').catch(() => '[]');
+        
+        const json = JSON.parse(data || '[]');
+        res.json(json);
+
+    } catch (err) {
+        console.error("❌ ERRO NO SERVIDOR:", err); 
+        res.status(500).send("Erro interno ao processar usuários");
+    }
+});
+
+// Rota para salvar alterações
+// Adicionamos 'async' aqui também
+app.post('/api/usuarios', async (req, res) => {
+    try {
+        const novosUsuarios = req.body;
+        // Usamos await fs.writeFile em vez de writeFileSync
+        await fs.writeFile(USERS_FILE, JSON.stringify(novosUsuarios, null, 2));
+        res.status(200).send({ message: "Dados salvos com sucesso!" });
+    } catch (err) {
+        console.error("Erro ao salvar usuários:", err);
+        res.status(500).send({ error: "Erro ao gravar dados." });
+    }
+});
+// Adicione no seu server.js (seção de Rotas de Aulas)
+
+app.get('/api/total-aulas', async (req, res) => {
+    try {
+        const conteudo = await fs.readFile(CAMINHO_BANCO_AULAS, 'utf-8').catch(() => '[]');
+        const aulas = JSON.parse(conteudo || '[]');
+        
+        // Retorna a quantidade total de aulas cadastradas
+        res.json({ total: aulas.length });
+    } catch (erro) {
+        res.status(500).json({ total: 0 });
+    }
+});
+// server.js - Rota para atualizar apenas o progresso
+app.post('/usuario/atualizar-progresso', async (req, res) => {
+    try {
+        const { usuario, progressoCurso } = req.body;
+        
+        const data = await fs.readFile(CAMINHO_BANCO_USUARIOS, 'utf8');
+        let usuarios = JSON.parse(data);
+        
+        const index = usuarios.findIndex(u => u.nome.toLowerCase() === usuario.toLowerCase());
+        
+        if (index !== -1) {
+            usuarios[index].progressoCurso = progressoCurso;
+            await fs.writeFile(CAMINHO_BANCO_USUARIOS, JSON.stringify(usuarios, null, 2));
+            res.json({ sucesso: true });
+        } else {
+            res.status(404).json({ erro: "Usuário não encontrado" });
+        }
+    } catch (e) {
+        res.status(500).json({ erro: "Erro ao salvar progresso" });
+    }
+});
+// Rota para registrar progresso dinâmico baseado no total de aulas
+
 
 
 

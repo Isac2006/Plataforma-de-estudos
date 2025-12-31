@@ -6,7 +6,8 @@ import { cadastrarAula, carregarAula } from './modulos/aula.js';
 import { buscarDadosParaModulo, finalizarModulo, carregarModuloCompleto } from './modulos/construtor.js';
 import { inicializarCronograma, salvarCronograma, registrarEstudoAutomatico } from './modulos/cronograma.js';
 import { atualizarEstatisticas, registrarProgresso } from './modulos/estatisticas.js';
-// para login trabalhar depois(provisorio)
+import GerenciadorEducacional from './modulos/gerenciador.js';
+
 
 
 
@@ -555,3 +556,239 @@ document.addEventListener("click", (e) => {
         realizarLogin();
     }
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// --- 2. INTEGRAÇÃO COM O SERVIDOR (API) ---
+let gerenciador;
+
+async function carregarDados() {
+    try {
+        const response = await fetch('/api/usuarios');
+        const dados = await response.json();
+        gerenciador = new GerenciadorEducacional(dados);
+        renderUsers();
+    } catch (err) {
+        console.error("Erro ao carregar dados do servidor:", err);
+        gerenciador = new GerenciadorEducacional([]); 
+    }
+}
+
+async function salvarNoServidor() {
+    try {
+        await fetch('/api/usuarios', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(gerenciador.getUsuarios())
+        });
+    } catch (err) {
+        console.error("Erro ao salvar dados:", err);
+    }
+}
+
+// --- 3. INTERFACE (DOM) ---
+const userListDiv = document.getElementById('user-list');
+
+function renderUsers() {
+    if (!userListDiv) return;
+    userListDiv.innerHTML = '';
+    
+    gerenciador.getUsuarios().forEach(user => {
+        const card = document.createElement('div');
+        card.className = `user-card ${user.acessoBloqueado ? 'blocked' : ''}`;
+        card.innerHTML = `
+            <div>
+                <strong>${user.nome.toUpperCase()}</strong><br>
+                <span>Progresso: ${user.progressoCurso}% | Aulas: ${user.aulasAssistidas}</span>
+            </div>
+            <div class="payment-status-container">
+                ${Object.keys(user.pagamentos).map(m => `
+                    <span class="status-tag ${user.pagamentos[m]}">
+                        ${m.replace('mes', 'M')}: ${user.pagamentos[m]}
+                    </span>
+                `).join('')}
+            </div>
+            <div class="buttons">
+                <button onclick="handleOpenEditModal('${user.nome}')" class="edit">Editar/Pagar</button>
+                <button onclick="handleToggleBlock('${user.nome}')" class="toggle-block">
+                    ${user.acessoBloqueado ? 'Desbloquear' : 'Bloquear'}
+                </button>
+                <button onclick="handleDelete('${user.nome}')" class="delete">Excluir</button>
+            </div>
+        `;
+        userListDiv.appendChild(card);
+    });
+}
+
+// --- 4. AÇÕES DOS BOTÕES E MODAIS ---
+
+// Abrir Modal de Edição
+window.handleOpenEditModal = (nome) => {
+    const user = gerenciador.getUsuario(nome);
+    if (!user) return;
+
+    // Preencher campos básicos
+    document.getElementById('editUserNameDisplay').textContent = user.nome;
+    document.getElementById('edit-user-original-name').value = user.nome;
+    document.getElementById('edit-user-new-name').value = user.nome;
+    document.getElementById('edit-user-email').value = user.email || '';
+    document.getElementById('edit-user-aulas').value = user.aulasAssistidas || 0;
+    document.getElementById('edit-user-redacoes').value = user.redacoesFeitas || 0;
+    document.getElementById('edit-user-progresso').value = user.progressoCurso || 0;
+
+    // Gerar selects de pagamentos (1 a 6)
+    const payContainer = document.getElementById('edit-user-payments-container');
+    payContainer.innerHTML = '';
+    for (let i = 1; i <= 6; i++) {
+        const status = user.pagamentos[`mes${i}`] || 'pendente';
+        payContainer.innerHTML += `
+            <div style="margin-bottom:8px; display: flex; justify-content: space-between; align-items: center;">
+                <label>Mês ${i}: </label>
+                <select id="edit-pay-mes${i}" style="padding: 4px;">
+                    <option value="pago" ${status === 'pago' ? 'selected' : ''}>Pago</option>
+                    <option value="pendente" ${status === 'pendente' ? 'selected' : ''}>Pendente</option>
+                </select>
+            </div>
+        `;
+    }
+    document.getElementById('editUserModal').style.display = 'block';
+};
+
+// Salvar Dados do Modal
+document.getElementById('edit-user-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const nomeOriginal = document.getElementById('edit-user-original-name').value;
+    
+    const novosDados = {
+        nome: document.getElementById('edit-user-new-name').value,
+        email: document.getElementById('edit-user-email').value,
+        aulasAssistidas: parseInt(document.getElementById('edit-user-aulas').value) || 0,
+        redacoesFeitas: parseInt(document.getElementById('edit-user-redacoes').value) || 0,
+        progressoCurso: parseInt(document.getElementById('edit-user-progresso').value) || 0
+    };
+
+    // Atualizar cada mês de pagamento
+    for (let i = 1; i <= 6; i++) {
+        const select = document.getElementById(`edit-pay-mes${i}`);
+        if (select) {
+            gerenciador.atualizarPagamento(nomeOriginal, i, select.value);
+        }
+    }
+
+    gerenciador.editarUsuario(nomeOriginal, novosDados);
+    await salvarNoServidor();
+    document.getElementById('editUserModal').style.display = 'none';
+    renderUsers();
+});
+
+// Bloquear/Desbloquear
+window.handleToggleBlock = async (nome) => {
+    gerenciador.alternarBloqueio(nome);
+    await salvarNoServidor();
+    renderUsers();
+};
+
+// Excluir
+window.handleDelete = async (nome) => {
+    if (confirm(`Tem certeza que deseja excluir o aluno ${nome}?`)) {
+        gerenciador.excluirUsuario(nome);
+        await salvarNoServidor();
+        renderUsers();
+    }
+};
+
+// Adicionar Novo Aluno (Formulário Principal)
+document.getElementById('add-user-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const nome = document.getElementById('add-user-name').value;
+    const email = document.getElementById('add-user-email').value;
+    
+    gerenciador.adicionarUsuario({ nome, email });
+    await salvarNoServidor();
+    e.target.reset();
+    renderUsers();
+});
+
+// Fechar Modais
+document.querySelectorAll('.close-button').forEach(btn => {
+    btn.onclick = () => {
+        document.getElementById('editUserModal').style.display = 'none';
+        document.getElementById('redacoesModal').style.display = 'none';
+    };
+});
+
+// Fechar modal ao clicar fora dele
+window.onclick = (event) => {
+    const editModal = document.getElementById('editUserModal');
+    const redModal = document.getElementById('redacoesModal');
+    if (event.target == editModal) editModal.style.display = "none";
+    if (event.target == redModal) redModal.style.display = "none";
+}
+async function atualizarBarraDeProgresso(usuario) {
+    try {
+        // 1. Busca o total de aulas do servidor
+        const resposta = await fetch('http://localhost:3000/api/total-aulas');
+        const dados = await resposta.json();
+        const totalAulas = dados.total || 1; // Evita divisão por zero
+
+        // 2. Pega quantas o aluno já assistiu (do objeto usuário)
+        const aulasAssistidas = usuario.aulasAssistidas || 0;
+
+        // 3. Calcula a porcentagem
+        let porcentagem = (aulasAssistidas / totalAulas) * 100;
+
+        // Arredonda e limita a 100%
+        porcentagem = Math.min(100, Math.round(porcentagem));
+
+        console.log(`Progresso: ${aulasAssistidas}/${totalAulas} = ${porcentagem}%`);
+
+        // 4. Atualiza a tela (ajuste os IDs conforme seu HTML)
+        const barraProgresso = document.querySelector('.barra-progresso-preenchimento'); // ou o ID da sua barra
+        const textoProgresso = document.querySelector('.texto-progresso'); // Onde fica o "45%"
+
+        if (barraProgresso) {
+            barraProgresso.style.width = `${porcentagem}%`;
+        }
+        if (textoProgresso) {
+            textoProgresso.innerText = `${porcentagem}% Concluído`;
+        }
+
+        // Opcional: Salvar esse novo progresso no banco do usuário para persistir
+        if (usuario.progressoCurso !== porcentagem) {
+             atualizarProgressoNoServidor(usuario.nome, porcentagem);
+        }
+
+    } catch (erro) {
+        console.error("Erro ao calcular progresso:", erro);
+    }
+}
+
+// Função auxiliar para salvar o número atualizado no banco
+async function atualizarProgressoNoServidor(nomeUsuario, novaPorcentagem) {
+    await fetch('http://localhost:3000/usuario/atualizar-progresso', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            usuario: nomeUsuario, 
+            progressoCurso: novaPorcentagem 
+        })
+    });
+}
+// Iniciar Aplicação
+carregarDados();
