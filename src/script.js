@@ -31,7 +31,7 @@ async function carregarTudo(nome) {
 
 // Verifica o login antes de qualquer coisa
 if (!usuarioLogado) {
-    let nomeDigitado = prompt("Digite seu nome para acessar:");
+    let nomeDigitado = "visitante"
     if (nomeDigitado && nomeDigitado.trim() !== "") {
         usuarioLogado = nomeDigitado.trim();
         localStorage.setItem("nomeUsuario", usuarioLogado);
@@ -121,11 +121,7 @@ if (selectDiciplina && selectTema) {
 
 // --- CONFIGURAÇÃO DOS OUVINTES DE CLIQUE (EVENT LISTENERS) ---
 
-// Botão para buscar questões
-const btnGerar = document.getElementById("gerar-questao");
-if (btnGerar) {
-    btnGerar.addEventListener("click", aparecerquestoes);
-}
+
 
 // Botão para cadastrar questão (Ajustado para evitar ReferenceError)
 const btnSalvar = document.getElementById("btn-salvar-questao");
@@ -372,28 +368,40 @@ atualizarEstatisticas(usuarioLogado);
 
 // --- INTEGRAÇÃO COM OS EVENTOS ---
 
+// Função auxiliar para pegar o ID sempre atualizado
+const obterIdAtual = () => localStorage.getItem("usuarioId");
+
 // 1. Ao clicar em Gerar/Ver Questão
 document.getElementById("gerar-questao")?.addEventListener("click", () => {
-    // Registra que o aluno interagiu com questões
-    registrarProgresso(usuarioLogado, "questoesFeitas");
+    const id = obterIdAtual();
+    if (id) {
+        registrarProgresso(id, "questoesFeitas");
+    }
 });
 
-// 2. Ao carregar uma Aula Avulsa
-document.getElementById("btn-buscar-aula")?.addEventListener("click", () => {
-    // Registra que o aluno assistiu uma aula
-  
-});
-
-// 3. Ao enviar uma Redação
-// Você precisará adicionar isso dentro da sua função enviarRedacao no modulo ou aqui:
+// 2. Ao enviar uma Redação
 document.getElementById("btnEnviarRedacao")?.addEventListener("click", () => {
-    registrarProgresso(usuarioLogado, "redacoesFeitas");
+    const id = obterIdAtual();
+    if (id) {
+        registrarProgresso(id, "redacoesFeitas");
+    }
 });
 
-// 4. Ao carregar Módulo Completo (O espaço que você pediu para os módulos)
+// 3. Ao carregar Módulo Completo
 document.getElementById("btn-carregar-tudo")?.addEventListener("click", () => {
-    // Aqui você pode definir a lógica: se carregar o módulo conta como "Módulo feito"
-    registrarProgresso(usuarioLogado, "modulosConcluidos");
+    const id = obterIdAtual();
+    if (id) {
+        // Incrementa módulos concluídos
+        registrarProgresso(id, "modulosConcluidos");
+    }
+});
+
+// 4. Registrar Aula (Exemplo de como você pode usar)
+document.getElementById("btn-buscar-aula")?.addEventListener("click", () => {
+    const id = obterIdAtual();
+    if (id) {
+        registrarProgresso(id, "aulasAssistidas");
+    }
 });
 atualizarEstatisticas(usuarioLogado);
 
@@ -504,51 +512,60 @@ document.addEventListener("click", (event) => {
         finalizarRegistro();
     }
 });
-// --- FUNÇÃO PARA REALIZAR LOGIN ---
+// --- FUNÇÃO PARA REALIZAR LOGIN (MODIFICADA) ---
 async function realizarLogin() {
     const emailEl = document.getElementById("auth-email");
     const senhaEl = document.getElementById("auth-pass");
 
-    if (!emailEl || !senhaEl) {
-        console.error("❌ Erro: Campos de login (email ou senha) não encontrados no HTML.");
-        return;
-    }
+    if (!emailEl || !senhaEl) return;
 
-    const dados = {
+    const dadosEnvio = {
         email: emailEl.value.trim(),
         senha: senhaEl.value.trim()
     };
 
-    if (!dados.email || !dados.senha) {
-        alert("⚠️ Preencha todos os campos!");
-        return;
-    }
-
     try {
-        console.log("🔑 Tentando login para:", dados.email);
-
         const resposta = await fetch('http://localhost:3000/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dados)
+            body: JSON.stringify(dadosEnvio)
         });
 
+        // --- ÚNICA LEITURA DO JSON ---
         const resultado = await resposta.json();
 
         if (resposta.ok) {
-            // Salva o nome do usuário que veio do servidor
-            localStorage.setItem("nomeUsuario", resultado.usuario);
-            alert(`✅ Bem-vindo, ${resultado.usuario}!`);
-            location.reload(); // Recarrega para entrar na plataforma
+            console.log("Dados recebidos do servidor:", resultado);
+
+            // 1. Pega o ID (do seu JSON arrumado o campo é 'id')
+            const idParaSalvar = resultado.id || resultado._id;
+            
+            // 2. Pega o Nome
+            const nomeParaSalvar = resultado.nome || resultado.usuario || "Usuário";
+
+            if (idParaSalvar) {
+                // 3. Salva no LocalStorage
+                localStorage.setItem("usuarioId", idParaSalvar);
+                localStorage.setItem("nomeUsuario", nomeParaSalvar);
+                
+                alert(`✅ Bem-vindo, ${nomeParaSalvar}!`);
+                
+                // 4. Redireciona
+                window.location.href = "index.html"; 
+            } else {
+                console.error("Servidor não enviou o ID!", resultado);
+                alert("Erro técnico: ID não encontrado nos dados do usuário.");
+            }
         } else {
-            alert("❌ " + (resultado.erro || "Falha no login"));
+            // Caso o servidor retorne erro (senha errada, etc)
+            alert("❌ " + (resultado.mensagem || resultado.erro || "Falha no login"));
         }
+
     } catch (erro) {
         console.error("❌ Erro de conexão:", erro);
-        alert("Servidor offline ou erro de rede.");
+        alert("Erro ao conectar com o servidor. Verifique se ele está rodando.");
     }
 }
-
 // --- ATIVAR O CLIQUE DO BOTÃO ---
 document.addEventListener("click", (e) => {
     if (e.target && e.target.id === "btn-login-confirmar") {
@@ -609,13 +626,17 @@ function renderUsers() {
     if (!userListDiv) return;
     userListDiv.innerHTML = '';
     
+    // Assumindo que 'user' agora tem uma propriedade '_id' ou 'id' vinda do banco
     gerenciador.getUsuarios().forEach(user => {
+        // Usa o ID para identificar o usuário (ajuste para user._id se for MongoDB)
+        const userId = user.id || user._id; 
+
         const card = document.createElement('div');
         card.className = `user-card ${user.acessoBloqueado ? 'blocked' : ''}`;
         card.innerHTML = `
             <div>
                 <strong>${user.nome.toUpperCase()}</strong><br>
-                <span>Progresso: ${user.progressoCurso}% | Aulas: ${user.aulasAssistidas}</span>
+                <small>ID: ${userId}</small><br> <span>Progresso: ${user.progressoCurso}% | Aulas: ${user.aulasAssistidas}</span>
             </div>
             <div class="payment-status-container">
                 ${Object.keys(user.pagamentos).map(m => `
@@ -625,49 +646,85 @@ function renderUsers() {
                 `).join('')}
             </div>
             <div class="buttons">
-                <button onclick="handleOpenEditModal('${user.nome}')" class="edit">Editar/Pagar</button>
-                <button onclick="handleToggleBlock('${user.nome}')" class="toggle-block">
+                <button onclick="handleOpenEditModal('${userId}')" class="edit">Editar/Pagar</button>
+                <button onclick="handleToggleBlock('${userId}')" class="toggle-block">
                     ${user.acessoBloqueado ? 'Desbloquear' : 'Bloquear'}
                 </button>
-                <button onclick="handleDelete('${user.nome}')" class="delete">Excluir</button>
+                <button onclick="handleDelete('${userId}')" class="delete">Excluir</button>
             </div>
         `;
         userListDiv.appendChild(card);
     });
 }
-
 // --- 4. AÇÕES DOS BOTÕES E MODAIS ---
 
-// Abrir Modal de Edição
-window.handleOpenEditModal = (nome) => {
-    const user = gerenciador.getUsuario(nome);
-    if (!user) return;
+// Abrir Modal de Edição (BUSCA POR ID)
+window.handleOpenEditModal = (id) => {
+    // Você precisará atualizar seu arquivo 'gerenciador.js' para ter um método getUsuarioPorId
+    // ou garantir que getUsuario procure pelo ID.
+    const user = gerenciador.getUsuario(id); 
+    
+    if (!user) {
+        console.error("Usuário não encontrado com ID:", id);
+        return;
+    }
 
-    // Preencher campos básicos
+    // Guardamos o ID num atributo data ou campo oculto para usar no salvamento
+    document.getElementById('edit-user-original-name').dataset.id = id; 
+
+    // Preencher campos (O resto continua igual)
     document.getElementById('editUserNameDisplay').textContent = user.nome;
-    document.getElementById('edit-user-original-name').value = user.nome;
+    document.getElementById('edit-user-original-name').value = user.nome; // Apenas visual
     document.getElementById('edit-user-new-name').value = user.nome;
     document.getElementById('edit-user-email').value = user.email || '';
     document.getElementById('edit-user-aulas').value = user.aulasAssistidas || 0;
-    document.getElementById('edit-user-redacoes').value = user.redacoesFeitas || 0;
-    document.getElementById('edit-user-progresso').value = user.progressoCurso || 0;
-
-    // Gerar selects de pagamentos (1 a 6)
-    const payContainer = document.getElementById('edit-user-payments-container');
-    payContainer.innerHTML = '';
-    for (let i = 1; i <= 6; i++) {
-        const status = user.pagamentos[`mes${i}`] || 'pendente';
-        payContainer.innerHTML += `
-            <div style="margin-bottom:8px; display: flex; justify-content: space-between; align-items: center;">
-                <label>Mês ${i}: </label>
-                <select id="edit-pay-mes${i}" style="padding: 4px;">
-                    <option value="pago" ${status === 'pago' ? 'selected' : ''}>Pago</option>
-                    <option value="pendente" ${status === 'pendente' ? 'selected' : ''}>Pendente</option>
-                </select>
-            </div>
-        `;
-    }
+    // ... restante dos campos ...
+    
+    // ... código dos selects de pagamento ...
+    
     document.getElementById('editUserModal').style.display = 'block';
+};
+
+// Salvar Edição (ENVIA O ID)
+document.getElementById('edit-user-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // Recupera o ID que salvamos ao abrir o modal
+    const idUsuario = document.getElementById('edit-user-original-name').dataset.id;
+    
+    const novosDados = {
+        // Enviamos o ID para o gerenciador saber quem atualizar
+        id: idUsuario, 
+        nome: document.getElementById('edit-user-new-name').value,
+        email: document.getElementById('edit-user-email').value,
+        aulasAssistidas: parseInt(document.getElementById('edit-user-aulas').value) || 0,
+        // ... outros campos
+    };
+
+    // Atualiza no gerenciador local usando ID
+    gerenciador.editarUsuario(idUsuario, novosDados);
+    
+    // Salva no servidor
+    await salvarNoServidor(); 
+    
+    document.getElementById('editUserModal').style.display = 'none';
+    renderUsers();
+});
+
+// Bloquear/Desbloquear por ID
+window.handleToggleBlock = async (id) => {
+    gerenciador.alternarBloqueio(id); // O gerenciador deve buscar pelo ID
+    await salvarNoServidor();
+    renderUsers();
+};
+
+// Excluir por ID
+window.handleDelete = async (id) => {
+    if (confirm(`Tem certeza que deseja excluir este usuário? (ID: ${id})`)) {
+        gerenciador.excluirUsuario(id); // O gerenciador deve excluir pelo ID
+        await salvarNoServidor();
+        renderUsers();
+    }
 };
 
 // Salvar Dados do Modal

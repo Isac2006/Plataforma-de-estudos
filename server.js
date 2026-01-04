@@ -102,14 +102,16 @@ app.post('/questoes', async (req, res) => {
 // 1. Aluno envia redação
 app.post('/redacoes', async (req, res) => {
     try {
-        const { usuario, titulo, conteudo_html } = req.body;
+        // Agora recebemos o idUsuario vindo do frontend
+        const { idUsuario, usuario, titulo, conteudo_html } = req.body;
         
         const conteudo = await fs.readFile(CAMINHO_BANCO_REDACOES, 'utf-8').catch(() => '[]');
         const banco = JSON.parse(conteudo || '[]');
 
         const novaRedacao = {
             id: Date.now(),
-            usuario: usuario, // Aqui o nome do aluno é gravado no banco
+            idUsuario: idUsuario, // Vínculo essencial para a busca futura
+            usuario: usuario,     // Mantemos o nome apenas para exibição fácil ao professor
             titulo: titulo,
             conteudo_html: conteudo_html,
             comentarios: [],
@@ -119,8 +121,10 @@ app.post('/redacoes', async (req, res) => {
 
         banco.push(novaRedacao);
         await fs.writeFile(CAMINHO_BANCO_REDACOES, JSON.stringify(banco, null, 2));
+        
         res.status(201).json({ mensagem: "Enviado com sucesso!" });
     } catch (erro) {
+        console.error("Erro ao salvar redação:", erro);
         res.status(500).json({ mensagem: "Erro ao salvar no servidor" });
     }
 });
@@ -408,10 +412,11 @@ app.get('/modulos/visualizar', async (req, res) => {
 
 app.post('/salvar', async (req, res) => {
     try {
-        const { usuario, totalHoras, cronograma } = req.body;
+        // Agora recebemos o idUsuario para precisão total
+        const { idUsuario, totalHoras, cronograma, usuario } = req.body;
         
-        // 1. Validação de entrada
-        if (!usuario) return res.status(400).send("Usuário não identificado.");
+        // 1. Validação de entrada (Prioriza o ID)
+        if (!idUsuario) return res.status(400).send("ID do usuário não identificado.");
 
         // 2. Leitura segura do arquivo
         const conteudo = await fs.readFile(CAMINHO_BANCO_USUARIOS, 'utf-8').catch(() => '[]');
@@ -422,29 +427,31 @@ app.post('/salvar', async (req, res) => {
             usuarios = [];
         }
 
-        // 3. Busca padronizada (evita criar duplicados por causa de letra maiúscula)
-        const nomeBusca = usuario.toLowerCase().trim();
-        const index = usuarios.findIndex(u => u.nome && u.nome.toLowerCase().trim() === nomeBusca);
+        // 3. Busca por ID (Muito mais seguro que por nome)
+        // Convertemos ambos para String para garantir a comparação (evita erro de tipo número vs texto)
+        const index = usuarios.findIndex(u => String(u.id) === String(idUsuario));
 
         if (index !== -1) {
             // --- MODO ATUALIZAÇÃO ---
-            // O spread (...usuarios[index]) DEVE vir primeiro para não perder 
-            // aulasAssistidas, estatisticas, questoesFeitas, etc.
+            // O spread (...usuarios[index]) garante que NÃO vamos apagar:
+            // senha, email, aulasAssistidas, questoesFeitas, etc.
             usuarios[index] = {
                 ...usuarios[index], 
-                totalHoras: totalHoras || usuarios[index].totalHoras || 0,
+                totalHoras: totalHoras !== undefined ? totalHoras : usuarios[index].totalHoras,
                 cronograma: cronograma || usuarios[index].cronograma || [],
                 ultimaAtualizacao: new Date().toISOString()
             };
+            
+            console.log(`✅ Cronograma do ID ${idUsuario} atualizado.`);
         } else {
-            // --- MODO CRIAÇÃO ---
-            // Aqui adicionamos TODOS os campos que o sistema usa, para evitar 'undefined' no futuro
+            // --- MODO CRIAÇÃO (Caso o ID não exista no banco) ---
+            // Isso raramente deve acontecer se o login estiver funcionando,
+            // mas serve como segurança.
             usuarios.push({
-                nome: usuario,
-                email: "", // Preenchido no registro, mas garantido aqui
+                id: idUsuario,
+                nome: usuario || "Usuário Novo",
                 aulasAssistidas: 0,
                 redacoesFeitas: 0,
-                modulosConcluidos: 0,
                 questoesFeitas: 0,
                 estatisticas: { 
                     questoes: { totalAcertos: 0, totalErros: 0, porMateria: {} } 
@@ -453,12 +460,12 @@ app.post('/salvar', async (req, res) => {
                 totalHoras: totalHoras || 0,
                 ultimaAtualizacao: new Date().toISOString()
             });
+            console.log(`✅ Novo perfil criado via salvamento de cronograma.`);
         }
 
-        // 4. Gravação segura
+        // 4. Gravação segura no arquivo JSON
         await fs.writeFile(CAMINHO_BANCO_USUARIOS, JSON.stringify(usuarios, null, 2));
         
-        console.log(`✅ Cronograma de ${usuario} salvo sem perdas de outros dados.`);
         res.status(200).send("Salvo com sucesso!");
 
     } catch (e) {
@@ -536,57 +543,52 @@ app.post('/registrar-estudo-agora', async (req, res) => {
 // 1. Buscar dados completos do usuário (Estatísticas, Redações, etc)
 app.get('/usuario/dados', async (req, res) => {
     try {
-        const { nome } = req.query;
-        if (!nome || nome === "undefined") return res.status(400).json({ mensagem: "Nome inválido" });
+        // MUDANÇA: Agora recebemos 'id' em vez de 'nome'
+        const { id } = req.query; 
+        
+        if (!id || id === "undefined" || id === "null") {
+            return res.status(400).json({ mensagem: "ID do usuário é obrigatório" });
+        }
 
         const conteudoRaw = await fs.readFile(CAMINHO_BANCO_USUARIOS, 'utf-8').catch(() => '[]');
         let usuarios = [];
         try {
             usuarios = JSON.parse(conteudoRaw.trim() || '[]');
-        } catch (e) { usuarios = []; }
+        } catch (e) { 
+            usuarios = []; 
+        }
 
-        let usuario = usuarios.find(u => u.nome && u.nome.toLowerCase() === nome.toLowerCase());
+        // MUDANÇA: Busca pelo ID (convertendo para string para garantir a comparação)
+        // Verifica tanto 'id' quanto '_id' (caso use MongoDB ou padrões diferentes)
+        let usuario = usuarios.find(u => String(u.id) === String(id) || String(u._id) === String(id));
 
         if (!usuario) {
-            usuario = {
-                nome: nome,
-                aulasAssistidas: 0,
-                redacoesFeitas: 0,
-                modulosConcluidos: 0,
-                questoesFeitas: 0, // Garanta que este campo exista
-                estatisticas: { 
-                    questoes: { totalAcertos: 0, totalErros: 0, porMateria: {} } 
-                },
-                cronograma: [],
-                ultimaAtualizacao: new Date().toISOString()
-            };
-            usuarios.push(usuario);
-            await fs.writeFile(CAMINHO_BANCO_USUARIOS, JSON.stringify(usuarios, null, 2));
+            return res.status(404).json({ mensagem: "Usuário não encontrado no banco de dados" });
         }
         
+        // Retorna o objeto do usuário completo (com estatísticas, aulas, etc)
         res.json(usuario);
+
     } catch (e) {
+        console.error("Erro ao buscar dados do usuário:", e);
         res.status(500).json({ erro: e.message });
     }
 });
 // 2. Incrementar contadores simples (Aulas, Redações, Módulos)
 app.post('/usuario/incrementar', async (req, res) => {
     try {
-        const { usuario, campo } = req.body;
-        if (!usuario || !campo) return res.status(400).json({ erro: "Dados incompletos" });
+        // MUDANÇA: Agora pegamos o idUsuario do corpo da requisição
+        const { idUsuario, campo } = req.body;
+        
+        if (!idUsuario || !campo) {
+            return res.status(400).json({ erro: "Dados incompletos" });
+        }
 
         const conteudoRaw = await fs.readFile(CAMINHO_BANCO_USUARIOS, 'utf-8').catch(() => '[]');
+        let usuarios = JSON.parse(conteudoRaw.trim() || '[]');
         
-        let usuarios = [];
-        try {
-            // O .trim() remove espaços que quebram o JSON.parse
-            usuarios = JSON.parse(conteudoRaw.trim() || '[]');
-        } catch (e) {
-            console.error("Erro ao ler JSON de usuários, resetando arquivo.");
-            usuarios = [];
-        }
-        
-        const user = usuarios.find(u => u.nome && u.nome.toLowerCase() === usuario.toLowerCase());
+        // MUDANÇA: Buscamos pelo ID (convertendo ambos para String para comparar)
+        const user = usuarios.find(u => String(u.id) === String(idUsuario));
         
         if (!user) {
             return res.status(404).json({ erro: "Usuário não encontrado" });
@@ -606,32 +608,22 @@ app.post('/usuario/incrementar', async (req, res) => {
 // 3. Registrar respostas de questões (Acertos/Erros por Matéria)
 app.post('/usuario/registrar-resposta', async (req, res) => {
     try {
-        const { usuario, disciplina, acertou } = req.body;
+        const { idUsuario, disciplina, acertou } = req.body;
 
-        if (!usuario || !disciplina) {
+        if (!idUsuario || !disciplina) {
             return res.status(400).json({ mensagem: "Dados incompletos" });
         }
 
-        const conteudoRaw = await fs.readFile(CAMINHO_BANCO_USUARIOS, 'utf-8').catch(() => '[]');
-        let usuarios = [];
-        try {
-            usuarios = JSON.parse(conteudoRaw.trim() || '[]');
-        } catch (e) {
-            usuarios = [];
-        }
-        
-        const index = usuarios.findIndex(u => u.nome && u.nome.toLowerCase() === usuario.toLowerCase());
-        if (index === -1) return res.status(404).json({ mensagem: "Usuário não encontrado" });
+        const data = await fs.readFile(CAMINHO_BANCO_USUARIOS, 'utf-8').catch(() => '[]');
+        const usuarios = JSON.parse(data || '[]');
 
-        let user = usuarios[index];
+        const user = usuarios.find(u => String(u.id) === String(idUsuario));
+        if (!user) return res.status(404).json({ mensagem: "Usuário não encontrado" });
 
-        // --- BLINDAGEM DA ESTRUTURA (Evita Erro 500) ---
+        // blindagem
         if (!user.estatisticas) user.estatisticas = {};
         if (!user.estatisticas.questoes) {
             user.estatisticas.questoes = { totalAcertos: 0, totalErros: 0, porMateria: {} };
-        }
-        if (!user.estatisticas.questoes.porMateria) {
-            user.estatisticas.questoes.porMateria = {};
         }
 
         const disc = disciplina.toLowerCase().trim();
@@ -639,28 +631,24 @@ app.post('/usuario/registrar-resposta', async (req, res) => {
             user.estatisticas.questoes.porMateria[disc] = { acertos: 0, erros: 0 };
         }
 
-        // --- LÓGICA DE INCREMENTO SEGURA ---
-        const isCorrect = String(acertou) === 'true';
-
-        if (isCorrect) {
-            user.estatisticas.questoes.totalAcertos = (Number(user.estatisticas.questoes.totalAcertos) || 0) + 1;
-            user.estatisticas.questoes.porMateria[disc].acertos = (Number(user.estatisticas.questoes.porMateria[disc].acertos) || 0) + 1;
+        if (String(acertou) === 'true') {
+            user.estatisticas.questoes.totalAcertos++;
+            user.estatisticas.questoes.porMateria[disc].acertos++;
         } else {
-            user.estatisticas.questoes.totalErros = (Number(user.estatisticas.questoes.totalErros) || 0) + 1;
-            user.estatisticas.questoes.porMateria[disc].erros = (Number(user.estatisticas.questoes.porMateria[disc].erros) || 0) + 1;
+            user.estatisticas.questoes.totalErros++;
+            user.estatisticas.questoes.porMateria[disc].erros++;
         }
 
-        // Atualiza o contador global de questões feitas
-        user.questoesFeitas = (Number(user.questoesFeitas) || 0) + 1;
+        user.questoesFeitas = (user.questoesFeitas || 0) + 1;
 
         await fs.writeFile(CAMINHO_BANCO_USUARIOS, JSON.stringify(usuarios, null, 2));
         res.json({ sucesso: true });
 
     } catch (e) {
-        console.error("ERRO DETALHADO NO REGISTRAR-RESPOSTA:", e); 
-        res.status(500).json({ erro: "Erro interno no servidor", detalhe: e.message });
+        res.status(500).json({ erro: "Erro interno" });
     }
 });
+
 
 
 
@@ -709,6 +697,7 @@ app.post('/auth/registrar', async (req, res) => {
 
         const novoUsuario = {
             nome: usuario,
+            id: Date.now(), // gera um ID numérico único baseado no tempo
             senha: hashSenha,
             email,
             cpf: cpf.replace(/[^\d]+/g, ''),
@@ -743,8 +732,12 @@ app.post('/auth/login', async (req, res) => {
         const user = usuarios.find(u => u.email === email);
         
         if (user && await bcrypt.compare(senha, user.senha)) {
-            // Retorna o nome para o localStorage do Front-end
-            res.json({ mensagem: "Sucesso", usuario: user.nome });
+            // --- CORREÇÃO AQUI: Adicione o user.id ---
+            res.json({ 
+                mensagem: "Sucesso", 
+                usuario: user.nome, 
+                id: user.id  // Essencial para o cronograma e estatísticas funcionarem!
+            });
         } else {
             res.status(401).json({ erro: "E-mail ou senha incorretos." });
         }

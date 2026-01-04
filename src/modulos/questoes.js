@@ -120,7 +120,7 @@ export async function salvarEdicao(indice, id) {
 
 // 4. DEMAIS FUNÇÕES (RESPONDER, VER RESPOSTA, APAGAR)
 
-export function responder(indice, nomeUsuario) { 
+export function responder(indice) { // Removido nomeUsuario dos parâmetros
     const questao = listaDeQuestoesLocal[indice];
     const feedback = document.getElementById(`res-${indice}`);
     const marcado = document.querySelector(`input[name="questao-${indice}"]:checked`);
@@ -130,14 +130,22 @@ export function responder(indice, nomeUsuario) {
         return;
     }
 
+    // --- BUSCA O ID AO INVÉS DO NOME ---
+    const idUsuario = localStorage.getItem("usuarioId");
+
+    if (!idUsuario || idUsuario === "undefined") {
+        console.error("ID do usuário não encontrado no localStorage");
+        alert("Erro: Usuário não identificado. Tente fazer login novamente.");
+        return;
+    }
+
     const textoSelecionado = questao.alternativas[parseInt(marcado.value)];
     const correto = String(textoSelecionado).trim() === String(questao.resposta_correta).trim();
 
-    // --- AGORA USAMOS O NOME QUE VEM DO MAIN.JS ---
     const disciplina = questao.disciplina || document.getElementById("diciplinapedido").value;
     
-    // Envia o nome dinâmico (Isac, Maria, etc)
-    registrarRespostaQuestao(nomeUsuario, disciplina, correto); 
+    // Agora enviamos o ID, que é o que o servidor espera na rota /registrar-resposta
+    registrarRespostaQuestao(idUsuario, disciplina, correto); 
 
     feedback.innerHTML = correto ? "✅ Resposta Correta!" : `❌ Errado! Gabarito: ${questao.resposta_correta}`;
     feedback.style.color = correto ? "green" : "red";
@@ -167,25 +175,21 @@ export async function apagarQuestao(id) {
 
 // 5. CONFIGURAÇÃO DE EVENTOS (Versão Única e Corrigida)
 function configurarEventosDosBotoes() {
-    // 1. Recupera o nome do usuário logado uma única vez
-    const nomeReal = localStorage.getItem("nomeUsuario") || "Visitante";
+    // --- MUDANÇA AQUI: Pegamos o ID em vez do nome ---
+    const idUsuario = localStorage.getItem("usuarioId");
 
-    // 2. Configura o botão RESPONDER (passando o nome do usuário)
+    // Configura o botão RESPONDER (passando o ID do usuário)
     document.querySelectorAll('.btn-responder').forEach(btn => {
-        btn.onclick = () => responder(btn.dataset.index, nomeReal);
+        btn.onclick = () => responder(btn.dataset.index, idUsuario);
     });
 
-    // 3. Configura o botão VER RESPOSTA
+    // ... (restante dos botões Ver, Editar e Apagar permanecem iguais)
     document.querySelectorAll('.btn-ver').forEach(btn => {
         btn.onclick = () => verResposta(btn.dataset.index);
     });
-
-    // 4. Configura o botão EDITAR
     document.querySelectorAll('.btn-editar').forEach(btn => {
         btn.onclick = () => iniciarEdicao(btn.dataset.index);
     });
-
-    // 5. Configura o botão APAGAR
     document.querySelectorAll('.btn-apagar').forEach(btn => {
         btn.onclick = () => apagarQuestao(btn.dataset.id);
     });

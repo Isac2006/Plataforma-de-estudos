@@ -8,12 +8,12 @@ const dias = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
 
 // --- FUNÇÕES DE INICIALIZAÇÃO ---
 
-
-
-
-export async function inicializarCronograma(nomeUsuario) {
+export async function inicializarCronograma() {
     const tbody = document.querySelector('#cronograma tbody');
     if (!tbody) return;
+
+    // Recupera o ID do usuário logado
+    const idUsuario = localStorage.getItem("usuarioId");
 
     // 1. Gera a estrutura visual vazia
     tbody.innerHTML = ''; 
@@ -25,27 +25,35 @@ export async function inicializarCronograma(nomeUsuario) {
         tbody.appendChild(tr);
     }
 
-    // 2. Busca os dados salvos do usuário no servidor
+    // Segurança: Se não houver ID válido, ativa apenas interações locais (modo offline/visitante)
+    if (!idUsuario || idUsuario === "undefined" || idUsuario === "null") {
+        console.warn("Cronograma: Usuário não identificado. Operando em modo local.");
+        configurarInteracoes();
+        return;
+    }
+
+    // 2. Busca os dados salvos do usuário no servidor por ID
     try {
-        const resposta = await fetch(`http://localhost:3000/usuario/dados?nome=${nomeUsuario}`);
+        const resposta = await fetch(`http://localhost:3000/usuario/dados?id=${idUsuario}`);
+        if (!resposta.ok) throw new Error("Erro ao buscar dados do cronograma");
+        
         const dadosUsuario = await resposta.json();
 
         if (dadosUsuario.cronograma && Array.isArray(dadosUsuario.cronograma)) {
             // 3. Preenche as células com as matérias salvas
             dadosUsuario.cronograma.forEach(item => {
-                // Encontra a célula exata usando seletores de atributo
                 const seletor = `td[data-dia="${item.dia}"][data-hora="${item.hora}"]`;
                 const celula = tbody.querySelector(seletor);
                 
                 if (celula) {
-                    celula.innerText = item.materia;
-                    celula.classList.add('preenchida');
-                    if (item.status === 'concluido') celula.classList.add('concluido');
+                    // Define o status antes de chamar adicionarMateria para o HTML vir correto
+                    celula.dataset.status = item.status || "pendente";
+                    adicionarMateria(celula, item.materia);
                 }
             });
         }
     } catch (erro) {
-        console.error("Erro ao carregar dados do cronograma:", erro);
+        console.error("❌ Erro ao carregar dados do cronograma:", erro);
     }
 
     // 4. Ativa as funções de clique e cálculos
@@ -60,7 +68,11 @@ function configurarInteracoes() {
         td.addEventListener('drop', e => {
             e.preventDefault();
             const mat = e.dataTransfer.getData("text/plain");
-            if (mat) adicionarMateria(td, mat);
+            if (mat) {
+                // Ao dropar uma matéria nova, ela sempre começa como pendente
+                td.dataset.status = "pendente"; 
+                adicionarMateria(td, mat);
+            }
         });
     });
 
@@ -75,10 +87,14 @@ function configurarInteracoes() {
 // --- LÓGICA DE MANIPULAÇÃO DA TABELA ---
 
 export function adicionarMateria(td, materia) {
+    if (!materia) return;
     td.dataset.materia = materia;
-    td.dataset.status = "pendente";
+    
+    // Fallback de status
+    const status = td.dataset.status || "pendente";
+
     td.innerHTML = `
-        <div class="bloco pendente" onclick="alternarStatus(this.parentElement)">
+        <div class="bloco ${status}" onclick="alternarStatus(this.parentElement)">
             <button class="btn-remover" onclick="event.stopPropagation(); removerMateria(this.parentElement.parentElement)">×</button>
             <b>${materia}</b>
         </div>`;
@@ -108,6 +124,7 @@ export function atualizarMetas() {
 
     let totalP = 0, totalC = 0;
 
+    // Seleciona apenas células que possuem uma matéria atribuída
     document.querySelectorAll('td[data-materia]').forEach(td => {
         const m = td.dataset.materia;
         if (dados[m]) {
@@ -120,13 +137,13 @@ export function atualizarMetas() {
         }
     });
 
-    // Atualiza cabeçalho de totais
+    // Atualiza contadores globais
     const elP = document.getElementById('totalPlanejado');
     const elC = document.getElementById('totalConcluido');
     if (elP) elP.textContent = totalP + "h";
     if (elC) elC.textContent = totalC + "h";
 
-    // Atualiza a lista visual de metas
+    // Atualiza lista visual de metas
     const ul = document.getElementById('listaMetas');
     if (!ul) return;
     ul.innerHTML = '';
@@ -145,7 +162,7 @@ export function atualizarMetas() {
             <strong>${m}</strong>
             <div class="status-badge">
                 <span>Feito: <b>${concluido}h</b></span>
-                <span>Total: <b>${planejado}h</b></span>
+                <span>Planejado: <b>${planejado}h</b></span>
                 <span>Meta: <b>${meta}h</b></span>
             </div>
         `;
@@ -153,109 +170,75 @@ export function atualizarMetas() {
     }
 }
 
-// --- COMUNICAÇÃO COM O SERVIDOR (FETCH) ---
+// --- COMUNICAÇÃO COM O SERVIDOR ---
 
 export async function salvarCronograma() {
-    // 1. Pega o usuário logado no localStorage em vez do input
-    const usuarioLogado = localStorage.getItem("nomeUsuario");
+    const idUsuario = localStorage.getItem("usuarioId");
     
-    // Fallback: se não achar no localStorage, tenta pegar do input como última opção
-    const usuarioEl = document.getElementById('nomeUsuario');
-    const usuario = usuarioLogado || (usuarioEl ? usuarioEl.value : null);
-    
-    if (!usuario || usuario === "Visitante") {
+    if (!idUsuario || idUsuario === "undefined") {
         alert("⚠️ Erro: Usuário não identificado. Por favor, faça login novamente.");
         return;
     }
 
-    // 2. Coleta os itens do cronograma
     const itensCronograma = [];
-    const celulas = document.querySelectorAll('td[data-materia]');
-    
-    celulas.forEach(td => {
-        // Só salva se houver uma matéria preenchida na célula
-        if (td.dataset.materia) {
-            itensCronograma.push({
-                dia: td.dataset.dia,
-                hora: td.dataset.hora,
-                materia: td.dataset.materia,
-                status: td.dataset.status || "pendente"
-            });
-        }
+    // Coleta apenas células que possuem dados preenchidos
+    document.querySelectorAll('td[data-materia]').forEach(td => {
+        itensCronograma.push({
+            dia: td.dataset.dia,
+            hora: td.dataset.hora,
+            materia: td.dataset.materia,
+            status: td.dataset.status || "pendente"
+        });
     });
 
-    // 3. Monta o pacote de dados (Payload)
-    const payload = {
-        usuario: usuario,
-        totalHoras: itensCronograma.length,
-        cronograma: itensCronograma,
-        ultimaAtualizacao: new Date().toISOString()
-    };
-
-    console.log("Enviando dados para o servidor:", payload);
-
     try {
-        // 4. Envia para o endpoint correto
-        // Dica: verifique se seu servidor usa /salvar ou /cronograma
         const response = await fetch('http://localhost:3000/salvar', { 
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+            body: JSON.stringify({ 
+                idUsuario: idUsuario, 
+                cronograma: itensCronograma 
+            })
         });
 
         if (response.ok) {
-            alert(`✅ Cronograma de ${usuario} salvo com sucesso!`);
-            
-            // Opcional: Atualiza a interface de estatísticas após salvar
-            if (typeof atualizarEstatisticas === "function") {
-                atualizarEstatisticas(usuario);
-            }
+            alert(`✅ Cronograma salvo com sucesso!`);
         } else {
-            const erroTxt = await response.text();
-            throw new Error(erroTxt || "Erro no servidor");
+            throw new Error("Erro ao salvar no servidor");
         }
     } catch (error) {
         console.error("❌ Erro ao salvar cronograma:", error);
-        alert("❌ Falha ao conectar com o servidor. Verifique se o backend está rodando.");
+        alert("❌ Falha ao conectar com o servidor.");
     }
 }
 
-/**
- * Registra o estudo no servidor e pinta a tabela na hora
- */
-export async function registrarEstudoAutomatico(nomeUsuario, materiaEstudada) {
+export async function registrarEstudoAutomatico(materiaEstudada) {
+    const idUsuario = localStorage.getItem("usuarioId");
+    if (!idUsuario || idUsuario === "undefined") return;
+
     try {
         const response = await fetch('http://localhost:3000/registrar-estudo-agora', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ usuario: nomeUsuario, materia: materiaEstudada })
+            body: JSON.stringify({ idUsuario, materia: materiaEstudada })
         });
 
         if (response.ok) {
-            const dados = await response.json(); // O servidor devolve { dia, hora, mensagem }
-
-            // 1. ATUALIZAÇÃO VISUAL DA TABELA
+            const dados = await response.json(); 
             const celula = document.querySelector(`td[data-dia="${dados.dia}"][data-hora="${dados.hora}"]`);
             
             if (celula) {
-                // Preenche o quadradinho e coloca a classe 'concluido' (verde)
-                adicionarMateria(celula, materiaEstudada); 
                 celula.dataset.status = "concluido";
-                const bloco = celula.querySelector('.bloco');
-                if (bloco) bloco.className = "bloco concluido";
-                
-                console.log("✨ Interface atualizada visualmente!");
+                adicionarMateria(celula, materiaEstudada);
             }
-
-            // 2. ATUALIZAÇÃO DOS CONTADORES E METAS
             atualizarMetas(); 
         }
     } catch (erro) {
-        console.error("Erro ao atualizar visualização:", erro);
+        console.error("❌ Erro ao registrar estudo automático:", erro);
     }
 }
+
 // --- REGISTRO GLOBAL ---
-// Necessário para que os 'onclick' e 'onchange' no HTML continuem funcionando
 window.alternarStatus = alternarStatus;
 window.removerMateria = removerMateria;
 window.salvarCronograma = salvarCronograma;
