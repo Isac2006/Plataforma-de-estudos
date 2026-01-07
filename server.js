@@ -4,6 +4,15 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs/promises'; 
 import bcrypt from 'bcrypt';
+import { MercadoPagoConfig, Payment } from "mercadopago";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const client = new MercadoPagoConfig({
+  accessToken: process.env.MP_ACCESS_TOKEN,
+});
+
 
 
 import { pegarquestoesdobanco } from './src/modulos/pegararrayquestoes.js';
@@ -814,6 +823,62 @@ app.post('/usuario/atualizar-progresso', async (req, res) => {
     }
 });
 // Rota para registrar progresso dinâmico baseado no total de aulas
+
+
+
+
+
+// ==========================================
+//    ROTA DE pagamento
+// ==========================================
+
+app.post("/create-payment", async (req, res) => {
+  try {
+    const { title, price, email } = req.body;
+
+    const payment = await client.payment.create({
+      transaction_amount: Number(price),
+      description: title,
+      payment_method_id: "pix",
+      payer: {
+        email,
+      },
+    });
+
+    res.json({
+      id: payment.id,
+      status: payment.status,
+      qr_code: payment.point_of_interaction.transaction_data.qr_code,
+      qr_code_base64:
+        payment.point_of_interaction.transaction_data.qr_code_base64,
+    });
+  } catch (error) {
+    console.error("Erro Mercado Pago:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/webhook", async (req, res) => {
+  try {
+    const paymentId = req.body?.data?.id;
+    if (!paymentId) return res.sendStatus(200);
+
+    const payment = await client.payment.get(paymentId);
+
+    if (payment.status === "approved") {
+      console.log("✅ Pagamento aprovado:", paymentId);
+
+      // 👉 Aqui você libera premium
+      // Exemplo:
+      // liberarPlanoPremium(payment.payer.email)
+    }
+
+    res.sendStatus(200);
+  } catch (error) {
+    console.error("Erro webhook:", error);
+    res.sendStatus(500);
+  }
+});
 
 
 

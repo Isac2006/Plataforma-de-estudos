@@ -847,5 +847,37 @@ async function atualizarProgressoNoServidor(nomeUsuario, novaPorcentagem) {
         })
     });
 }
+
+
+
+window.iniciarPagamento = iniciarPagamento;
+
+  async function iniciarPagamento() {
+    try {
+      const response = await fetch("http://localhost:3000/create-payment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: "Plano Premium Plataforma",
+          price: 29.9,
+          email: "teste@email.com",
+        }),
+      });
+
+      const data = await response.json();
+
+      // Mostrar QR Code PIX
+      document.getElementById("qrcode").src =
+        "data:image/png;base64," + data.qr_code_base64;
+
+      document.getElementById("pix").style.display = "block";
+    } catch (err) {
+      alert("Erro ao iniciar pagamento");
+      console.error(err);
+    }
+  }
+
 // Iniciar Aplicação
 carregarDados();
