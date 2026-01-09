@@ -1018,14 +1018,67 @@ input[type="color"] {
 
 
 
+<button onclick="iniciarPagamento()">Pagar com PIX (R$ 29,90)</button>
 
-    <div id="plano-container" class="plano-card">
-  <div id="pix" style="display: none;">
-  <h3>Pagamento via PIX</h3>
-  <img id="qrcode" alt="QR Code PIX" />
-  <p>Escaneie o QR Code para pagar</p>
+<div id="pix-container" style="display: none; margin-top: 20px; border: 1px solid #ccc; padding: 20px; width: 300px; text-align: center;">
+    <h3>Escaneie o QR Code:</h3>
+    
+    <img id="qrcode-img" src="" alt="QR Code PIX" style="width: 200px; margin-bottom: 10px;">
+    
+    <p>Ou copie o código abaixo:</p>
+    <input type="text" id="pix-copia-e-cola" readonly style="width: 100%; padding: 5px; margin-bottom: 10px;">
+    <button onclick="copyPix()">Copiar Código PIX</button>
 </div>
 
+<script>
+async function iniciarPagamento() {
+    try {
+        const response = await fetch("http://localhost:3000/create-payment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                title: "Plano Premium",
+                price: 29.9,
+                email: "seu_email_real@gmail.com", // Tente usar um email real aqui
+            }),
+        });
+
+        const data = await response.json();
+
+        // Verificamos se o servidor retornou erro antes de tentar mexer no HTML
+        if (!response.ok) {
+            console.error("Erro do Servidor:", data);
+            alert("Erro no servidor: " + (data.error || "Erro desconhecido"));
+            return;
+        }
+
+        // Verificamos se o elemento existe no HTML antes de tentar usar
+        const imgElement = document.getElementById("qrcode-img");
+        const container = document.getElementById("pix-container");
+
+        if (!imgElement || !container) {
+            alert("ERRO: Você esqueceu de criar os elementos 'qrcode-img' ou 'pix-container' no seu HTML!");
+            return;
+        }
+
+        imgElement.src = "data:image/png;base64," + data.qr_code_base64;
+        document.getElementById("pix-copia-e-cola").value = data.qr_code;
+        container.style.display = "block";
+
+    } catch (err) {
+        console.error("Erro de conexão:", err);
+        alert("Não foi possível conectar ao servidor. Ele está rodando na porta 3000?");
+    }
+}
+
+// Função auxiliar para copiar o texto
+function copyPix() {
+    const input = document.getElementById("pix-copia-e-cola");
+    input.select();
+    navigator.clipboard.writeText(input.value);
+    alert("Código copiado!");
+}
+</script>
 <button onclick="iniciarPagamento()">Pagar agora</button>
 
 </div>

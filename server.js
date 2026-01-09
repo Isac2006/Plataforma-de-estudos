@@ -4,14 +4,18 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs/promises'; 
 import bcrypt from 'bcrypt';
-import { MercadoPagoConfig, Payment } from "mercadopago";
-import dotenv from "dotenv";
 
-dotenv.config();
+import { MercadoPagoConfig, Payment } from 'mercadopago';
 
-const client = new MercadoPagoConfig({
-  accessToken: process.env.MP_ACCESS_TOKEN,
+// 1. Configure o cliente com seu Access Token
+const client = new MercadoPagoConfig({ 
+    accessToken: process.env.MP_ACCESS_TOKEN 
 });
+
+// 2. Inicialize o objeto de Pagamento passando o cliente configurado
+const payment = new Payment(client);
+
+
 
 
 
@@ -824,33 +828,31 @@ app.post('/usuario/atualizar-progresso', async (req, res) => {
 });
 // Rota para registrar progresso dinâmico baseado no total de aulas
 
-
-
-
-
-// ==========================================
-//    ROTA DE pagamento
-// ==========================================
-
+// =========================
+// ROTA DE PAGAMENTO PIX
+// =========================
 app.post("/create-payment", async (req, res) => {
   try {
     const { title, price, email } = req.body;
 
-    const payment = await client.payment.create({
-      transaction_amount: Number(price),
-      description: title,
-      payment_method_id: "pix",
-      payer: {
-        email,
-      },
+    // Na v2, o método create recebe um objeto 'body'
+    const response = await payment.create({
+      body: {
+        transaction_amount: Number(price),
+        description: title,
+        payment_method_id: "pix",
+        payer: {
+          email: email,
+        },
+      }
     });
 
+    // Os dados agora ficam direto no objeto de resposta, não em .body
     res.json({
-      id: payment.id,
-      status: payment.status,
-      qr_code: payment.point_of_interaction.transaction_data.qr_code,
-      qr_code_base64:
-        payment.point_of_interaction.transaction_data.qr_code_base64,
+      id: response.id,
+      status: response.status,
+      qr_code: response.point_of_interaction.transaction_data.qr_code,
+      qr_code_base64: response.point_of_interaction.transaction_data.qr_code_base64,
     });
   } catch (error) {
     console.error("Erro Mercado Pago:", error);
@@ -858,19 +860,20 @@ app.post("/create-payment", async (req, res) => {
   }
 });
 
+// =========================
+// WEBHOOK
+// =========================
 app.post("/webhook", async (req, res) => {
   try {
-    const paymentId = req.body?.data?.id;
+    const paymentId = req.query['data.id'] || req.body?.data?.id;
     if (!paymentId) return res.sendStatus(200);
 
-    const payment = await client.payment.get(paymentId);
+    // Busca o pagamento usando a instância configurada
+    const paymentData = await payment.get({ id: paymentId });
 
-    if (payment.status === "approved") {
+    if (paymentData.status === "approved") {
       console.log("✅ Pagamento aprovado:", paymentId);
-
-      // 👉 Aqui você libera premium
-      // Exemplo:
-      // liberarPlanoPremium(payment.payer.email)
+      // Lógica de liberação aqui
     }
 
     res.sendStatus(200);
@@ -879,7 +882,6 @@ app.post("/webhook", async (req, res) => {
     res.sendStatus(500);
   }
 });
-
 
 
 
