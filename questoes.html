@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Questões</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/questoes.css">
+    <link rel="stylesheet" href="css/responsive/responsive-questoes.css">
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <a href="inicial.html" class="logo">
+            📚 <span>Plataforma</span>
+        </a>
+
+        <nav class="menu">
+            <a href="inicial.html" class="menu-item">Início</a>
+            <a href="materias.html" class="menu-item ">Matérias</a>
+            <a href="questoes.html" class="menu-item active">Questões</a>
+            <a href="cronograma.html" class="menu-item">Cronograma</a>
+            <a href="redacao.html" class="menu-item">Redação</a>
+            <a href="login.html" class="menu-item">🔐 Login</a>
+        </nav>
+    </aside>
+    <div id="overlay" class="overlay"></div>
+
+    <!-- CONTEÚDO -->
+    <main class="content">
+        <button id="btn-menu" class="btn-menu">
+    <span></span>
+    <span></span>
+    <span></span>
+    </button>
+
+        <div class="materias-wrapper">
+
+            <!-- ================= CADASTRO DE QUESTÕES ================= -->
+            <h1 class="professores">📝 Cadastro de Questões</h1>
+
+            <div id="mensagem-questoes" class="mensagem"></div>
+
+            <div id="formulario-cadastro" class="professores">
+
+                <h2>Cadastrar Nova Questão</h2>
+
+                <select id="questao-disciplina">
+                    <option value="">Selecione a Disciplina</option>
+                    <option value="matematica">Matemática</option>
+                    <option value="portugues">Português</option>
+                    <option value="historia">História</option>
+                    <option value="geografia">Geografia</option>
+                    <option value="ciencias">Ciências</option>
+                </select>
+
+                <input type="text" id="questao-tema" placeholder="Tema da questão">
+
+                <textarea
+                    id="questao-enunciado"
+                    placeholder="Enunciado da questão"
+                ></textarea>
+
+                <input type="text" id="alternativa-a" placeholder="Alternativa A">
+                <input type="text" id="alternativa-b" placeholder="Alternativa B">
+                <input type="text" id="alternativa-c" placeholder="Alternativa C">
+                <input type="text" id="alternativa-d" placeholder="Alternativa D">
+
+                <select id="questao-correta">
+                    <option value="">Alternativa correta</option>
+                    <option value="A">Alternativa A</option>
+                    <option value="B">Alternativa B</option>
+                    <option value="C">Alternativa C</option>
+                    <option value="D">Alternativa D</option>
+                </select>
+
+                <textarea
+                    id="questao-explicacao"
+                    placeholder="Explicação da resposta"
+                ></textarea>
+
+                <div class="acoes-materias">
+                    <button type="button" id="btn-cadastrar-questao">
+                        📝 Cadastrar Questão
+                    </button>
+                </div>
+            </div>
+
+            <!-- ================= SISTEMA DE QUESTÕES ================= -->
+            <h1 style="margin-top: 60px;">⚙️ Sistema de Questões</h1>
+
+            <div id="mensagem-sistema-questoes" class="mensagem"></div>
+
+            <div id="sistema-questoes" class="painel-metas">
+
+
+
+                <h2>Gerar Questões</h2>
+
+                <select id="sistema-disciplina">
+                    <option value="">Selecione a Disciplina</option>
+                    <option value="matematica">Matemática</option>
+                    <option value="portugues">Português</option>
+                    <option value="historia">História</option>
+                    <option value="geografia">Geografia</option>
+                    <option value="ciencias">Ciências</option>
+                </select>
+
+                <select id="sistema-tema">
+                    <option value="">Selecione o Tema (opcional)</option>
+                </select>
+
+                <input
+                    type="number"
+                    id="sistema-quantidade"
+                    placeholder="Quantidade de questões"
+                    min="1"
+                >
+
+                <div class="acoes-materias">
+                    <button type="button" id="btn-gerar-questoes">
+                        ⚡ Gerar Questões
+                    </button>
+                </div>
+
+                <div id="resultado-questoes"></div>
+            </div>
+
+        </div>
+
+    </main>
+</div>
+
+<!-- JS -->
+<script type="module" src="src/questoes.js"></script>
+<script src="src/menu.js"></script>
+</body>
+</html>

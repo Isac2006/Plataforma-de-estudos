@@ -11,127 +11,7 @@
     * {
     box-sizing: border-box;
 }
-body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
-        .container { max-width: 1200px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        h1, h2 { color: #0056b3; }
-        .user-card {
-            border: 1px solid #ddd;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            background-color: #e9ecef;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 10px;
-        }
-        .user-card.blocked { background-color: #ffcccc; }
-        .user-card div { flex: 1; min-width: 150px; }
-        .user-card .status { font-weight: bold; color: green; }
-        .user-card.blocked .status { color: red; }
-        .buttons button {
-            padding: 8px 12px;
-            margin-right: 5px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.9em;
-        }
-        .buttons .edit { background-color: #ffc107; color: white; }
-        .buttons .delete { background-color: #dc3545; color: white; }
-        .buttons .toggle-block { background-color: #6c757d; color: white; }
-        .buttons .payment { background-color: #007bff; color: white; }
-        .buttons .progress { background-color: #28a745; color: white; }
-        .buttons .redacoes { background-color: #17a2b8; color: white; }
 
-        form {
-            background-color: #f8f9fa;
-            padding: 20px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        form input, form select, form button {
-            padding: 10px;
-            border-radius: 4px;
-            border: 1px solid #ced4da;
-        }
-        form button {
-            grid-column: span 2;
-            background-color: #007bff;
-            color: white;
-            cursor: pointer;
-        }
-        .modal {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 1; /* Sit on top */
-            left: 0;
-            top: 0;
-            width: 100%; /* Full width */
-            height: 100%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
-            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-        }
-        .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto; /* 15% from the top and centered */
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%; /* Could be more or less, depending on screen size */
-            border-radius: 8px;
-            position: relative;
-        }
-        .close-button {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-        .close-button:hover,
-        .close-button:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        .modal-body form {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .modal-body form label {
-            font-weight: bold;
-        }
-        .modal-body form input, .modal-body form select {
-            width: calc(100% - 22px); /* Adjust for padding and border */
-        }
-        .payment-status-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            margin-top: 10px;
-        }
-        .payment-status-container span {
-            padding: 5px 10px;
-            border-radius: 3px;
-            font-size: 0.8em;
-            background-color: #f0f0f0;
-            border: 1px solid #ccc;
-        }
-        .payment-status-container span.pago { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
-        .payment-status-container span.pendente { background-color: #fff3cd; color: #856404; border-color: #ffeeba; }
-
-        .redacao-card {
-            border: 1px solid #b8daff;
-            background-color: #e0f0ff;
-            padding: 10px;
-            margin-bottom: 8px;
-            border-radius: 5px;
-        }
-        .redacao-card h4 { margin-top: 0; color: #0056b3; }
-        .redacao-card .redacao-meta { font-size: 0.85em; color: #555; }
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f6f8; padding: 20px; color: #333; }
     h1 { text-align: center; color: #1976d2; margin-bottom: 25px; }
     .container { display: flex; gap: 20px; align-items: flex-start; }
@@ -518,6 +398,21 @@ input[type="color"] {
 #lista-disponivel::-webkit-scrollbar-thumb:hover {
     background: #999;
 }
+
+#preview-imagens {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.imagem-preview {
+    width: 160px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
 } </style>
 <div id="login-container" style="background: #1976d2; color: white; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; border-radius: 8px; margin-bottom: 20px;">
     <div>
@@ -638,10 +533,15 @@ input[type="color"] {
     <input type="text" id="materia-tema" placeholder="Tema da matéria">
     <textarea id="materia-resumo" placeholder="Resumo da matéria"></textarea>
     <textarea id="materia-conteudo" placeholder="Conteúdo completo"></textarea>
-
+    <label>Imagens (URLs):</label>
+<div id="inputs-imagens">
+    <input type="text" class="imagem-url" placeholder="URL da imagem (opcional)">
+</div>
+<button type="button" onclick="addInputImagem()">Adicionar outra imagem</button>
     <button type="button" id="btn-cadastrar-materia">
         📘 Cadastrar Matéria
     </button>
+    <div id="preview-imagens"></div>
 </div>
 
 
@@ -937,152 +837,6 @@ input[type="color"] {
     </div>
 </div>
 </div>
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="container">
-        <h1>Gerenciador de Alunos</h1>
-
-        <h2>Adicionar Novo Aluno</h2>
-        <form id="add-user-form">
-            <input type="text" id="add-user-name" placeholder="Nome Completo" required>
-            <input type="email" id="add-user-email" placeholder="Email (opcional)">
-            <button type="submit">Adicionar Aluno</button>
-        </form>
-
-        <h2>Lista de Alunos</h2>
-        <div id="user-list">
-            </div>
-    </div>
-
-    <div id="editUserModal" class="modal">
-        <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <h2>Editar Aluno: <span id="editUserNameDisplay"></span></h2>
-            <div class="modal-body">
-                <form id="edit-user-form">
-                    <input type="hidden" id="edit-user-original-name">
-                    <label for="edit-user-new-name">Novo Nome:</label>
-                    <input type="text" id="edit-user-new-name">
-
-                    <label for="edit-user-email">Email:</label>
-                    <input type="email" id="edit-user-email">
-
-                    <label for="edit-user-aulas">Aulas Assistidas:</label>
-                    <input type="number" id="edit-user-aulas">
-
-                    <label for="edit-user-redacoes">Redações Feitas:</label>
-                    <input type="number" id="edit-user-redacoes">
-
-                    <label for="edit-user-progresso">Progresso do Curso (%):</label>
-                    <input type="number" id="edit-user-progresso" min="0" max="100">
-
-                    <h3>Pagamentos</h3>
-                    <div id="edit-user-payments-container">
-                        </div>
-
-                    <button type="submit">Salvar Alterações</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <div id="redacoesModal" class="modal">
-        <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <h2>Redações de <span id="redacoesUserNameDisplay"></span></h2>
-            <div class="modal-body">
-                <form id="add-redacao-form">
-                    <input type="hidden" id="add-redacao-user-name">
-                    <label for="add-redacao-titulo">Título da Redação:</label>
-                    <input type="text" id="add-redacao-titulo" required>
-                    <label for="add-redacao-conteudo">Conteúdo da Redação (HTML):</label>
-                    <textarea id="add-redacao-conteudo" rows="5"></textarea>
-                    <button type="submit">Adicionar Redação</button>
-                </form>
-                <h3>Redações Enviadas</h3>
-                <div id="redacoes-list">
-                    </div>
-            </div>
-        </div>
-    </div>
-
-
-
-<button onclick="iniciarPagamento()">Pagar com PIX (R$ 29,90)</button>
-
-<div id="pix-container" style="display: none; margin-top: 20px; border: 1px solid #ccc; padding: 20px; width: 300px; text-align: center;">
-    <h3>Escaneie o QR Code:</h3>
-    
-    <img id="qrcode-img" src="" alt="QR Code PIX" style="width: 200px; margin-bottom: 10px;">
-    
-    <p>Ou copie o código abaixo:</p>
-    <input type="text" id="pix-copia-e-cola" readonly style="width: 100%; padding: 5px; margin-bottom: 10px;">
-    <button onclick="copyPix()">Copiar Código PIX</button>
-</div>
-
-<script>
-async function iniciarPagamento() {
-    try {
-        const response = await fetch("http://localhost:3000/create-payment", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                title: "Plano Premium",
-                price: 29.9,
-                email: "seu_email_real@gmail.com", // Tente usar um email real aqui
-            }),
-        });
-
-        const data = await response.json();
-
-        // Verificamos se o servidor retornou erro antes de tentar mexer no HTML
-        if (!response.ok) {
-            console.error("Erro do Servidor:", data);
-            alert("Erro no servidor: " + (data.error || "Erro desconhecido"));
-            return;
-        }
-
-        // Verificamos se o elemento existe no HTML antes de tentar usar
-        const imgElement = document.getElementById("qrcode-img");
-        const container = document.getElementById("pix-container");
-
-        if (!imgElement || !container) {
-            alert("ERRO: Você esqueceu de criar os elementos 'qrcode-img' ou 'pix-container' no seu HTML!");
-            return;
-        }
-
-        imgElement.src = "data:image/png;base64," + data.qr_code_base64;
-        document.getElementById("pix-copia-e-cola").value = data.qr_code;
-        container.style.display = "block";
-
-    } catch (err) {
-        console.error("Erro de conexão:", err);
-        alert("Não foi possível conectar ao servidor. Ele está rodando na porta 3000?");
-    }
-}
-
-// Função auxiliar para copiar o texto
-function copyPix() {
-    const input = document.getElementById("pix-copia-e-cola");
-    input.select();
-    navigator.clipboard.writeText(input.value);
-    alert("Código copiado!");
-}
-</script>
-<button onclick="iniciarPagamento()">Pagar agora</button>
-
-</div>
-
 <script type="module" src="src/script.js"></script>
 </body>
 </html>

@@ -1,28 +1,21 @@
 // --- modulos/estatisticas.js ---
 
-export async function atualizarEstatisticas() {
-    const idUsuario = localStorage.getItem("usuarioId");
-    const nomeUsuario = localStorage.getItem("nomeUsuario");
-
-    if (!idUsuario || idUsuario === "undefined" || idUsuario === "null" || nomeUsuario === "Visitante") {
-        console.warn("⚠️ Estatísticas: Usuário não identificado.");
-        return;
-    }
+export async function atualizarEstatisticas(nomeUsuario) {
+    if (!nomeUsuario || nomeUsuario === "Visitante") return;
 
     try {
-        const resposta = await fetch(`http://localhost:3000/usuario/dados?id=${idUsuario}`);
-        
-        if (!resposta.ok) throw new Error(`Erro ${resposta.status}: Falha ao buscar dados.`);
+        const resposta = await fetch(`http://localhost:3000/usuario/dados?nome=${nomeUsuario}`);
+        if (!resposta.ok) throw new Error("Usuário não encontrado");
         
         const user = await resposta.json();
 
-        // Extração de dados
+        // 1. Extração segura de dados
         const estQuestoes = user.estatisticas?.questoes || { totalAcertos: 0, totalErros: 0, porMateria: {} };
-        const acertos = Number(estQuestoes.totalAcertos) || 0;
-        const erros = Number(estQuestoes.totalErros) || 0;
+        const acertos = estQuestoes.totalAcertos || 0;
+        const erros = estQuestoes.totalErros || 0;
         const totalTentativas = acertos + erros;
 
-        // UI Helpers
+        // 2. Atualiza contadores gerais
         const atualizarCampo = (id, valor) => {
             const el = document.getElementById(id);
             if (el) el.innerText = valor;
@@ -32,84 +25,61 @@ export async function atualizarEstatisticas() {
         atualizarCampo("stats-aulas", user.aulasAssistidas || 0);
         atualizarCampo("stats-redacoes", user.redacoesFeitas || 0);
         
+        // 3. Taxa de Acerto Geral
         const elTaxa = document.getElementById("stats-taxa-geral");
         if (elTaxa) {
             const taxa = totalTentativas > 0 ? ((acertos / totalTentativas) * 100).toFixed(1) : "0.0";
             elTaxa.innerText = `${taxa}%`;
         }
 
+        // 4. Detalhes por Matéria (Lista Dinâmica)
         const listaMaterias = document.getElementById("lista-taxas-materias");
         if (listaMaterias) {
             listaMaterias.innerHTML = ""; 
             const materiasMap = estQuestoes.porMateria || {};
 
             Object.entries(materiasMap).forEach(([materia, dados]) => {
-                const mAcertos = Number(dados.acertos) || 0;
-                const mErros = Number(dados.erros) || 0;
-                const totalMat = mAcertos + mErros;
-                const percMat = totalMat > 0 ? ((mAcertos / totalMat) * 100).toFixed(0) : 0;
+                const totalMat = dados.acertos + dados.erros;
+                const percMat = totalMat > 0 ? ((dados.acertos / totalMat) * 100).toFixed(0) : 0;
                 
                 const li = document.createElement("li");
-                li.style = "background: #f8f9fa; padding: 10px; border-radius: 6px; border-left: 4px solid #1976d2; font-size: 13px; list-style:none; margin-bottom: 5px;";
-                li.innerHTML = `<strong>${materia.toUpperCase()}</strong><br>${mAcertos} acertos de ${totalMat} (${percMat}%)`;
+                li.style = "background: #f8f9fa; padding: 10px; border-radius: 6px; border-left: 4px solid #1976d2; font-size: 13px; list-style:none;";
+                li.innerHTML = `<strong>${materia.toUpperCase()}</strong><br>${dados.acertos} acertos de ${totalMat} (${percMat}%)`;
                 listaMaterias.appendChild(li);
             });
         }
+
+        console.log(`✅ Estatísticas de ${nomeUsuario} sincronizadas.`);
+
     } catch (erro) {
-        console.error("❌ Erro ao atualizar painel:", erro.message);
+        console.error("❌ Erro ao atualizar painel:", erro);
     }
 }
 
-// CORREÇÃO AQUI: Mudamos idUsuario para usuarioId e acertou para correta (Padrão de Servidor)
-export async function registrarRespostaQuestao(idUsuario, disciplina, acertou) {
-    if (!idUsuario || idUsuario === "undefined" || idUsuario === "null") return;
-
+// Chame esta função sempre que o aluno acertar/errar uma questão
+export async function registrarRespostaQuestao(usuario, disciplina, acertou) {
     try {
-        const resposta = await fetch('http://localhost:3000/usuario/registrar-resposta', {
+        await fetch('http://localhost:3000/usuario/registrar-resposta', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            // Enviamos as variações mais comuns para garantir que o servidor aceite
-            body: JSON.stringify({ 
-                usuarioId: idUsuario,    // Opção 1
-                idUsuario: idUsuario,    // Opção 2
-                disciplina: disciplina, 
-                correta: acertou,        // Opção 1
-                acertou: acertou         // Opção 2
-            })
+            body: JSON.stringify({ usuario, disciplina, acertou })
         });
-
-        if (!resposta.ok) {
-            const erroRes = await resposta.json();
-            throw new Error(erroRes.erro || erroRes.mensagem || "Erro 400");
-        }
-        
-        await atualizarEstatisticas();
+        await atualizarEstatisticas(usuario);
     } catch (e) {
-        console.error("❌ Erro ao registrar resposta:", e.message);
+        console.error("Erro ao registrar resposta:", e);
     }
 }
 
-export async function registrarProgresso(idUsuario, campo) {
-    if (!idUsuario || idUsuario === "undefined" || !campo) return;
-
+// Chame esta para Aulas ("aulasAssistidas") ou Redações ("redacoesFeitas")
+export async function registrarProgresso(nomeUsuario, campo) {
     try {
-        const resposta = await fetch('http://localhost:3000/usuario/incrementar', {
+        await fetch('http://localhost:3000/usuario/incrementar', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                usuarioId: idUsuario, // Variação 1
-                idUsuario: idUsuario, // Variação 2
-                campo: campo 
-            })
+            body: JSON.stringify({ usuario: nomeUsuario, campo: campo })
         });
-
-        if (!resposta.ok) {
-            const erroJson = await resposta.json();
-            throw erroJson;
-        }
-
-        await atualizarEstatisticas();
+        await atualizarEstatisticas(nomeUsuario);
     } catch (e) {
-        console.error("❌ Erro ao incrementar progresso:", e);
+        console.error("Erro ao incrementar progresso:", e);
     }
 }

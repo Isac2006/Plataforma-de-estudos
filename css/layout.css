@@ -1,0 +1,122 @@
+/* ================= RESET ================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+}
+
+/* ================= BODY ================= */
+body {
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f8fafc;
+    color: #333;
+}
+
+/* ================= LAYOUT ================= */
+.layout {
+    min-height: 100vh;
+    display: flex;
+}
+
+/* ================= SIDEBAR (TAB BAR) ================= */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 260px;
+    min-width: 260px;
+    height: 100vh;
+    background: linear-gradient(180deg, #5b5be0, #4338ca);
+    padding: 20px;
+    color: white;
+    z-index: 1000;
+}
+
+/* ================= LOGO ================= */
+.logo {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 40px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: white;
+    text-decoration: none;
+}
+
+.logo:hover {
+    opacity: 0.85;
+}
+
+/* ================= MENU ================= */
+.menu {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.menu-item {
+    background: transparent;
+    border: none;
+    color: white;
+    padding: 14px 16px;
+    text-align: left;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+    text-decoration: none;
+}
+
+.menu-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.menu-item.active {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* ================= CONTEÚDO ================= */
+.content {
+    margin-left: 260px;
+    min-height: 100vh;
+    padding: 60px 80px;
+    background: #f1f5f9;
+    width: 100%;
+    overflow-y: auto;
+}
+
+/* ================= TÍTULOS PADRÃO ================= */
+h1 {
+    font-size: 30px;
+    font-weight: 700;
+    color: #1976d2;
+    margin-bottom: 30px;
+}
+
+h2 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* ================= RESPONSIVO ================= */
+@media (max-width: 900px) {
+    .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+    }
+
+    .content {
+        margin-left: 0;
+        padding: 20px;
+    }
+}

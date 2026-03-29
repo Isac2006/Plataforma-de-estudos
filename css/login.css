@@ -1,0 +1,187 @@
+/* ======================== VARIÁVEIS GLOBAIS ======================== */
+:root {
+    --bg-page: #f8fafc;
+
+    --card-bg: #ffffff;
+    --card-radius: 18px;
+    --card-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+
+    --primary: #4f46e5;
+    --primary-hover: #4338ca;
+
+    --text-title: #1f2937;
+    --text-muted: #6b7280;
+    --text-error: #ef4444;
+
+    --input-bg: #f9fafb;
+    --input-border: #e5e7eb;
+    --input-focus: #6366f1;
+
+    --transition: all 0.25s ease;
+}
+
+/* ======================== BODY ======================== */
+body {
+    background: var(--bg-page);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Inter", system-ui, sans-serif;
+}
+
+/* ======================== CONTAINER ======================== */
+.login-wrapper {
+    width: 100%;
+    padding: 20px;
+}
+
+/* ======================== CARD LOGIN ======================== */
+.login-box {
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 32px 30px;
+    background: var(--card-bg);
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+    animation: fadeIn 0.4s ease;
+}
+
+/* ======================== TÍTULO ======================== */
+.login-box h2 {
+    text-align: center;
+    margin-bottom: 24px;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-title);
+}
+
+/* ======================== INPUTS ======================== */
+.input-group {
+    margin-bottom: 16px;
+}
+
+.login-box input {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--input-border);
+    background: var(--input-bg);
+    font-size: 14px;
+    transition: var(--transition);
+}
+
+.login-box input::placeholder {
+    color: var(--text-muted);
+}
+
+.login-box input:focus {
+    outline: none;
+    border-color: var(--input-focus);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    background: #fff;
+}
+
+/* ======================== BOTÃO ======================== */
+.login-box button {
+    width: 100%;
+    margin-top: 6px;
+    padding: 12px;
+    background: var(--primary);
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.login-box button:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+/* ======================== ERRO ======================== */
+.erro {
+    color: var(--text-error);
+    text-align: center;
+    font-size: 13px;
+    margin-top: 10px;
+}
+
+/* ======================== LINK CADASTRO ======================== */
+.cadastro-link {
+    text-align: center;
+    margin-top: 18px;
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+.cadastro-link a {
+    color: var(--primary);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.cadastro-link a:hover {
+    text-decoration: underline;
+}
+
+/* ======================== ANIMAÇÃO ======================== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ======================== RESPONSIVO ======================== */
+@media (max-width: 480px) {
+    .login-box {
+        padding: 26px 22px;
+    }
+}
+
+/* ======================== ESTADO DE ERRO ======================== */
+
+/* Animação de tremida */
+@keyframes shake {
+    0% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+    100% { transform: translateX(0); }
+}
+
+/* Card em erro */
+.login-box.error {
+    animation: shake 0.35s ease;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+/* Inputs em erro */
+.login-box.error input {
+    border-color: #ef4444;
+    background: #fef2f2;
+}
+
+/* Mensagem de erro animada */
+.erro {
+    min-height: 16px;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: all 0.25s ease;
+}
+
+/* Erro visível */
+.erro.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+

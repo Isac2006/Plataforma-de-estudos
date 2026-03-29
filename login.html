@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+
+<div class="login-wrapper">
+    <div class="login-box">
+        <h2>🔐 Login</h2>
+
+        <form id="loginForm">
+            <div class="input-group">
+                <input
+                    type="text"
+                    id="login"
+                    placeholder="Email ou CPF"
+                    required
+                >
+            </div>
+
+            <div class="input-group">
+                <input
+                    type="password"
+                    id="senha"
+                    placeholder="Senha"
+                    required
+                >
+            </div>
+
+            <button type="submit">Entrar</button>
+        </form>
+
+        <p id="erro" class="erro"></p>
+
+        <div class="cadastro-link">
+            Não tem conta?
+            <a href="cadastro.html">Criar cadastro</a>
+        </div>
+    </div>
+</div>
+
+<script src="src/login.js"></script>
+</body>
+</html>

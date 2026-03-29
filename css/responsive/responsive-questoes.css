@@ -1,0 +1,334 @@
+.topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.boas-vindas {
+  max-width: 500px;
+  line-height: 1.4;
+}
+
+/* ================= TABLET ================= */
+@media (max-width: 1024px) {
+
+  .content {
+    padding: 32px;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+
+  h2 {
+    font-size: 18px;
+  }
+
+  .cards-desempenho {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  }
+
+  .card {
+    padding: 14px;
+  }
+
+  .card strong {
+    font-size: 22px;
+  }
+
+  .planos-vivo {
+    gap: 18px;
+  }
+
+  .plano-card {
+    padding: 18px;
+  }
+
+  .modulo-card {
+    padding: 24px;
+  }
+
+  .modulo-grid {
+    gap: 14px;
+  }
+
+  .campo input,
+  .campo select,
+  .campo textarea {
+    font-size: 13px;
+    padding: 10px;
+  }
+
+  .btn-salvar-modulo {
+    font-size: 14px;
+    padding: 12px;
+  }
+}
+
+/* ================= MOBILE ================= */
+@media (max-width: 900px) {
+
+
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 250px;
+    height: 100vh;
+    transform: translateX(-100%);
+    transition: 0.3s;
+  }
+
+  .sidebar.ativo {
+    transform: translateX(0);
+  }
+
+  /* 🔥 ESSA LINHA FALTAVA */
+  .content {
+    margin-left: 0 !important;
+    transition: margin-left 0.3s ease;
+  }
+
+  /* BOTÃO MENU */
+ .btn-menu {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 3000;
+
+    width: 44px;
+    height: 44px;
+
+    background: #4338ca;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  }
+
+  .btn-menu span {
+    position: absolute;
+    width: 20px;
+    height: 2px;
+    background: white;
+    border-radius: 2px;
+    transition: 0.3s;
+  }
+
+  .btn-menu span:nth-child(1) {
+    transform: translateY(-6px);
+  }
+
+  .btn-menu span:nth-child(2) {
+    transform: translateY(0);
+  }
+
+  .btn-menu span:nth-child(3) {
+    transform: translateY(6px);
+  }
+
+  /* ANIMAÇÃO X */
+  .btn-menu.ativo span:nth-child(1) {
+    transform: rotate(45deg);
+  }
+
+  .btn-menu.ativo span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .btn-menu.ativo span:nth-child(3) {
+    transform: rotate(-45deg);
+  }
+
+  .sidebar.ativo {
+    transform: translateX(0);
+  }
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4); /* deixa mais suave */
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.3s;
+  z-index: 1000;
+}
+
+.sidebar {
+  z-index: 2000;
+}
+
+  .overlay.ativo {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  /* LOGO anima leve */
+  .logo {
+    transition: 0.3s;
+  }
+
+  body.menu-aberto .logo {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  body.menu-aberto .logo span {
+    opacity: 0;
+  }
+
+  /* trava scroll apenas */
+  body.menu-aberto {
+  overflow: hidden;
+  height: 100vh;
+    }
+
+  .bloco {
+    width: 100%;
+  }
+
+  .content {
+  overflow-x: hidden;
+}
+
+.cronograma-panel {
+  overflow-x: auto;
+}
+}
+
+/* ================= MOBILE PEQUENO (IPHONE) ================= */
+@media (max-width: 430px) {
+
+  body {
+    background: #f1f5f9;
+  }
+
+  .content {
+    padding: 14px;
+  }
+
+  h1 {
+    font-size: 18px;
+  }
+
+  h2 {
+    font-size: 15px;
+  }
+
+  .overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4); /* deixa mais suave */
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.3s;
+  z-index: 1000;
+}
+
+.sidebar {
+  z-index: 2000;
+}
+
+  /* CARDS */
+  .card {
+    padding: 14px;
+    border-radius: 14px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+  }
+
+  .card strong {
+    font-size: 20px;
+  }
+
+  /* PLANOS */
+  .plano-card {
+    padding: 16px;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+  }
+
+  .plano-preco .valor {
+    font-size: 24px;
+  }
+
+  /* MODULO */
+  .modulo-card {
+    padding: 18px;
+    border-radius: 16px;
+  }
+
+  .modulo-titulo {
+    font-size: 18px;
+  }
+
+  /* INPUTS */
+  input,
+  select,
+  textarea {
+    font-size: 14px;
+    padding: 11px;
+    border-radius: 12px;
+    background: #f8fafc;
+  }
+
+  /* BOTÃO */
+  .btn-salvar-modulo {
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 14px;
+  }
+
+  /* SELECT QUESTÕES */
+  #selectQuestoes {
+    min-height: 140px;
+  }
+
+  /* fundo bonito sem quebrar nada */
+  body {
+    background: #f1f5f9;
+  }
+
+  /* logo clean */
+  .logo {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .logo span {
+    font-size: 14px;
+  }
+
+  /* animação leve */
+  body.menu-aberto .logo {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  .logo {
+    transition: all 0.3s ease;
+  }
+
+  .content {
+  overflow-x: hidden;
+}
+
+.cronograma-panel {
+  overflow-x: auto;
+}
+}
+
+/* ================= LAYOUT BASE MELHORADO ================= */
+.dashboard {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 25px;
+  align-items: start;
+}

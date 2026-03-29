@@ -2,30 +2,71 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import fs from 'fs/promises'; 
+import fs from 'fs/promises';
+import fsSync from 'fs';
 import bcrypt from 'bcrypt';
-
-import { MercadoPagoConfig, Payment } from 'mercadopago';
-
-// 1. Configure o cliente com seu Access Token
-const client = new MercadoPagoConfig({ 
-    accessToken: process.env.MP_ACCESS_TOKEN 
-});
-
-// 2. Inicialize o objeto de Pagamento passando o cliente configurado
-const payment = new Payment(client);
-
-
-
-
-
+import multer from 'multer';
 import { pegarquestoesdobanco } from './src/modulos/pegararrayquestoes.js';
 
+// 🔥 CRIAR __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// 🔥 CRIAR APP PRIMEIRO
 const app = express();
 const porta = 3000;
+
+// 🔥 CONFIGURAR UPLOADS
+const PASTA_UPLOADS = path.join(__dirname, 'uploads');
+
+if (!fsSync.existsSync(PASTA_UPLOADS)) {
+    fsSync.mkdirSync(PASTA_UPLOADS, { recursive: true });
+}
+
+app.use('/uploads', express.static(PASTA_UPLOADS));
+
+// 🔥 CONFIGURAR MULTER
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, PASTA_UPLOADS);
+    },
+    filename: function (req, file, cb) {
+        const nomeUnico = Date.now() + "-" + file.originalname.replace(/\s+/g, "_");
+        cb(null, nomeUnico);
+    }
+});
+
+const upload = multer({
+    storage,
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype.startsWith("image/")) {
+            cb(null, true);
+        } else {
+            cb(new Error("Apenas imagens são permitidas"));
+        }
+    }
+});
+
+// 🔥 ROTA DE UPLOAD
+app.post('/upload-imagem', upload.single('imagem'), (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ erro: "Nenhuma imagem enviada" });
+        }
+
+        const urlImagem = `/uploads/${req.file.filename}`;
+
+        res.json({
+            mensagem: "Upload realizado com sucesso",
+            url: urlImagem
+        });
+
+    } catch (erro) {
+        console.error("Erro no upload:", erro);
+        res.status(500).json({ erro: "Erro ao enviar imagem" });
+    }
+});
 
 // --- CAMINHOS DOS BANCOS ---
 const CAMINHO_BANCO_QUESTOES = path.join(__dirname, 'banco de dados provisorio', 'bancoquestoes.json');
@@ -33,198 +74,173 @@ const CAMINHO_BANCO_REDACOES = path.join(__dirname, 'banco de dados provisorio',
 const CAMINHO_BANCO_MATERIAS = path.join(__dirname, 'banco de dados provisorio', 'bancomaterias.json');
 const CAMINHO_BANCO_AULAS = path.join(__dirname, 'banco de dados provisorio', 'bancoaulas.json');
 const CAMINHO_BANCO_USUARIOS = path.join(__dirname, 'banco de dados provisorio', 'usuarios.json');
-const USERS_FILE = path.join(__dirname, 'banco de dados provisorio', 'usuarios.json');
+const CAMINHO_BANCO_MODULOS = path.join(__dirname, 'banco de dados provisorio', 'bancomodulos.json');
 
 app.use(cors()); 
 app.use(express.json()); 
-app.use(express.static(__dirname));
+app.use(express.static(__dirname, { index: false }));
 
 // ==========================================
-//    ROTAS DE QUESTÕES (Sua lógica atual)
+//    FUNÇÕES AUXILIARES - LOGIN
 // ==========================================
 
-app.get('/temas', async (req, res) => {
-    const { disciplina } = req.query;
-    if (!disciplina) return res.status(400).json({ mensagem: "Disciplina não informada" });
+function validarEmail(email) {
+    if (!email) return false;
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email).trim());
+}
 
-    try {
-        // Busca temas nos dois bancos simultaneamente
-        const [questoesRaw, aulasRaw] = await Promise.all([
-            fs.readFile(CAMINHO_BANCO_QUESTOES, 'utf-8').catch(() => '[]'),
-            fs.readFile(CAMINHO_BANCO_AULAS, 'utf-8').catch(() => '[]')
-        ]);
+function validarCPF(cpf) {
+    if (!cpf) return false;
 
-        const bancoQuestoes = JSON.parse(questoesRaw || '[]');
-        const bancoAulas = JSON.parse(aulasRaw || '[]');
+    cpf = String(cpf).replace(/[^\d]+/g, '');
 
-        const disc = disciplina.toLowerCase().trim();
+    if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
 
-        // Extrai temas de questões
-        const temasQuestoes = bancoQuestoes
-            .filter(q => q.disciplina.toLowerCase() === disc)
-            .map(q => q.tema);
+    let soma = 0, resto;
 
-        // Extrai temas de aulas
-        const temasAulas = bancoAulas
-            .filter(a => a.disciplina.toLowerCase() === disc)
-            .map(a => a.tema);
-
-        // Une os dois e remove duplicados
-        const temasUnicos = [...new Set([...temasQuestoes, ...temasAulas])];
-        
-        res.json(temasUnicos);
-    } catch (erro) {
-        console.error("Erro ao buscar temas unificados:", erro);
-        res.status(500).json([]);
+    for (let i = 1; i <= 9; i++) {
+        soma += parseInt(cpf.substring(i - 1, i), 10) * (11 - i);
     }
-});
 
-app.get('/questoes', async (req, res) => {
-    const { disciplina, tema } = req.query;
-    try {
-        const resultado = await pegarquestoesdobanco(disciplina, tema);
-        res.json(resultado);
-    } catch (erro) {
-        res.status(500).json({ mensagem: "Erro interno" });
+    resto = (soma * 10) % 11;
+    if (resto === 10 || resto === 11) resto = 0;
+    if (resto !== parseInt(cpf.substring(9, 10), 10)) return false;
+
+    soma = 0;
+    for (let i = 1; i <= 10; i++) {
+        soma += parseInt(cpf.substring(i - 1, i), 10) * (12 - i);
     }
-});
 
-app.post('/questoes', async (req, res) => {
+    resto = (soma * 10) % 11;
+    if (resto === 10 || resto === 11) resto = 0;
+
+    return resto === parseInt(cpf.substring(10, 11), 10);
+}
+
+
+// ==========================================
+//    AUTH - REGISTRO
+// ==========================================
+
+app.post('/auth/registrar', async (req, res) => {
+    let { nome, email, senha, cpf, tipo } = req.body;
+    email = String(email).toLowerCase().trim();
+    cpf = String(cpf).replace(/[^\d]+/g, '');
+    // tipo = "aluno" ou "professor"
+
+    if (!nome || !email || !senha || !cpf || !tipo) {
+        return res.status(400).json({ erro: "Dados incompletos" });
+    }
+
+    if (!validarEmail(email)) {
+        return res.status(400).json({ erro: "Email inválido" });
+    }
+
+    if (!validarCPF(cpf)) {
+        return res.status(400).json({ erro: "CPF inválido" });
+    }
+
     try {
-        const novaQuestao = req.body;
-        const conteudo = await fs.readFile(CAMINHO_BANCO_QUESTOES, 'utf-8');
-        const bancoTotal = JSON.parse(conteudo.trim() || '[]');
-        const questaoFormatada = {
+        const conteudo = await fs.readFile(CAMINHO_BANCO_USUARIOS, 'utf-8').catch(() => '[]');
+        const usuarios = JSON.parse(conteudo || '[]');
+
+        const existe = usuarios.find(
+            u => u.email === email || u.cpf === cpf.replace(/[^\d]+/g, '')
+        );
+
+        if (existe) {
+            return res.status(400).json({ erro: "Usuário já cadastrado" });
+        }
+
+        const senhaHash = await bcrypt.hash(senha, 10);
+
+        const novoUsuario = {
             id: Date.now(),
-            ...novaQuestao,
-            disciplina: String(novaQuestao.disciplina).toLowerCase().trim(),
-            tema: String(novaQuestao.tema).toLowerCase().trim()
-        };
-        bancoTotal.push(questaoFormatada);
-        await fs.writeFile(CAMINHO_BANCO_QUESTOES, JSON.stringify(bancoTotal, null, 2));
-        res.status(201).json(questaoFormatada);
-    } catch (erro) {
-        res.status(500).json({ mensagem: "Erro ao gravar" });
-    }
-});
-
-// ==========================================
-//    ROTAS DE REDAÇÕES (Nova Integração)
-// ==========================================
-
-// 1. Aluno envia redação
-app.post('/redacoes', async (req, res) => {
-    try {
-        // Agora recebemos o idUsuario vindo do frontend
-        const { idUsuario, usuario, titulo, conteudo_html } = req.body;
-        
-        const conteudo = await fs.readFile(CAMINHO_BANCO_REDACOES, 'utf-8').catch(() => '[]');
-        const banco = JSON.parse(conteudo || '[]');
-
-        const novaRedacao = {
-            id: Date.now(),
-            idUsuario: idUsuario, // Vínculo essencial para a busca futura
-            usuario: usuario,     // Mantemos o nome apenas para exibição fácil ao professor
-            titulo: titulo,
-            conteudo_html: conteudo_html,
-            comentarios: [],
-            status: "pendente",
-            data_envio: new Date().toISOString()
+            nome,
+            email,
+            senha: senhaHash,
+            cpf,
+            tipo, // "aluno" ou "professor"
+            criadoEm: new Date().toISOString()
         };
 
-        banco.push(novaRedacao);
-        await fs.writeFile(CAMINHO_BANCO_REDACOES, JSON.stringify(banco, null, 2));
-        
-        res.status(201).json({ mensagem: "Enviado com sucesso!" });
-    } catch (erro) {
-        console.error("Erro ao salvar redação:", erro);
-        res.status(500).json({ mensagem: "Erro ao salvar no servidor" });
-    }
-});
-app.get('/redacoes/aluno', async (req, res) => {
-    try {
-        const { nome } = req.query;
-        const conteudo = await fs.readFile(CAMINHO_BANCO_REDACOES, 'utf-8').catch(() => '[]');
-        const banco = JSON.parse(conteudo);
+        console.log("CPF RECEBIDO:", cpf);
+        console.log("CPF É VÁLIDO?", validarCPF(cpf));
 
-        // Filtra todas as redações daquele aluno
-        const minhasRedacoes = banco.filter(r => r.usuario.toLowerCase() === nome.toLowerCase());
+        usuarios.push(novoUsuario);
 
-        res.json(minhasRedacoes);
+        await fs.writeFile(
+            CAMINHO_BANCO_USUARIOS,
+            JSON.stringify(usuarios, null, 2)
+        );
+
+        res.status(201).json({ mensagem: "Cadastro realizado com sucesso!" });
     } catch (erro) {
-        res.status(500).json({ mensagem: "Erro ao buscar" });
+        console.error(erro);
+        res.status(500).json({ erro: "Erro interno no servidor" });
     }
 });
 
-// 2. Professor busca a mais antiga não corrigida (FILA)
-app.get('/redacoes/proxima', async (req, res) => {
-    try {
-        const conteudo = await fs.readFile(CAMINHO_BANCO_REDACOES, 'utf-8').catch(() => '[]');
-        const banco = JSON.parse(conteudo || '[]');
+app.get("/modulos/:id", async (req, res) => {
 
-        // Filtra apenas pendentes e ordena por data (mais antiga primeiro)
-        const fila = banco
-            .filter(r => r.status === "pendente")
-            .sort((a, b) => new Date(a.data_envio) - new Date(b.data_envio));
+    const id = Number(req.params.id);
 
-        if (fila.length === 0) return res.status(404).json({ mensagem: "Fila vazia" });
+    const conteudo = await fs.readFile(CAMINHO_BANCO_MODULOS, "utf-8");
+    const banco = JSON.parse(conteudo || "[]");
 
-        res.json(fila[0]);
-    } catch (erro) {
-        res.status(500).json({ mensagem: "Erro ao buscar fila" });
+    const materia = banco.find(m => m.id === id);
+
+    if (!materia) {
+        return res.status(404).json({ erro: "Não encontrada" });
     }
+
+    res.json(materia);
 });
 
-// 3. Professor envia redação corrigida
-app.put('/redacoes/corrigir/:id', async (req, res) => {
+// 🔹 POST – cadastrar matéria (NOVO MODELO COM SEÇÕES)
+app.post('/materias', apenasProfessor, async (req, res) => {
     try {
-        const idParaCorrigir = parseInt(req.params.id);
-        const { conteudo_html, comentarios } = req.body;
+        const { disciplina, tema, resumo, secoes } = req.body || {};
 
-        const conteudo = await fs.readFile(CAMINHO_BANCO_REDACOES, 'utf-8');
-        let banco = JSON.parse(conteudo);
+        if (!disciplina || !tema || !resumo || !Array.isArray(secoes) || secoes.length === 0) {
+            return res.status(400).json({ mensagem: "Dados incompletos ou seções inválidas" });
+        }
 
-        const index = banco.findIndex(r => r.id === idParaCorrigir);
-        if (index === -1) return res.status(404).json({ mensagem: "Não encontrada" });
+        // 🔥 Validação interna das seções
+        const secoesValidadas = secoes
+            .filter(s => s && s.titulo && s.conteudo)
+            .map(s => ({
+                titulo: String(s.titulo).trim(),
+                conteudo: String(s.conteudo).trim()
+            }));
 
-        // Atualiza para corrigida
-        banco[index] = {
-            ...banco[index],
-            conteudo_html,
-            comentarios,
-            status: "corrigida",
-            data_correcao: new Date().toISOString()
-        };
+        if (secoesValidadas.length === 0) {
+            return res.status(400).json({ mensagem: "Nenhuma seção válida enviada" });
+        }
 
-        await fs.writeFile(CAMINHO_BANCO_REDACOES, JSON.stringify(banco, null, 2));
-        res.json({ mensagem: "Redação corrigida com sucesso!" });
-    } catch (erro) {
-        res.status(500).json({ mensagem: "Erro ao salvar correção" });
-    }
-});
+        const conteudoRaw = await fs.readFile(CAMINHO_BANCO_MATERIAS, 'utf-8')
+            .catch(() => '[]');
 
-// ==========================================
-//    ROTAS DE MATÉRIAS (Nova Integração)
-// ==========================================
+        let banco = [];
 
-app.post('/materias', async (req, res) => {
-    try {
-        const { disciplina, tema, resumo, conteudoCompleto, imagens } = req.body;
+        try {
+            banco = JSON.parse((conteudoRaw || '').trim() || '[]');
+        } catch {
+            banco = [];
+        }
 
         const novaMateria = {
             id: Date.now(),
-            disciplina: String(disciplina).toLowerCase().trim(),
-            tema: String(tema).toLowerCase().trim(),
-            resumo,
-            conteudoCompleto,
-            imagens: Array.isArray(imagens) ? imagens : [],
-            dataCriacao: new Date().toISOString()
+            disciplina: normalizarTexto(disciplina),
+            tema: normalizarTexto(tema),
+            resumo: String(resumo).trim(),
+
+            // 🔥 NOVA ESTRUTURA
+            secoes: secoesValidadas,
+
+            criadoEm: new Date().toISOString()
         };
 
-        const conteudo = await fs.readFile(CAMINHO_BANCO_MATERIAS, 'utf-8')
-            .catch(() => '[]');
-
-        const banco = JSON.parse(conteudo || '[]');
         banco.push(novaMateria);
 
         await fs.writeFile(
@@ -232,36 +248,360 @@ app.post('/materias', async (req, res) => {
             JSON.stringify(banco, null, 2)
         );
 
-        res.status(201).json({ mensagem: "Matéria cadastrada com sucesso!" });
+        res.status(201).json({
+            mensagem: "Matéria cadastrada com sucesso!",
+            id: novaMateria.id
+        });
+
     } catch (erro) {
-        res.status(500).json({ mensagem: "Erro ao salvar matéria" });
+        console.error("❌ Erro ao cadastrar matéria:", erro);
+        res.status(500).json({ mensagem: "Erro interno ao salvar matéria" });
     }
 });
+
+// ==========================================
+// 🔒 MIDDLEWARE - SOMENTE PROFESSOR
+// ==========================================
+
+async function apenasProfessor(req, res, next) {
+    try {
+        const { usuarioId } = req.body;
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Usuário não autenticado" });
+        }
+
+        const conteudo = await fs.readFile(CAMINHO_BANCO_USUARIOS, 'utf-8').catch(() => '[]');
+        const usuarios = JSON.parse(conteudo || '[]');
+
+        const usuario = usuarios.find(u => String(u.id) === String(usuarioId));
+
+        if (!usuario) {
+            return res.status(401).json({ erro: "Usuário inválido" });
+        }
+
+        if (usuario.tipo !== "professor") {
+            return res.status(403).json({ erro: "Apenas professores podem realizar essa ação" });
+        }
+
+        next();
+
+    } catch (e) {
+        console.error("Erro middleware professor:", e);
+        res.status(500).json({ erro: "Erro interno" });
+    }
+}
+
+// ==========================================
+//    ROTAS DE REDAÇÕES (Nova Integração - BLINDADA)
+// ==========================================
+
+// 1. Aluno envia redação
+app.post('/redacoes', async (req, res) => {
+    try {
+        const { usuario, titulo, conteudo_html, comentarios } = req.body || {};
+
+        if (!usuario || !titulo || !conteudo_html) {
+            return res.status(400).json({ mensagem: "Dados incompletos" });
+        }
+
+        const conteudoRaw = await fs.readFile(CAMINHO_BANCO_REDACOES, 'utf-8').catch(() => '[]');
+
+        let banco = [];
+        try {
+            banco = JSON.parse((conteudoRaw || '').trim() || '[]');
+        } catch {
+            banco = [];
+        }
+
+        const novaRedacao = {
+            id: Date.now(),
+            usuario: String(usuario).toLowerCase().trim(), // 🔥 compatível com sua rota GET /redacoes/aluno
+            titulo,
+            conteudo_html,
+            comentarios: Array.isArray(comentarios) ? comentarios : [], // 🔥 vem do front
+            status: "pendente",
+            data_envio: new Date().toISOString()
+        };
+
+        banco.push(novaRedacao);
+
+        await fs.writeFile(CAMINHO_BANCO_REDACOES, JSON.stringify(banco, null, 2));
+
+        res.status(201).json({ mensagem: "Enviado com sucesso!" });
+
+    } catch (erro) {
+        console.error("Erro ao salvar redação:", erro);
+        res.status(500).json({ mensagem: "Erro ao salvar no servidor" });
+    }
+});
+
+// Aluno busca suas redações
+app.get('/redacoes/aluno', async (req, res) => {
+    try {
+        const { nome } = req.query;
+        if (!nome) return res.status(400).json({ mensagem: "Nome não informado" });
+
+        const conteudoRaw = await fs.readFile(CAMINHO_BANCO_REDACOES, 'utf-8').catch(() => '[]');
+
+        let banco = [];
+        try {
+            banco = JSON.parse((conteudoRaw || '').trim() || '[]');
+        } catch {
+            banco = [];
+        }
+
+        const aluno = String(nome).toLowerCase().trim();
+
+        const minhasRedacoes = banco.filter(
+            r => r && r.usuario && String(r.usuario).toLowerCase().trim() === aluno
+        );
+
+        res.json(minhasRedacoes);
+
+    } catch (erro) {
+        console.error("Erro ao buscar redações do aluno:", erro);
+        res.status(500).json({ mensagem: "Erro ao buscar" });
+    }
+});
+
+// 2. Professor busca a mais antiga não corrigida (FILA)
+app.get('/redacoes/proxima', async (req, res) => {
+    try {
+        const conteudoRaw = await fs.readFile(CAMINHO_BANCO_REDACOES, 'utf-8').catch(() => '[]');
+
+        let banco = [];
+        try {
+            banco = JSON.parse((conteudoRaw || '').trim() || '[]');
+        } catch {
+            banco = [];
+        }
+
+        const fila = banco
+            .filter(r => r && r.status === "pendente" && r.data_envio)
+            .sort((a, b) => new Date(a.data_envio) - new Date(b.data_envio));
+
+        if (!fila.length) return res.status(404).json({ mensagem: "Fila vazia" });
+
+        res.json(fila[0]);
+
+    } catch (erro) {
+        console.error("Erro ao buscar próxima redação:", erro);
+        res.status(500).json({ mensagem: "Erro ao buscar fila" });
+    }
+});
+
+// 3. Professor envia redação corrigida
+app.put('/redacoes/corrigir/:id', async (req, res) => {
+    try {
+        const idParaCorrigir = Number(req.params.id);
+        if (!idParaCorrigir) {
+            return res.status(400).json({ mensagem: "ID inválido" });
+        }
+
+        const { conteudo_html, comentarios } = req.body || {};
+
+        const conteudoRaw = await fs.readFile(CAMINHO_BANCO_REDACOES, 'utf-8').catch(() => '[]');
+
+        let banco = [];
+        try {
+            banco = JSON.parse((conteudoRaw || '').trim() || '[]');
+        } catch {
+            banco = [];
+        }
+
+        const index = banco.findIndex(r => r && r.id === idParaCorrigir);
+        if (index === -1) return res.status(404).json({ mensagem: "Não encontrada" });
+
+        banco[index] = {
+            ...banco[index],
+            conteudo_html: conteudo_html ?? banco[index].conteudo_html,
+            comentarios: comentarios ?? banco[index].comentarios,
+            status: "corrigida",
+            data_correcao: new Date().toISOString()
+        };
+
+        await fs.writeFile(CAMINHO_BANCO_REDACOES, JSON.stringify(banco, null, 2));
+        res.json({ mensagem: "Redação corrigida com sucesso!" });
+
+    } catch (erro) {
+        console.error("Erro ao salvar correção:", erro);
+        res.status(500).json({ mensagem: "Erro ao salvar correção" });
+    }
+});
+
+// ==========================================
+//        FUNÇÃO PADRÃO (NÃO REMOVE NADA)
+// ==========================================
+function normalizarTexto(txt) {
+    const texto = String(txt || "").toLowerCase().trim();
+
+    if (typeof texto.normalize === "function") {
+        return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    }
+
+    return texto;
+}
+
+// ==========================================
+//        ROTAS DE MATÉRIAS
+// ==========================================
+
+// 🔹 GET – listar disciplinas únicas (para o select de matéria)
+app.get('/materias', async (req, res) => {
+    try {
+        const conteudo = await fs.readFile(CAMINHO_BANCO_MATERIAS, 'utf-8')
+            .catch(() => '[]');
+
+        let banco = [];
+
+        try {
+            banco = JSON.parse(conteudo.trim() || '[]');
+        } catch {
+            banco = [];
+        }
+
+        // 🔥 Ordenar mais recentes primeiro
+        banco.sort((a, b) =>
+            new Date(b.criadoEm || 0) - new Date(a.criadoEm || 0)
+        );
+
+        res.json(banco);
+
+    } catch (erro) {
+        console.error("Erro ao buscar matérias:", erro);
+        res.status(500).json([]);
+    }
+});
+
+app.get('/disciplinas', async (req, res) => {
+    const conteudo = await fs.readFile(CAMINHO_BANCO_MATERIAS, 'utf-8').catch(() => '[]');
+    const banco = JSON.parse(conteudo || '[]');
+
+    const disciplinasUnicas = [
+        ...new Set(banco.map(m => m.disciplina))
+    ];
+
+    res.json(disciplinasUnicas);
+});
+
+app.get("/materias/:id", async (req, res) => {
+
+    const id = Number(req.params.id);
+
+    const conteudo = await fs.readFile(CAMINHO_BANCO_MATERIAS, "utf-8");
+    const banco = JSON.parse(conteudo || "[]");
+
+    const materia = banco.find(m => m.id === id);
+
+    if (!materia) {
+        return res.status(404).json({ erro: "Não encontrada" });
+    }
+
+    res.json(materia);
+});
+
+// ==========================================
+//    ROTA ÚNICA /temas (QUESTÕES + AULAS)
+// ==========================================
+app.get('/temas', async (req, res) => {
+    const { disciplina } = req.query;
+
+    if (!disciplina) {
+        return res.status(400).json({ mensagem: "Disciplina não informada" });
+    }
+
+    try {
+        const [
+            questoesRaw,
+            aulasRaw,
+            materiasRaw,
+            modulosRaw
+        ] = await Promise.all([
+            fs.readFile(CAMINHO_BANCO_QUESTOES, 'utf-8').catch(() => '[]'),
+            fs.readFile(CAMINHO_BANCO_AULAS, 'utf-8').catch(() => '[]'),
+            fs.readFile(CAMINHO_BANCO_MATERIAS, 'utf-8').catch(() => '[]'),
+            fs.readFile(CAMINHO_BANCO_MODULOS, 'utf-8').catch(() => '[]')
+        ]);
+
+        const bancoQuestoes = JSON.parse(questoesRaw || '[]');
+        const bancoAulas = JSON.parse(aulasRaw || '[]');
+        const bancoMaterias = JSON.parse(materiasRaw || '[]');
+        const bancoModulos = JSON.parse(modulosRaw || '[]');
+
+        const disc = normalizarTexto(disciplina);
+
+        const pegarTemas = (banco) =>
+            banco
+                .filter(item =>
+                    item && normalizarTexto(item.disciplina) === disc
+                )
+                .map(item => normalizarTexto(item.tema));
+
+        const temasUnicos = [
+            ...new Set([
+                ...pegarTemas(bancoQuestoes),
+                ...pegarTemas(bancoAulas),
+                ...pegarTemas(bancoMaterias),
+                ...pegarTemas(bancoModulos)
+            ])
+        ];
+
+        res.json(temasUnicos);
+
+    } catch (erro) {
+        console.error("Erro ao buscar temas:", erro);
+        res.status(500).json([]);
+    }
+});
+
 // ==========================================
 //    ROTAS DE AULAS (Vídeos YouTube)
 // ==========================================
 
-
 // 1. Professor cadastra aula 
-app.post('/aulas', async (req, res) => {
+app.post('/aulas', apenasProfessor, async (req, res) => {
     try {
-        // Agora aceitamos url2 vindo do body
-        const { disciplina, tema, url, url2 } = req.body;
+        const { disciplina, tema, url, url2 = "" } = req.body;
+
+        if (!disciplina || !tema || !url) {
+            return res.status(400).json({ mensagem: "Disciplina, tema e URL são obrigatórios" });
+        }
 
         const conteudo = await fs.readFile(CAMINHO_BANCO_AULAS, 'utf-8').catch(() => '[]');
-        const banco = JSON.parse(conteudo || '[]');
+
+        let banco = [];
+        try {
+            banco = JSON.parse(conteudo.trim() || '[]');
+        } catch {
+            banco = [];
+        }
+
+        const d = normalizarTexto(disciplina);
+        const t = normalizarTexto(tema);
+
+        const jaExiste = banco.find(a =>
+            normalizarTexto(a.disciplina) === d &&
+            normalizarTexto(a.tema) === t &&
+            a.url === url
+        );
+
+        if (jaExiste) {
+            return res.status(400).json({ mensagem: "Essa aula já foi cadastrada" });
+        }
 
         const novaAula = {
-            id: Date.now(),
-            disciplina: String(disciplina).toLowerCase().trim(),
-            tema: String(tema).toLowerCase().trim(),
-            url: url, 
-            url2: url2 || "", // NOVO: Salva a segunda URL se ela existir
-            data_cadastro: new Date().toISOString()
-        };
+    id: Date.now(),
+    disciplina: d,
+    tema: t,
+    aula_url: url,
+    aula_url_2: url2 || "",
+    data_cadastro: new Date().toISOString()
+};
 
         banco.push(novaAula);
         await fs.writeFile(CAMINHO_BANCO_AULAS, JSON.stringify(banco, null, 2));
+
         res.status(201).json({ mensagem: "Aula salva com sucesso!" });
     } catch (erro) {
         console.error("Erro ao salvar aula:", erro);
@@ -269,45 +609,153 @@ app.post('/aulas', async (req, res) => {
     }
 });
 
-// 2. Aluno busca temas disponíveis (Para preencher o Select Dinâmico)
-app.get('/aulas/temas', async (req, res) => {
-    const { disciplina } = req.query;
-    if (!disciplina) return res.json([]); // Retorna vazio se não escolher a matéria
+app.get('/aulas/buscar', async (req, res) => {
 
+try{
+
+const disciplina = normalizarTexto(req.query.disciplina || "");
+const tema = normalizarTexto(req.query.tema || "");
+
+if(!disciplina || !tema){
+return res.status(400).json({ mensagem:"Disciplina e tema obrigatórios"});
+}
+
+const conteudo = await fs.readFile(CAMINHO_BANCO_AULAS,'utf-8')
+.catch(()=> "[]");
+
+const banco = JSON.parse(conteudo || "[]");
+
+const aula = banco.find(a=>{
+
+const d = normalizarTexto(a.disciplina || "");
+const t = normalizarTexto(a.tema || "");
+
+return d === disciplina && t === tema;
+
+});
+
+if(!aula){
+return res.json({
+aula_url:"",
+aula_url_2:""
+});
+}
+
+res.json(aula);
+
+}catch(erro){
+
+console.error("Erro ao buscar aula:",erro);
+res.status(500).json({ mensagem:"Erro no servidor"});
+
+}
+
+});
+
+// ==========================================
+//        ROTAS DE QUESTÕES
+// ==========================================
+
+// 🔹 POST – cadastrar questão
+app.post('/questoes', apenasProfessor, async (req, res) => {
     try {
-        const conteudo = await fs.readFile(CAMINHO_BANCO_AULAS, 'utf-8').catch(() => '[]');
-        const aulas = JSON.parse(conteudo);
-        
-        // Filtra os temas pela disciplina selecionada
-        const temasFiltrados = aulas
-            .filter(a => a.disciplina === disciplina.toLowerCase().trim())
-            .map(a => a.tema);
-            
-        // Remove temas duplicados
-        const temasUnicos = [...new Set(temasFiltrados)];
-        res.json(temasUnicos);
+        const novaQuestao = {
+    id: Date.now().toString(), // 🔥 ID OBRIGATÓRIO
+    ...req.body
+};
+
+
+        if (
+            !novaQuestao.disciplina ||
+            !novaQuestao.tema ||
+            !novaQuestao.enunciado ||
+            !Array.isArray(novaQuestao.alternativas) ||
+            !novaQuestao.resposta_correta
+        ) {
+            return res.status(400).json({ mensagem: "Dados incompletos da questão" });
+        }
+
+        // ✅ AJUSTE: garantir exatamente 4 alternativas
+        if (novaQuestao.alternativas.length !== 4) {
+            return res.status(400).json({ mensagem: "A questão deve ter 4 alternativas" });
+        }
+
+        const conteudo = await fs.readFile(CAMINHO_BANCO_QUESTOES, 'utf-8').catch(() => '[]');
+
+        let banco = [];
+        try {
+            banco = JSON.parse((conteudo || '').trim() || '[]');
+        } catch {
+            banco = [];
+        }
+
+        banco.push(novaQuestao);
+
+        await fs.writeFile(CAMINHO_BANCO_QUESTOES, JSON.stringify(banco, null, 2));
+
+        console.log("✅ Questão salva no bancoquestoes.json");
+        res.status(201).json({ mensagem: "Questão salva com sucesso!" });
+
     } catch (erro) {
-        res.status(500).json([]);
+        console.error("❌ Erro ao salvar questão:", erro);
+        res.status(500).json({ mensagem: "Erro interno ao salvar questão" });
     }
 });
 
-// 3. Aluno busca a aula específica após selecionar Disciplina e Tema
-app.get('/aulas/buscar', async (req, res) => {
+// ==========================================
+//    GET – Buscar questões por disciplina/tema
+// ==========================================
+app.get('/api/questoes', async (req, res) => {
     try {
-        const { disciplina, tema } = req.query;
-        const conteudo = await fs.readFile(CAMINHO_BANCO_AULAS, 'utf-8').catch(() => '[]');
-        const banco = JSON.parse(conteudo || '[]');
+        const { ids } = req.query;
 
-        const aula = banco.find(a => 
-            a.disciplina === disciplina.toLowerCase().trim() && 
-            a.tema === tema.toLowerCase().trim()
+        const conteudo = await fs.readFile(CAMINHO_BANCO_QUESTOES, 'utf-8')
+            .catch(() => '[]');
+
+        let banco = [];
+        try {
+            banco = JSON.parse((conteudo || '').trim() || '[]');
+        } catch {
+            banco = [];
+        }
+
+        /* ===============================
+           🔥 BUSCA POR IDS (MÓDULOS)
+        =============================== */
+        if (ids) {
+            const listaIds = String(ids)
+                .split(',')
+                .map(id => id.trim());
+
+            const filtradasPorId = banco.filter(q => {
+                const idQuestao = String(q.id ?? q._id ?? q.questao_id ?? '');
+                return listaIds.includes(idQuestao);
+            });
+
+            return res.json(filtradasPorId);
+        }
+
+        /* ===============================
+           🔹 MODO ANTIGO (DISCIPLINA / TEMA)
+        =============================== */
+        const d = normalizarTexto(req.query.disciplina || '');
+        const t = normalizarTexto(req.query.tema || '');
+
+        let filtradas = banco.filter(q =>
+            normalizarTexto(q.disciplina) === d
         );
 
-        if (!aula) return res.status(404).json({ mensagem: "Aula não encontrada" });
+        if (t) {
+            filtradas = filtradas.filter(q =>
+                normalizarTexto(q.tema) === t
+            );
+        }
 
-        res.json(aula);
+        return res.json(filtradas);
+
     } catch (erro) {
-        res.status(500).json({ mensagem: "Erro ao buscar aula" });
+        console.error('❌ Erro ao buscar questões:', erro);
+        return res.status(500).json([]);
     }
 });
 
@@ -315,12 +763,13 @@ app.get('/aulas/buscar', async (req, res) => {
 //    ROTAS DO CONSTRUTOR DE MÓDULOS
 // ==========================================
 
-const CAMINHO_BANCO_MODULOS = path.join(__dirname, 'banco de dados provisorio', 'modulos_completos.json');
-
-// 1. Busca TUDO que existe sobre um tema para o montador
 app.get('/construtor/dados', async (req, res) => {
-    const { disciplina, tema } = req.query;
-    if (!disciplina || !tema) return res.status(400).json({ mensagem: "Disciplina e Tema são obrigatórios" });
+    const d = normalizarTexto(req.query.disciplina);
+    const t = normalizarTexto(req.query.tema);
+
+    if (!d || !t) {
+        return res.status(400).json({ mensagem: "Disciplina e Tema são obrigatórios" });
+    }
 
     try {
         const [aulasRaw, materiasRaw, questoesRaw] = await Promise.all([
@@ -329,156 +778,144 @@ app.get('/construtor/dados', async (req, res) => {
             fs.readFile(CAMINHO_BANCO_QUESTOES, 'utf-8').catch(() => '[]')
         ]);
 
-        const d = disciplina.toLowerCase().trim();
-        const t = tema.toLowerCase().trim();
+        let aulas = [];
+        let materias = [];
+        let questoes = [];
 
-        const aulas = JSON.parse(aulasRaw || '[]');
-        const materias = JSON.parse(materiasRaw || '[]');
-        const questoes = JSON.parse(questoesRaw || '[]');
+        try { aulas = JSON.parse(aulasRaw.trim() || '[]'); } catch {}
+        try { materias = JSON.parse(materiasRaw.trim() || '[]'); } catch {}
+        try { questoes = JSON.parse(questoesRaw.trim() || '[]'); } catch {}
 
-        const aulaEncontrada = aulas.find(a => a.disciplina === d && a.tema === t);
-        const materiaEncontrada = materias.find(m => m.disciplina === d && m.tema === t);
-        const questoesDisponiveis = questoes.filter(q => q.disciplina === d && q.tema === t);
+        const aulaEncontrada = aulas.find(a =>
+            normalizarTexto(a.disciplina) === d &&
+            normalizarTexto(a.tema) === t
+        );
+
+        const materiaEncontrada = materias
+            .filter(m =>
+                normalizarTexto(m.disciplina) === d &&
+                normalizarTexto(m.tema) === t
+            )
+            .at(-1);
+
+        // 🔹 Filtra apenas as questões do módulo usando os IDs
+        let questoesDisponiveis = [];
+
+if (
+    materiaEncontrada &&
+    Array.isArray(materiaEncontrada.questoes_ids) &&
+    materiaEncontrada.questoes_ids.length > 0
+) {
+    // 🔹 Garantia de comparação correta (Number x Number)
+    const idsModulo = materiaEncontrada.questoes_ids.map(id => Number(id));
+
+    questoesDisponiveis = questoes.filter(q =>
+        idsModulo.includes(Number(q.id))
+    );
+} else {
+    // 🔹 Fallback: todas as questões do tema
+    questoesDisponiveis = questoes.filter(q =>
+        normalizarTexto(q.disciplina) === d &&
+        normalizarTexto(q.tema) === t
+    );
+}
+console.log("Módulo:", materiaEncontrada?.tema);
+console.log("IDs do módulo:", materiaEncontrada?.questoes_ids);
+console.log("Questões encontradas:", questoesDisponiveis.length);
 
         res.json({
-            aula: aulaEncontrada || null,
-            // Prioriza o resumo da matéria, se não houver, manda vazio
-            resumo: materiaEncontrada ? (materiaEncontrada.resumo || materiaEncontrada.conteudoCompleto || "") : "",
-            questoes: questoesDisponiveis
-        });
+    aula: aulaEncontrada || null,
+    resumo: materiaEncontrada ? materiaEncontrada.resumo || "" : "",
+    secoes: materiaEncontrada ? materiaEncontrada.secoes || [] : [],
+    questoes: questoesDisponiveis
+    });
+    
     } catch (erro) {
         console.error("Erro no Construtor:", erro);
         res.status(500).json({ mensagem: "Erro ao compilar dados" });
     }
 });
 
-// 2. Salva a estrutura do módulo
-app.post('/modulos/salvar', async (req, res) => {
-    try {
-        const { disciplina, tema, aula_url, aula_url_2, resumo, questoes_ids } = req.body; 
-        
-        let banco = [];
-        try {
-            const conteudo = await fs.readFile(CAMINHO_BANCO_MODULOS, 'utf-8');
-            banco = JSON.parse(conteudo);
-        } catch (e) {
-            banco = [];
-        }
-
-        const moduloEstruturado = {
-            id: Date.now(),
-            disciplina: disciplina,
-            tema: tema,
-            aula_url: aula_url,
-            aula_url_2: aula_url_2 || "", // NOVO: Armazena o segundo vídeo
-            resumo: resumo,
-            questoes_ids: questoes_ids,
-            data_criacao: new Date().toISOString()
-        };
-
-        banco.push(moduloEstruturado);
-        
-        await fs.writeFile(CAMINHO_BANCO_MODULOS, JSON.stringify(banco, null, 2));
-        
-        res.status(201).json({ mensagem: "Módulo estruturado com sucesso!", id: moduloEstruturado.id });
-    } catch (erro) {
-        console.error("Erro ao salvar módulo:", erro);
-        res.status(500).json({ mensagem: "Erro ao salvar estrutura no servidor" });
-    }
-});
-app.get('/modulos/visualizar', async (req, res) => {
-    const { disciplina, tema } = req.query;
-    try {
-        const conteudo = await fs.readFile(CAMINHO_BANCO_MODULOS, 'utf-8').catch(() => '[]');
-        const modulos = JSON.parse(conteudo);
-
-        const moduloEncontrado = modulos.find(m => 
-            m.disciplina.toLowerCase() === disciplina.toLowerCase() && 
-            m.tema.toLowerCase() === tema.toLowerCase()
-        );
-
-        if (!moduloEncontrado) {
-            return res.status(404).json({ mensagem: "Módulo ainda não construído pelo professor." });
-        }
-
-        const questoesRaw = await fs.readFile(CAMINHO_BANCO_QUESTOES, 'utf-8');
-        const todasQuestoes = JSON.parse(questoesRaw);
-
-        const detalhesQuestoes = todasQuestoes.filter(q => 
-            moduloEncontrado.questoes_ids.includes(String(q.id))
-        );
-
-        // O moduloEncontrado agora contém aula_url e aula_url_2
-        res.json({
-            ...moduloEncontrado,
-            questoes_completas: detalhesQuestoes
-        });
-    } catch (erro) {
-        res.status(500).json({ mensagem: "Erro ao carregar módulo" });
-    }
-});
 // ==========================================
 //    ROTA DE CRONOGRAMA (Salvamento JSON)
 // ==========================================
 
-// Defina o caminho do banco de usuários no topo com os outros caminhos
-
 app.post('/salvar', async (req, res) => {
     try {
-        // Agora recebemos o idUsuario para precisão total
-        const { idUsuario, totalHoras, cronograma, usuario } = req.body;
-        
-        // 1. Validação de entrada (Prioriza o ID)
-        if (!idUsuario) return res.status(400).send("ID do usuário não identificado.");
+        const { usuario, totalHoras, cronograma } = req.body;
+
+        // 1. Validação de entrada
+        if (!usuario) {
+            return res.status(400).send("Usuário não identificado.");
+        }
 
         // 2. Leitura segura do arquivo
         const conteudo = await fs.readFile(CAMINHO_BANCO_USUARIOS, 'utf-8').catch(() => '[]');
         let usuarios = [];
+
         try {
             usuarios = JSON.parse(conteudo.trim() || '[]');
         } catch (e) {
+            console.error("JSON de usuários corrompido, recriando arquivo:", e);
             usuarios = [];
         }
 
-        // 3. Busca por ID (Muito mais seguro que por nome)
-        // Convertemos ambos para String para garantir a comparação (evita erro de tipo número vs texto)
-        const index = usuarios.findIndex(u => String(u.id) === String(idUsuario));
+        // 3. Busca padronizada (evita duplicados por maiúscula/minúscula/espaços)
+const chaveBusca = String(usuario).toLowerCase().trim();
+
+const index = usuarios.findIndex(u => 
+    (u.email && String(u.email).toLowerCase().trim() === chaveBusca) ||
+    (u.nome && String(u.nome).toLowerCase().trim() === chaveBusca)
+);
+
+let usuarioEncontrado = usuarios[index];
+
+
+
 
         if (index !== -1) {
             // --- MODO ATUALIZAÇÃO ---
-            // O spread (...usuarios[index]) garante que NÃO vamos apagar:
-            // senha, email, aulasAssistidas, questoesFeitas, etc.
+            // Spread vem primeiro para NÃO apagar dados do usuário
             usuarios[index] = {
-                ...usuarios[index], 
-                totalHoras: totalHoras !== undefined ? totalHoras : usuarios[index].totalHoras,
-                cronograma: cronograma || usuarios[index].cronograma || [],
+                ...usuarios[index],
+                totalHoras: Number.isFinite(+totalHoras)
+                    ? +totalHoras
+                    : (usuarios[index].totalHoras || 0),
+
+                cronograma: Array.isArray(cronograma) && cronograma.length
+                ? cronograma.filter(i => i && i.dia && i.hora && i.materia)
+                : (usuarios[index].cronograma || []),
+
                 ultimaAtualizacao: new Date().toISOString()
             };
-            
-            console.log(`✅ Cronograma do ID ${idUsuario} atualizado.`);
         } else {
-            // --- MODO CRIAÇÃO (Caso o ID não exista no banco) ---
-            // Isso raramente deve acontecer se o login estiver funcionando,
-            // mas serve como segurança.
+            // --- MODO CRIAÇÃO ---
             usuarios.push({
-                id: idUsuario,
-                nome: usuario || "Usuário Novo",
+                id: Date.now(),
+                nome: String(usuario).toLowerCase().trim(),
+                email: "",
                 aulasAssistidas: 0,
                 redacoesFeitas: 0,
+                modulosConcluidos: 0,
                 questoesFeitas: 0,
-                estatisticas: { 
-                    questoes: { totalAcertos: 0, totalErros: 0, porMateria: {} } 
+                estatisticas: {
+                    questoes: {
+                        totalAcertos: 0,
+                        totalErros: 0,
+                        porMateria: {}
+                    }
                 },
-                cronograma: cronograma || [],
-                totalHoras: totalHoras || 0,
+                cronograma: Array.isArray(cronograma) && cronograma.length
+                ? cronograma.filter(i => i && i.dia && i.hora && i.materia): [],
+                totalHoras: Number.isFinite(+totalHoras) ? +totalHoras : 0,
                 ultimaAtualizacao: new Date().toISOString()
             });
-            console.log(`✅ Novo perfil criado via salvamento de cronograma.`);
         }
 
-        // 4. Gravação segura no arquivo JSON
+        // 4. Gravação segura
         await fs.writeFile(CAMINHO_BANCO_USUARIOS, JSON.stringify(usuarios, null, 2));
-        
+
+        console.log(`✅ Cronograma de "${usuario}" salvo sem perder outros dados.`);
         res.status(200).send("Salvo com sucesso!");
 
     } catch (e) {
@@ -486,55 +923,198 @@ app.post('/salvar', async (req, res) => {
         res.status(500).send("Erro interno ao salvar.");
     }
 });
+
+// ==========================================
+//    ROTA ÚNICA PARA CRIAR OU ATUALIZAR MÓDULO
+// ==========================================
+app.post('/modulos/salvar', apenasProfessor, async (req, res) => {
+    try {
+        const {
+            disciplina,
+            tema,
+            aula_url,
+            aula_url_1,
+            aula_url_2,
+            resumo,
+            questoes_ids
+        } = req.body;
+
+        if (!disciplina || !tema) {
+            return res.status(400).json({ mensagem: "Disciplina e Tema são obrigatórios" });
+        }
+
+        const conteudoRaw = await fs.readFile(CAMINHO_BANCO_MODULOS, 'utf-8').catch(() => '[]');
+        let modulos = [];
+
+        try {
+            modulos = JSON.parse((conteudoRaw || '').trim() || '[]');
+        } catch {
+            modulos = [];
+        }
+
+        const d = normalizarTexto(disciplina);
+        const t = normalizarTexto(tema);
+
+        const indexExistente = modulos.findIndex(m =>
+            normalizarTexto(m.disciplina) === d &&
+            normalizarTexto(m.tema) === t
+        );
+
+        const moduloAtualizado = {
+            disciplina: d,
+            tema: t,
+
+            // aceita aula_url OU aula_url_1
+            aula_url: aula_url || aula_url_1 || "",
+            aula_url_2: aula_url_2 || "",
+
+            resumo: resumo || "",
+            questoes_ids: Array.isArray(questoes_ids) ? questoes_ids.map(String) : [],
+
+            ultimaAtualizacao: new Date().toISOString()
+        };
+
+        if (indexExistente !== -1) {
+            modulos[indexExistente] = {
+                ...modulos[indexExistente],
+                ...moduloAtualizado
+            };
+
+            await fs.writeFile(CAMINHO_BANCO_MODULOS, JSON.stringify(modulos, null, 2));
+            return res.json({ mensagem: "Módulo atualizado com sucesso!" });
+        }
+
+        modulos.push({
+            id: Date.now(),
+            ...moduloAtualizado,
+            criadoEm: new Date().toISOString()
+        });
+
+        await fs.writeFile(CAMINHO_BANCO_MODULOS, JSON.stringify(modulos, null, 2));
+        res.json({ mensagem: "Módulo criado com sucesso!" });
+
+    } catch (e) {
+        console.error("❌ ERRO NA ROTA /modulos/salvar:", e);
+        res.status(500).json({ mensagem: "Erro interno ao salvar módulo", detalhe: e.message });
+    }
+});
+
+// ==========================================
+//    GET – LISTAR MÓDULOS (POR MATÉRIA OPCIONAL)
+// ==========================================
+app.get('/modulos', async (req, res) => {
+    try {
+        const { disciplina } = req.query;
+
+        const conteudoRaw = await fs.readFile(CAMINHO_BANCO_MODULOS, 'utf-8').catch(() => '[]');
+        let modulos = [];
+
+        try {
+            modulos = JSON.parse((conteudoRaw || '').trim() || '[]');
+        } catch {
+            modulos = [];
+        }
+
+        if (disciplina) {
+            const d = normalizarTexto(disciplina);
+            modulos = modulos.filter(m => normalizarTexto(m.disciplina) === d);
+        }
+
+        // 🔥 GARANTIA DE DATA VÁLIDA
+        modulos = modulos.map(m => ({
+            ...m,
+            criadoEm: m.criadoEm || m.ultimaAtualizacao || "1970-01-01T00:00:00.000Z"
+        }));
+
+        // 🔥 ORDENA DO MAIS NOVO PARA O MAIS ANTIGO
+        modulos.sort((a, b) => new Date(b.criadoEm) - new Date(a.criadoEm));
+
+        res.json(modulos);
+
+    } catch (e) {
+        console.error("❌ Erro ao listar módulos:", e);
+        res.status(500).json([]);
+    }
+});
+
 // ==========================================
 //    ROTA PARA REGISTRO AUTOMÁTICO (CHAMAR AO ESTUDAR)
 // ==========================================
 
 app.post('/registrar-estudo-agora', async (req, res) => {
     try {
-        const { usuario, materia } = req.body;
-        
+        let { usuario, materia } = req.body;
+        usuario = String(usuario).toLowerCase().trim();
+
         if (!usuario || !materia) {
             return res.status(400).json({ mensagem: "Usuário e Matéria são obrigatórios" });
         }
 
         const agora = new Date();
         const diasMap = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-        const diaAtual = diasMap[agora.getDay()]; 
+        const diaAtual = diasMap[agora.getDay()];
         const horaAtual = String(agora.getHours()).padStart(2, '0') + ':00';
 
+        // Leitura segura do banco
         const conteudo = await fs.readFile(CAMINHO_BANCO_USUARIOS, 'utf-8').catch(() => '[]');
-        let usuarios = JSON.parse(conteudo.trim() || '[]');
+        let usuarios = [];
 
-        const index = usuarios.findIndex(u => u.nome && u.nome.toLowerCase() === usuario.toLowerCase());
-        if (index === -1) return res.status(404).json({ mensagem: "Usuário não encontrado" });
+        try {
+            usuarios = JSON.parse(conteudo.trim() || '[]');
+        } catch (e) {
+            console.error("JSON de usuários corrompido:", e);
+            usuarios = [];
+        }
 
-        // --- CORREÇÃO AQUI: Garante que o cronograma existe antes de usar o .map ---
+        // Busca padronizada
+        // 3. Busca padronizada (evita duplicados por maiúscula/minúscula/espaços)
+const chaveBusca = String(usuario).toLowerCase().trim();
+
+const index = usuarios.findIndex(u => 
+    (u.email && String(u.email).toLowerCase().trim() === chaveBusca) ||
+    (u.nome && String(u.nome).toLowerCase().trim() === chaveBusca)
+);
+
+let usuarioEncontrado = usuarios[index];
+
+        if (index === -1) {
+            return res.status(404).json({ mensagem: "Usuário não encontrado" });
+        }
+
+        // Garante estrutura
         if (!usuarios[index].cronograma || !Array.isArray(usuarios[index].cronograma)) {
             usuarios[index].cronograma = [];
         }
 
         let encontrou = false;
+
         usuarios[index].cronograma = usuarios[index].cronograma.map(item => {
             if (item.dia === diaAtual && item.hora === horaAtual) {
                 encontrou = true;
-                return { ...item, materia: materia, status: "concluido" };
+                return { 
+                    ...item, 
+                    materia: String(materia), 
+                    status: "concluido" 
+                };
             }
             return item;
         });
 
         if (!encontrou) {
             usuarios[index].cronograma.push({
-                dia: diaAtual, 
-                hora: horaAtual, 
-                materia: materia, 
+                dia: diaAtual,
+                hora: horaAtual,
+                materia: String(materia),
                 status: "concluido"
             });
         }
 
+        // Atualiza timestamp (não quebra login, progresso, etc.)
+        usuarios[index].ultimaAtualizacao = new Date().toISOString();
+
         await fs.writeFile(CAMINHO_BANCO_USUARIOS, JSON.stringify(usuarios, null, 2));
-        
-        res.json({ 
+
+        res.json({
             mensagem: `Sucesso! Registrado: ${materia}`,
             dia: diaAtual,
             hora: horaAtual
@@ -546,68 +1126,131 @@ app.post('/registrar-estudo-agora', async (req, res) => {
     }
 });
 
-
-
-
 // ==========================================
 //    ROTAS DE ESTATÍSTICAS E DESEMPENHO
 // ==========================================
 
-// 1. Buscar dados completos do usuário (Estatísticas, Redações, etc)
 app.get('/usuario/dados', async (req, res) => {
     try {
-        // MUDANÇA: Agora recebemos 'id' em vez de 'nome'
-        const { id } = req.query; 
-        
-        if (!id || id === "undefined" || id === "null") {
-            return res.status(400).json({ mensagem: "ID do usuário é obrigatório" });
+        const { id, nome } = req.query;
+
+        if ((!id || id === "undefined") && (!nome || nome === "undefined")) {
+            return res.status(400).json({ mensagem: "Informe id ou nome" });
         }
 
         const conteudoRaw = await fs.readFile(CAMINHO_BANCO_USUARIOS, 'utf-8').catch(() => '[]');
         let usuarios = [];
+
         try {
             usuarios = JSON.parse(conteudoRaw.trim() || '[]');
-        } catch (e) { 
-            usuarios = []; 
+        } catch {
+            usuarios = [];
         }
 
-        // MUDANÇA: Busca pelo ID (convertendo para string para garantir a comparação)
-        // Verifica tanto 'id' quanto '_id' (caso use MongoDB ou padrões diferentes)
-        let usuario = usuarios.find(u => String(u.id) === String(id) || String(u._id) === String(id));
+        const chaveBusca = String(id || nome).toLowerCase().trim();
 
+        let usuario = usuarios.find(u =>
+            String(u.id) === chaveBusca ||
+            (u.email && u.email.toLowerCase().trim() === chaveBusca) ||
+            (u.nome && u.nome.toLowerCase().trim() === chaveBusca)
+        );
+
+        // 🧱 Se não existir, cria
         if (!usuario) {
-            return res.status(404).json({ mensagem: "Usuário não encontrado no banco de dados" });
+            usuario = {
+                id: Date.now(),
+                nome: nome || "",
+                email: "",
+                cpf: "",
+                tipo: "aluno",
+
+                aulasAssistidas: 0,
+                redacoesFeitas: 0,
+                modulosConcluidos: 0,
+                questoesFeitas: 0,
+
+                estatisticas: { 
+                    questoes: { totalAcertos: 0, totalErros: 0, porMateria: {} } 
+                },
+
+                cronograma: [],
+                criadoEm: new Date().toISOString(),
+                ultimaAtualizacao: new Date().toISOString()
+            };
+
+            usuarios.push(usuario);
+            await fs.writeFile(CAMINHO_BANCO_USUARIOS, JSON.stringify(usuarios, null, 2));
         }
-        
-        // Retorna o objeto do usuário completo (com estatísticas, aulas, etc)
+
+        // 🛡️ BLINDAGEM + GARANTIA DE ESTRUTURA PADRÃO
+        usuario.aulasAssistidas = Number(usuario.aulasAssistidas) || 0;
+        usuario.redacoesFeitas = Number(usuario.redacoesFeitas) || 0;
+        usuario.modulosConcluidos = Number(usuario.modulosConcluidos) || 0;
+        usuario.questoesFeitas = Number(usuario.questoesFeitas) || 0;
+
+        if (!usuario.estatisticas) usuario.estatisticas = {};
+        if (!usuario.estatisticas.questoes) {
+            usuario.estatisticas.questoes = { totalAcertos: 0, totalErros: 0, porMateria: {} };
+        }
+        if (!usuario.estatisticas.questoes.porMateria) {
+            usuario.estatisticas.questoes.porMateria = {};
+        }
+
+        // 🔥 NOVO: salva de volta no arquivo se o usuário já existia sem estrutura completa
+        const indexUsuario = usuarios.findIndex(u => u.id === usuario.id);
+        if (indexUsuario !== -1) {
+            usuarios[indexUsuario] = usuario;
+            await fs.writeFile(CAMINHO_BANCO_USUARIOS, JSON.stringify(usuarios, null, 2));
+        }
+
         res.json(usuario);
 
     } catch (e) {
-        console.error("Erro ao buscar dados do usuário:", e);
+        console.error("ERRO NA ROTA /usuario/dados:", e);
         res.status(500).json({ erro: e.message });
     }
 });
+
 // 2. Incrementar contadores simples (Aulas, Redações, Módulos)
 app.post('/usuario/incrementar', async (req, res) => {
     try {
-        // MUDANÇA: Agora pegamos o idUsuario do corpo da requisição
-        const { idUsuario, campo } = req.body;
-        
-        if (!idUsuario || !campo) {
-            return res.status(400).json({ erro: "Dados incompletos" });
+        const { usuario, campo } = req.body;
+        if (!usuario || !campo) return res.status(400).json({ erro: "Dados incompletos" });
+
+        const camposPermitidos = [
+            "aulasAssistidas",
+            "redacoesFeitas",
+            "modulosConcluidos",
+            "questoesFeitas"
+        ];
+
+        if (!camposPermitidos.includes(campo)) {
+            return res.status(400).json({ erro: "Campo inválido para incremento" });
         }
 
         const conteudoRaw = await fs.readFile(CAMINHO_BANCO_USUARIOS, 'utf-8').catch(() => '[]');
-        let usuarios = JSON.parse(conteudoRaw.trim() || '[]');
-        
-        // MUDANÇA: Buscamos pelo ID (convertendo ambos para String para comparar)
-        const user = usuarios.find(u => String(u.id) === String(idUsuario));
-        
+        let usuarios = [];
+
+        try {
+            usuarios = JSON.parse(conteudoRaw.trim() || '[]');
+        } catch (e) {
+            console.error("Erro ao ler JSON de usuários, resetando arquivo.");
+            usuarios = [];
+        }
+
+        const nomeBusca = String(usuario).toLowerCase().trim();
+        const user = usuarios.find(u => 
+        (u.nome && u.nome.toLowerCase().trim() === nomeBusca) ||
+        (u.email && u.email.toLowerCase().trim() === nomeBusca)
+        );
+
+
         if (!user) {
             return res.status(404).json({ erro: "Usuário não encontrado" });
         }
 
         user[campo] = (Number(user[campo]) || 0) + 1;
+        user.ultimaAtualizacao = new Date().toISOString();
 
         await fs.writeFile(CAMINHO_BANCO_USUARIOS, JSON.stringify(usuarios, null, 2));
         res.json({ sucesso: true, novoValor: user[campo] });
@@ -621,272 +1264,151 @@ app.post('/usuario/incrementar', async (req, res) => {
 // 3. Registrar respostas de questões (Acertos/Erros por Matéria)
 app.post('/usuario/registrar-resposta', async (req, res) => {
     try {
-        const { idUsuario, disciplina, acertou } = req.body;
+        const { usuario, disciplina, acertou, questao_id } = req.body;
 
-        if (!idUsuario || !disciplina) {
+        if (!usuario || !disciplina) {
             return res.status(400).json({ mensagem: "Dados incompletos" });
         }
 
-        const data = await fs.readFile(CAMINHO_BANCO_USUARIOS, 'utf-8').catch(() => '[]');
-        const usuarios = JSON.parse(data || '[]');
+        const conteudoRaw = await fs.readFile(CAMINHO_BANCO_USUARIOS, 'utf-8').catch(() => '[]');
+        let usuarios = [];
+        try {
+            usuarios = JSON.parse((conteudoRaw || '').trim() || '[]');
+        } catch (e) {
+            console.error("JSON de usuários corrompido, resetando:", e);
+            usuarios = [];
+        }
+        
+        const chaveBusca = String(usuario).toLowerCase().trim();
 
-        const user = usuarios.find(u => String(u.id) === String(idUsuario));
-        if (!user) return res.status(404).json({ mensagem: "Usuário não encontrado" });
+        const index = usuarios.findIndex(u => 
+        (u.nome && u.nome.toLowerCase().trim() === chaveBusca) ||
+        (u.email && u.email.toLowerCase().trim() === chaveBusca)
+        );
 
-        // blindagem
+        if (index === -1) return res.status(404).json({ mensagem: "Usuário não encontrado" });
+
+        let user = usuarios[index];
+
+        // --- BLINDAGEM DA ESTRUTURA (Evita Erro 500) ---
         if (!user.estatisticas) user.estatisticas = {};
         if (!user.estatisticas.questoes) {
             user.estatisticas.questoes = { totalAcertos: 0, totalErros: 0, porMateria: {} };
         }
+        if (!user.estatisticas.questoes.porMateria) {
+            user.estatisticas.questoes.porMateria = {};
+        }
 
-        const disc = disciplina.toLowerCase().trim();
+        const disc = String(disciplina).toLowerCase().trim();
         if (!user.estatisticas.questoes.porMateria[disc]) {
             user.estatisticas.questoes.porMateria[disc] = { acertos: 0, erros: 0 };
         }
 
-        if (String(acertou) === 'true') {
-            user.estatisticas.questoes.totalAcertos++;
-            user.estatisticas.questoes.porMateria[disc].acertos++;
+        // --- LÓGICA DE INCREMENTO SEGURA ---
+        const isCorrect = acertou === true || String(acertou) === 'true';
+
+        if (isCorrect) {
+            user.estatisticas.questoes.totalAcertos = (Number(user.estatisticas.questoes.totalAcertos) || 0) + 1;
+            user.estatisticas.questoes.porMateria[disc].acertos = (Number(user.estatisticas.questoes.porMateria[disc].acertos) || 0) + 1;
         } else {
-            user.estatisticas.questoes.totalErros++;
-            user.estatisticas.questoes.porMateria[disc].erros++;
+            user.estatisticas.questoes.totalErros = (Number(user.estatisticas.questoes.totalErros) || 0) + 1;
+            user.estatisticas.questoes.porMateria[disc].erros = (Number(user.estatisticas.questoes.porMateria[disc].erros) || 0) + 1;
         }
 
-        user.questoesFeitas = (user.questoesFeitas || 0) + 1;
+        // Atualiza o contador global de questões feitas
+        user.questoesFeitas = (Number(user.questoesFeitas) || 0) + 1;
+
+        // --- (OPCIONAL) REGISTRA QUAIS QUESTÕES O USUÁRIO FEZ ---
+        if (!Array.isArray(user.questoesRespondidas)) {
+            user.questoesRespondidas = [];
+        }
+        if (questao_id) {
+            user.questoesRespondidas.push(String(questao_id));
+        }
 
         await fs.writeFile(CAMINHO_BANCO_USUARIOS, JSON.stringify(usuarios, null, 2));
         res.json({ sucesso: true });
 
     } catch (e) {
-        res.status(500).json({ erro: "Erro interno" });
+        console.error("ERRO DETALHADO NO REGISTRAR-RESPOSTA:", e); 
+        res.status(500).json({ erro: "Erro interno no servidor", detalhe: e.message });
     }
 });
 
 
-
-
-// ==========================================
-//    ROTA DE login
-// ==========================================
-
-
-// Função para validar CPF (Algoritmo Real)
-function validarCPF(cpf) {
-    cpf = cpf.replace(/[^\d]+/g, '');
-    if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
-    let soma = 0, resto;
-    for (let i = 1; i <= 9; i++) soma += parseInt(cpf.substring(i-1, i)) * (11 - i);
-    resto = (soma * 10) % 11;
-    if ((resto == 10) || (resto == 11)) resto = 0;
-    if (resto != parseInt(cpf.substring(9, 10))) return false;
-    soma = 0;
-    for (let i = 1; i <= 10; i++) soma += parseInt(cpf.substring(i-1, i)) * (12 - i);
-    resto = (soma * 10) % 11;
-    if ((resto == 10) || (resto == 11)) resto = 0;
-    return (resto == parseInt(cpf.substring(10, 11)));
-}
-
-// Função para validar Email
-function validarEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-app.post('/auth/registrar', async (req, res) => {
-    const { usuario, senha, email, cpf, nascimento, faculdade, curso } = req.body;
-
-    if (!validarEmail(email)) return res.status(400).json({ erro: "Email inválido!" });
-    if (!validarCPF(cpf)) return res.status(400).json({ erro: "CPF inválido!" });
-
-    try {
-        // Usa o caminho unificado
-        const data = await fs.readFile(CAMINHO_BANCO_USUARIOS, 'utf8').catch(() => '[]');
-        const usuarios = JSON.parse(data || '[]');
-
-        if (usuarios.find(u => u.cpf === cpf || u.email === email)) {
-            return res.status(400).json({ erro: "CPF ou Email já cadastrado!" });
-        }
-
-        const hashSenha = await bcrypt.hash(senha, 10);
-
-        const novoUsuario = {
-            nome: usuario,
-            id: Date.now(), // gera um ID numérico único baseado no tempo
-            senha: hashSenha,
-            email,
-            cpf: cpf.replace(/[^\d]+/g, ''),
-            nascimento,
-            faculdade,
-            curso,
-            // Mantém a estrutura de estatísticas que suas outras rotas esperam
-            aulasAssistidas: 0,
-            redacoesFeitas: 0,
-            modulosConcluidos: 0,
-            estatisticas: { questoes: { totalAcertos: 0, totalErros: 0, porMateria: {} } },
-            cronograma: []
-        };
-
-        usuarios.push(novoUsuario);
-        await fs.writeFile(CAMINHO_BANCO_USUARIOS, JSON.stringify(usuarios, null, 2));
-        res.status(201).json({ mensagem: "Conta criada com sucesso!" });
-
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ erro: "Erro interno no servidor." });
-    }
-});
-
-// Rota de Login (Simplificada para o exemplo)
+// =======================
+// LOGIN (EMAIL OU CPF)
+// =======================
 app.post('/auth/login', async (req, res) => {
-    const { email, senha } = req.body;
     try {
+        const { login, senha } = req.body;
+
+        if (!login || !senha) {
+            return res.status(400).json({ erro: "Login e senha obrigatórios" });
+        }
+
         const data = await fs.readFile(CAMINHO_BANCO_USUARIOS, 'utf8').catch(() => '[]');
-        const usuarios = JSON.parse(data || '[]');
 
-        const user = usuarios.find(u => u.email === email);
-        
-        if (user && await bcrypt.compare(senha, user.senha)) {
-            // --- CORREÇÃO AQUI: Adicione o user.id ---
-            res.json({ 
-                mensagem: "Sucesso", 
-                usuario: user.nome, 
-                id: user.id  // Essencial para o cronograma e estatísticas funcionarem!
-            });
-        } else {
-            res.status(401).json({ erro: "E-mail ou senha incorretos." });
+        let usuarios = [];
+        try {
+            usuarios = JSON.parse((data || '').trim() || '[]');
+        } catch {
+            usuarios = [];
         }
-    } catch (e) {
-        res.status(500).json({ erro: "Erro ao processar login." });
-    }
-});
-// ==========================================
-//    ROTA DE gerenciamento usuarios (Admin)
-// ==========================================
-// Rota para buscar todos os usuários
-app.get('/api/usuarios', async (req, res) => {
-    try {
-        console.log("Lendo arquivo de usuários em:", USERS_FILE); 
-        
-        // Em fs/promises, usamos readFile com await. 
-        // O .catch(() => '[]') garante que se o arquivo não existir, retorna array vazio.
-        const data = await fs.readFile(USERS_FILE, 'utf8').catch(() => '[]');
-        
-        const json = JSON.parse(data || '[]');
-        res.json(json);
+
+        const loginNormalizado = String(login).toLowerCase().trim();
+        const loginCPF = String(login).replace(/[^\d]+/g, '');
+
+        const usuario = usuarios.find(u =>
+            (u.email && u.email.toLowerCase().trim() === loginNormalizado) ||
+            (u.cpf && String(u.cpf).replace(/[^\d]+/g, '') === loginCPF)
+        );
+
+        if (!usuario || !(await bcrypt.compare(senha, usuario.senha))) {
+            return res.status(401).json({ erro: "Login ou senha inválidos" });
+        }
+
+        res.json({
+            id: usuario.id,
+            nome: usuario.nome,
+            tipo: usuario.tipo
+        });
 
     } catch (err) {
-        console.error("❌ ERRO NO SERVIDOR:", err); 
-        res.status(500).send("Erro interno ao processar usuários");
+        console.error("ERRO LOGIN:", err);
+        res.status(500).json({ erro: "Erro ao processar login" });
     }
 });
 
-// Rota para salvar alterações
-// Adicionamos 'async' aqui também
-app.post('/api/usuarios', async (req, res) => {
+const PASTA_BANCO = path.join(__dirname, 'banco de dados provisorio');
+
+if (!fsSync.existsSync(PASTA_BANCO)) {
+    fsSync.mkdirSync(PASTA_BANCO, { recursive: true });
+}
+
+async function garantirArquivo(caminho) {
     try {
-        const novosUsuarios = req.body;
-        // Usamos await fs.writeFile em vez de writeFileSync
-        await fs.writeFile(USERS_FILE, JSON.stringify(novosUsuarios, null, 2));
-        res.status(200).send({ message: "Dados salvos com sucesso!" });
-    } catch (err) {
-        console.error("Erro ao salvar usuários:", err);
-        res.status(500).send({ error: "Erro ao gravar dados." });
+        await fs.access(caminho);
+    } catch {
+        await fs.writeFile(caminho, '[]');
     }
-});
-// Adicione no seu server.js (seção de Rotas de Aulas)
+}
 
-app.get('/api/total-aulas', async (req, res) => {
-    try {
-        const conteudo = await fs.readFile(CAMINHO_BANCO_AULAS, 'utf-8').catch(() => '[]');
-        const aulas = JSON.parse(conteudo || '[]');
-        
-        // Retorna a quantidade total de aulas cadastradas
-        res.json({ total: aulas.length });
-    } catch (erro) {
-        res.status(500).json({ total: 0 });
-    }
-});
-// server.js - Rota para atualizar apenas o progresso
-app.post('/usuario/atualizar-progresso', async (req, res) => {
-    try {
-        const { usuario, progressoCurso } = req.body;
-        
-        const data = await fs.readFile(CAMINHO_BANCO_USUARIOS, 'utf8');
-        let usuarios = JSON.parse(data);
-        
-        const index = usuarios.findIndex(u => u.nome.toLowerCase() === usuario.toLowerCase());
-        
-        if (index !== -1) {
-            usuarios[index].progressoCurso = progressoCurso;
-            await fs.writeFile(CAMINHO_BANCO_USUARIOS, JSON.stringify(usuarios, null, 2));
-            res.json({ sucesso: true });
-        } else {
-            res.status(404).json({ erro: "Usuário não encontrado" });
-        }
-    } catch (e) {
-        res.status(500).json({ erro: "Erro ao salvar progresso" });
-    }
-});
-// Rota para registrar progresso dinâmico baseado no total de aulas
-
-// =========================
-// ROTA DE PAGAMENTO PIX
-// =========================
-app.post("/create-payment", async (req, res) => {
-  try {
-    const { title, price, email } = req.body;
-
-    // Na v2, o método create recebe um objeto 'body'
-    const response = await payment.create({
-      body: {
-        transaction_amount: Number(price),
-        description: title,
-        payment_method_id: "pix",
-        payer: {
-          email: email,
-        },
-      }
-    });
-
-    // Os dados agora ficam direto no objeto de resposta, não em .body
-    res.json({
-      id: response.id,
-      status: response.status,
-      qr_code: response.point_of_interaction.transaction_data.qr_code,
-      qr_code_base64: response.point_of_interaction.transaction_data.qr_code_base64,
-    });
-  } catch (error) {
-    console.error("Erro Mercado Pago:", error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// =========================
-// WEBHOOK
-// =========================
-app.post("/webhook", async (req, res) => {
-  try {
-    const paymentId = req.query['data.id'] || req.body?.data?.id;
-    if (!paymentId) return res.sendStatus(200);
-
-    // Busca o pagamento usando a instância configurada
-    const paymentData = await payment.get({ id: paymentId });
-
-    if (paymentData.status === "approved") {
-      console.log("✅ Pagamento aprovado:", paymentId);
-      // Lógica de liberação aqui
-    }
-
-    res.sendStatus(200);
-  } catch (error) {
-    console.error("Erro webhook:", error);
-    res.sendStatus(500);
-  }
-});
-
-
+await garantirArquivo(CAMINHO_BANCO_QUESTOES);
+await garantirArquivo(CAMINHO_BANCO_REDACOES);
+await garantirArquivo(CAMINHO_BANCO_MATERIAS);
+await garantirArquivo(CAMINHO_BANCO_AULAS);
+await garantirArquivo(CAMINHO_BANCO_USUARIOS);
+await garantirArquivo(CAMINHO_BANCO_MODULOS);
 
 // --- INICIALIZAÇÃO ---
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/', (req, res) => {
+    res.redirect('/inicial.html');
+});
+
+app.use((req, res) => {
+    res.status(404).json({ erro: "Rota não encontrada" });
+});
 
 app.listen(porta, () => {
     console.log(`🚀 Servidor rodando em http://localhost:${porta}`);

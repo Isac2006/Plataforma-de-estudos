@@ -1,0 +1,192 @@
+html, body{
+overflow-x:hidden;
+}
+
+*{
+box-sizing:border-box;
+}
+
+/* =========================================
+   CONTAINER LISTA DE MATÉRIAS
+========================================= */
+
+#listaMateriasCadastradas{
+max-height:520px;           /* altura fixa (aprox 10 itens) */
+overflow-y:auto;
+display:flex;
+flex-direction:column;
+gap:8px;
+padding-right:6px;
+}
+
+/* =========================================
+   ITEM DA MATÉRIA
+========================================= */
+
+.item-materia{
+background:#ffffff;
+padding:12px 14px;
+border-radius:10px;
+border:1px solid #e5e7eb;
+display:flex;
+flex-direction:column;
+transition:all .2s ease;
+cursor:pointer;
+}
+
+/* hover moderno */
+
+.item-materia:hover{
+background:#f1f5f9;
+transform:translateX(6px);
+border-color:#6366f1;
+box-shadow:0 4px 10px rgba(0,0,0,0.08);
+}
+
+/* =========================================
+   TÍTULO DA MATÉRIA
+========================================= */
+
+.item-materia h4{
+font-size:15px;
+font-weight:600;
+color:#1e293b;
+margin:0;
+}
+
+/* =========================================
+   DISCIPLINA
+========================================= */
+
+.item-materia span{
+font-size:12px;
+color:#64748b;
+margin-top:2px;
+}
+
+/* =========================================
+   SCROLL BONITO
+========================================= */
+
+#listaMateriasCadastradas::-webkit-scrollbar{
+width:8px;
+}
+
+#listaMateriasCadastradas::-webkit-scrollbar-track{
+background:#f1f5f9;
+border-radius:10px;
+}
+
+#listaMateriasCadastradas::-webkit-scrollbar-thumb{
+background:#cbd5f5;
+border-radius:10px;
+}
+
+#listaMateriasCadastradas::-webkit-scrollbar-thumb:hover{
+background:#818cf8;
+}
+
+/* =========================================
+   NENHUMA MATÉRIA
+========================================= */
+
+#listaMateriasCadastradas p{
+text-align:center;
+color:#64748b;
+font-size:14px;
+padding:20px 0;
+}
+
+
+
+/* =========================================
+   TELA DE DISCIPLINAS
+========================================= */
+
+
+
+
+/* =========================================
+   CARD DE TEMA / MATÉRIA
+========================================= */
+
+.titulo-materia{
+    margin-left: 80px;
+}
+
+/* Container centralizado para temas ou módulos */
+.lista-temas,
+#listaModulos {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-left: 80px;
+  max-width: 1300px;         /* largura máxima */
+  width: 100%;               /* ocupa 100% do container */
+  box-sizing: border-box;
+}
+
+/* Cards dentro de temas ou módulos */
+.card-tema,
+.card-modulo {  /* se você tiver card separado para módulos */
+  width: 100%;
+  max-width: 100%;
+  background: white;
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+  transition: .25s;
+  margin: 0 auto; /* garante centralização */
+}
+
+/* titulo */
+
+.card-tema h3{
+
+font-size:18px;
+color:#1e293b;
+
+}
+
+/* resumo limitado */
+
+.card-tema p{
+
+font-size:14px;
+color:#64748b;
+
+display:-webkit-box;
+-webkit-box-orient:vertical;
+-webkit-line-clamp:3;
+
+overflow:hidden;
+text-overflow:ellipsis;
+
+}
+/* hover */
+
+.card-tema:hover{
+
+transform:translateY(-4px);
+
+box-shadow:0 12px 30px rgba(0,0,0,0.12);
+
+border-color:#c7d2fe;
+
+}
+
+/* lista */
+
+.lista-temas{
+
+display:flex;
+flex-direction:column;
+gap:14px;
+margin-top:20px;
+
+}

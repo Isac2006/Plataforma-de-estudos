@@ -1,0 +1,225 @@
+[
+  {
+    "id": 1769957331865,
+    "disciplina": "matematica",
+    "tema": "funcao quadratica",
+    "aula_url_2": "",
+    "questoes_ids": [
+      "1766932203057",
+      "1766932246572"
+    ],
+    "data_criacao": "2026-02-01T14:48:51.866Z",
+    "aula_url": "https://www.youtube.com/watch?v=w3BDRPFLX3E",
+    "resumo": "dssddssddsdssd",
+    "ultimaAtualizacao": "2026-03-17T20:19:37.328Z"
+  },
+  {
+    "id": 1769957990894,
+    "disciplina": "matematica",
+    "tema": "funcao quadratica",
+    "aula_url_2": "",
+    "questoes_ids": [
+      "1766932203057"
+    ],
+    "data_criacao": "2026-02-01T14:59:50.894Z"
+  },
+  {
+    "id": 1769958155176,
+    "disciplina": "matematica",
+    "tema": "funcao quadratica",
+    "aula_url_2": "",
+    "questoes_ids": [
+      "1766932203057"
+    ],
+    "data_criacao": "2026-02-01T15:02:35.176Z"
+  },
+  {
+    "id": 1769958236384,
+    "disciplina": "matematica",
+    "tema": "funcao quadratica",
+    "aula_url_2": "",
+    "questoes_ids": [
+      "1766932203057",
+      "1766932246572",
+      "1766932313557"
+    ],
+    "data_criacao": "2026-02-01T15:03:56.384Z"
+  },
+  {
+    "id": 1769959151170,
+    "disciplina": "matematica",
+    "tema": "funcao quadratica",
+    "aula_url_2": "",
+    "resumo": "dsssdsdsddssdsdsdsdsdsdsds",
+    "questoes_ids": [
+      "1766932203057"
+    ],
+    "data_criacao": "2026-02-01T15:19:11.170Z"
+  },
+  {
+    "id": 1769959206920,
+    "disciplina": "matematica",
+    "tema": "funcao quadratica",
+    "aula_url": "https://www.youtube.com/watch?v=60tv4wNSWNc",
+    "aula_url_2": "",
+    "resumo": "",
+    "questoes_ids": [
+      "1766932203057"
+    ],
+    "data_criacao": "2026-02-01T15:20:06.920Z"
+  },
+  {
+    "id": 1769959220740,
+    "disciplina": "matematica",
+    "tema": "funcao quadratica",
+    "aula_url": "https://www.youtube.com/watch?v=60tv4wNSWNc",
+    "aula_url_2": "",
+    "resumo": "ddssdsdsdsddssd",
+    "questoes_ids": [
+      "1766932203057"
+    ],
+    "data_criacao": "2026-02-01T15:20:20.740Z"
+  },
+  {
+    "id": 1769959233036,
+    "disciplina": "matematica",
+    "tema": "funcao quadratica",
+    "aula_url": "https://www.youtube.com/watch?v=60tv4wNSWNc",
+    "aula_url_2": "https://www.youtube.com/watch?v=60tv4wNSWNc",
+    "resumo": "ddssdsdsdsddssd",
+    "questoes_ids": [
+      "1766932203057"
+    ],
+    "data_criacao": "2026-02-01T15:20:33.036Z"
+  },
+  {
+    "id": 1770682164950,
+    "disciplina": "matematica",
+    "tema": "dssdsdsdds",
+    "aula_url": "",
+    "aula_url_2": "",
+    "resumo": "dsdssdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsd",
+    "questoes_ids": [
+      "1769536265965"
+    ],
+    "ultimaAtualizacao": "2026-02-10T00:09:24.950Z",
+    "criadoEm": "2026-02-10T00:09:24.950Z"
+  },
+  {
+    "id": 1770857742715,
+    "disciplina": "portugues",
+    "tema": "scsccscscscs",
+    "aula_url": "https://www.youtube.com/watch?v=w3BDRPFLX3E",
+    "aula_url_2": "",
+    "resumo": "dfffffffffffffffffffff",
+    "questoes_ids": [
+      "Nenhuma questão encontrada"
+    ],
+    "ultimaAtualizacao": "2026-03-17T00:10:52.312Z",
+    "criadoEm": "2026-02-12T00:55:42.715Z"
+  },
+  {
+    "id": 1771366290508,
+    "disciplina": "matematica",
+    "tema": "dssdsddssd",
+    "aula_url": "",
+    "aula_url_2": "",
+    "resumo": "",
+    "questoes_ids": [
+      "1770154216297"
+    ],
+    "ultimaAtualizacao": "2026-02-17T22:11:30.508Z",
+    "criadoEm": "2026-02-17T22:11:30.508Z"
+  },
+  {
+    "id": 1773706413657,
+    "disciplina": "geografia",
+    "tema": "dssdds",
+    "aula_url": "https://www.youtube.com/embed/m2OBlxp3LIU",
+    "aula_url_2": "https://www.youtube.com/embed/m2OBlxp3LIU",
+    "resumo": "sdsdsdsdsdsd",
+    "questoes_ids": [
+      "Nenhuma questão encontrada"
+    ],
+    "ultimaAtualizacao": "2026-03-17T21:30:54.617Z",
+    "criadoEm": "2026-03-17T00:13:33.657Z"
+  },
+  {
+    "id": 1773706662324,
+    "disciplina": "historia",
+    "tema": "dssdsdsdsdsd",
+    "aula_url": "https://www.youtube.com/watch?v=vx517rKqrk4",
+    "aula_url_2": "",
+    "resumo": "sdssdsddsdd",
+    "questoes_ids": [
+      "Nenhuma questão encontrada"
+    ],
+    "ultimaAtualizacao": "2026-03-17T20:16:09.182Z",
+    "criadoEm": "2026-03-17T00:17:42.324Z"
+  },
+  {
+    "id": 1773707128943,
+    "disciplina": "portugues",
+    "tema": "sahbdsabjbdjasdsadf",
+    "aula_url": "https://www.youtube.com/watch?v=orXBQRjLpqs",
+    "aula_url_2": "",
+    "resumo": "sdsdsdsdsdsdsdsd",
+    "questoes_ids": [
+      "Nenhuma questão encontrada"
+    ],
+    "ultimaAtualizacao": "2026-03-17T00:25:28.943Z",
+    "criadoEm": "2026-03-17T00:25:28.943Z"
+  },
+  {
+    "id": 1773708040674,
+    "disciplina": "geografia",
+    "tema": "dssdsdsdsd",
+    "aula_url": "https://www.youtube.com/watch?v=orXBQRjLpqs&t=31s&pp=ugUHEgVwdC1CUtIHCQnFCgGHKiGM7w%3D%3D",
+    "aula_url_2": "",
+    "resumo": "dssdsdsdds",
+    "questoes_ids": [
+      "Nenhuma questão encontrada"
+    ],
+    "ultimaAtualizacao": "2026-03-17T00:40:40.674Z",
+    "criadoEm": "2026-03-17T00:40:40.674Z"
+  },
+  {
+    "id": 1773777382508,
+    "disciplina": "sociologia",
+    "tema": "dsdssdsdsd",
+    "aula_url": "https://www.youtube.com/watch",
+    "aula_url_2": "",
+    "resumo": "sssss",
+    "questoes_ids": [
+      "Nenhuma questão encontrada"
+    ],
+    "ultimaAtualizacao": "2026-03-17T19:56:22.508Z",
+    "criadoEm": "2026-03-17T19:56:22.508Z"
+  },
+  {
+    "id": 1773778227964,
+    "disciplina": "fisica",
+    "tema": "klllklkklk",
+    "aula_url": "https://www.youtube.com/watch?v=Zwu4Gn2mzCo&list=RDZwu4Gn2mzCo&start_radio=1",
+    "aula_url_2": "",
+    "resumo": "ssddsdds",
+    "questoes_ids": [
+      "Nenhuma questão encontrada"
+    ],
+    "ultimaAtualizacao": "2026-03-17T20:10:27.964Z",
+    "criadoEm": "2026-03-17T20:10:27.964Z"
+  },
+  {
+    "id": 1773782107949,
+    "disciplina": "historia",
+    "tema": "sssssssssssss",
+    "aula_url": "https://www.youtube.com/embed/DVhR7yOJdcw",
+    "aula_url_2": "",
+    "resumo": "fdfdfdfdfdf",
+    "questoes_ids": [
+      "Nenhuma questão encontrada"
+    ],
+    "ultimaAtualizacao": "2026-03-17T21:17:01.402Z",
+    "criadoEm": "2026-03-17T21:15:07.949Z"
+  }
+]

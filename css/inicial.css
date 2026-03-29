@@ -1,0 +1,398 @@
+.dashboard {
+  padding: 20px;
+}
+
+.titulo {
+  margin: 20px 0 10px;
+  color: #1e40af;
+}
+
+.descricao {
+  color: #555;
+  margin-bottom: 15px;
+}
+
+.cards-desempenho {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 15px;
+}
+
+.card {
+  padding: 16px;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.card span {
+  font-size: 14px;
+  color: #555;
+}
+
+.card strong {
+  font-size: 26px;
+}
+
+.card.blue { background: #e0f2fe; }
+.card.green { background: #dcfce7; }
+.card.orange { background: #ffedd5; }
+.card.purple { background: #f3e8ff; }
+
+.acoes-modulo {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+}
+
+.acoes-modulo button,
+.plano button {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.planos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.plano {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+}
+
+.plano.destaque {
+  border: 2px solid #2563eb;
+}
+
+.preco {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.construtor{
+    margin-top: 25px;
+}
+
+/* =========================
+   PLANOS - ESTILO PROFISSIONAL
+========================= */
+
+.planos-vivo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  margin-top: 20px;
+}
+
+.plano-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 22px 20px 26px;
+  border: 1px solid #e5e7eb;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.plano-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+}
+
+.plano-card.destaque {
+  border: 2px solid #2563eb;
+}
+
+.plano-badge {
+  position: absolute;
+  top: -12px;
+  left: 16px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+  color: white;
+}
+
+.plano-badge.roxo { background: #7c3aed; }
+.plano-badge.azul { background: #2563eb; }
+.plano-badge.verde { background: #16a34a; }
+
+.plano-card h2 {
+  margin-top: 14px;
+  font-size: 20px;
+}
+
+.plano-destaque {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 14px;
+}
+
+.plano-preco {
+  margin: 10px 0 16px;
+}
+
+.plano-preco .valor {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.plano-preco .periodo {
+  font-size: 14px;
+  color: #555;
+}
+
+.plano-beneficios {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px;
+  flex-grow: 1;
+}
+
+.plano-beneficios li {
+  font-size: 14px;
+  margin-bottom: 8px;
+  color: #374151;
+}
+
+.btn-plano {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-plano.destaque {
+  background: #1d4ed8;
+}
+
+.btn-plano:hover {
+  opacity: 0.9;
+}
+
+.plano-detalhes {
+  display: block;
+  margin-top: 10px;
+  font-size: 13px;
+  color: #2563eb;
+  text-align: center;
+  cursor: pointer;
+}
+
+/* =========================
+   CONSTRUTOR DE MÓDULO
+========================= */
+
+.modulo {
+  margin-top: 30px;
+}
+
+.modulo-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 30px;
+  border: 2px solid #22c55e;
+}
+
+.modulo-titulo {
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+
+.modulo-descricao {
+  color: #555;
+  margin-bottom: 25px;
+  font-size: 14px;
+}
+
+.modulo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+}
+
+.campo label {
+  font-size: 13px;
+  margin-bottom: 6px;
+  color: #374151;
+}
+
+.campo input,
+.campo select,
+.campo textarea {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+}
+
+.campo textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.campo-grande {
+  grid-column: span 2;
+}
+
+@media (max-width: 768px) {
+  .campo-grande {
+    grid-column: span 1;
+  }
+}
+
+/* QUESTÕES */
+
+.modulo-questoes {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.modulo-questoes h2 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.modulo-questoes select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+}
+
+/* BOTÃO */
+
+.btn-salvar-modulo {
+  margin-top: 30px;
+  width: 100%;
+  background: #22c55e;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.btn-salvar-modulo:hover {
+  background: #16a34a;
+}
+
+/* =========================
+   SELECT DE QUESTÕES - VISUAL PREMIUM
+========================= */
+
+.modulo-questoes {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.modulo-questoes h2 {
+  font-size: 18px;
+  margin-bottom: 12px;
+  color: #1e40af;
+}
+
+/* Container do select */
+#selectQuestoes {
+  width: 100%;
+  min-height: 180px;
+  max-height: 260px;
+  padding: 8px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  font-size: 13px;
+  outline: none;
+  overflow-y: auto;
+}
+
+/* Scroll bonito */
+#selectQuestoes::-webkit-scrollbar {
+  width: 6px;
+}
+#selectQuestoes::-webkit-scrollbar-thumb {
+  background: #c7d2fe;
+  border-radius: 10px;
+}
+#selectQuestoes::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Cada opção vira um "card" */
+#selectQuestoes option {
+  background: white;
+  margin-bottom: 6px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  white-space: normal;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+/* Hover */
+#selectQuestoes option:hover {
+  background: #eef2ff;
+  border-color: #6366f1;
+}
+
+/* Selecionado */
+#selectQuestoes option:checked {
+  background: #e0e7ff;
+  border-color: #4338ca;
+  color: #1e3a8a;
+  font-weight: 600;
+}
+
+/* Foco no select */
+#selectQuestoes:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+/* ================= UTILIDADES ================= */
+
+.hidden{
+display:none;
+}
+
+/* BOTÃO HAMBURGUER */
+.btn-menu {
+    display: none;
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 2000;
+
+    background: #4338ca;
+    color: white;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 18px;
+    cursor: pointer;
+
+    box-shadow: 0 5px 15px rgba(0,0,0,.2);
+}

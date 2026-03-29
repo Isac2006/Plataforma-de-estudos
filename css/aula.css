@@ -1,0 +1,81 @@
+/* ===============================
+   AULAS (PROFESSOR + ALUNO)
+   =============================== */
+
+.editor-container {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 24px;
+    margin-top: 20px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+}
+
+.editor-container h2 {
+    margin-bottom: 16px;
+    font-size: 20px;
+}
+
+/* ===============================
+   CAMPOS
+   =============================== */
+
+.editor-container input,
+.editor-container select {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 12px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    font-size: 15px;
+}
+
+.editor-container input:focus,
+.editor-container select:focus {
+    outline: none;
+    border-color: #4a90e2;
+}
+
+/* ===============================
+   BOTÃO
+   =============================== */
+
+.btn-salvar {
+    background: linear-gradient(90deg, #ff7a18, #ff9f43);
+    border: none;
+    padding: 12px;
+    width: 100%;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-salvar:hover {
+    opacity: 0.9;
+}
+
+/* ===============================
+   VÍDEO – PROPORÇÃO YOUTUBE (16:9)
+   =============================== */
+
+.video-container {
+    position: relative;
+    width: 100%;
+    margin-top: 20px;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #000;
+
+    /* 👇 PROPORÇÃO IGUAL AO YOUTUBE */
+    aspect-ratio: 16 / 9;
+}
+
+.video-container iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+

@@ -1,0 +1,480 @@
+/* ================= RESET ================= */
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+html,body{
+height:100%;
+}
+
+/* ================= BODY ================= */
+
+body{
+font-family:'Inter','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+background:#f8fafc;
+color:#333;
+}
+
+/* ================= LAYOUT ================= */
+
+.layout{
+min-height:100vh;
+}
+
+/* ================= SIDEBAR ================= */
+
+.sidebar{
+position:fixed;
+top:0;
+left:0;
+width:260px;
+height:100vh;
+background:linear-gradient(180deg,#5b5be0,#4338ca);
+padding:20px;
+color:white;
+z-index:1000;
+}
+
+.logo{
+font-size:22px;
+font-weight:bold;
+margin-bottom:40px;
+display:flex;
+align-items:center;
+gap:10px;
+color:white;
+text-decoration:none;
+}
+
+.logo:hover{
+opacity:.85;
+}
+
+/* ================= MENU ================= */
+
+.menu{
+display:flex;
+flex-direction:column;
+gap:10px;
+}
+
+.menu-item{
+background:transparent;
+border:none;
+color:white;
+padding:14px 16px;
+text-align:left;
+border-radius:10px;
+font-size:16px;
+cursor:pointer;
+transition:.3s;
+}
+
+.menu-item:hover{
+background:rgba(255,255,255,.15);
+}
+
+.menu-item.active{
+background:rgba(255,255,255,.25);
+}
+
+/* ================= CONTEÚDO ================= */
+
+.content{
+margin-left:260px;
+min-height:100vh;
+padding:48px 64px;
+background:#f4f6fb;
+overflow-y:auto;
+}
+
+/* ================= TÍTULOS ================= */
+
+h1{
+font-size:28px;
+font-weight:700;
+color:#1e293b;
+margin-bottom:32px;
+}
+
+h2{
+font-size:20px;
+font-weight:600;
+color:#334155;
+margin-bottom:24px;
+}
+
+/* ================= WRAPPER ================= */
+
+.materias-wrapper{
+max-width:1100px;
+margin:0 auto;
+}
+
+/* ================= FORMULÁRIO ================= */
+
+#formulario-cadastro{
+background:#fff;
+padding:40px;
+border-radius:20px;
+box-shadow:0 10px 30px rgba(0,0,0,.08);
+width:100%;
+}
+
+/* ================= CAMPOS ================= */
+
+select,
+input[type="text"],
+textarea{
+
+width:100%;
+padding:12px 14px;
+border-radius:10px;
+border:1px solid #e2e8f0;
+font-size:14px;
+color:#0f172a;
+margin-bottom:14px;
+background:#f9fafb;
+transition:.2s;
+}
+
+textarea{
+resize:vertical;
+}
+
+select:focus,
+input:focus,
+textarea:focus{
+
+outline:none;
+background:white;
+border-color:#6366f1;
+box-shadow:0 0 0 3px rgba(99,102,241,.15);
+
+}
+
+/* ================= LABEL ================= */
+
+label{
+display:block;
+font-size:14px;
+font-weight:600;
+color:#475569;
+margin-bottom:8px;
+}
+
+/* ================= BOTÕES ================= */
+
+button{
+
+border:none;
+padding:12px 22px;
+border-radius:12px;
+cursor:pointer;
+font-weight:600;
+font-size:14px;
+transition:.25s;
+
+}
+
+#btn-add-imagem{
+background:#e0e7ff;
+color:#4338ca;
+}
+
+#btn-add-imagem:hover{
+background:#c7d2fe;
+}
+
+#btn-cadastrar-materia{
+
+background:linear-gradient(135deg,#4f46e5,#4338ca);
+color:white;
+
+}
+
+#btn-cadastrar-materia:hover{
+
+transform:translateY(-2px);
+box-shadow:0 10px 18px rgba(79,70,229,.35);
+
+}
+
+/* =========================================
+   BLOCO PADRÃO DA PÁGINA
+========================================= */
+
+.card-bloco{
+background:white;
+padding:35px;
+border-radius:24px;
+box-shadow:0 12px 35px rgba(0,0,0,.08);
+border:1px solid #eef2ff;
+margin-bottom:35px;
+}
+
+/* título do bloco */
+.card-bloco h2{
+font-size:22px;
+font-weight:700;
+color:#1e293b;
+margin-bottom:25px;
+position:relative;
+padding-left:15px;
+}
+
+/* barra decorativa lateral */
+.card-bloco h2::before{
+content:"";
+position:absolute;
+left:0;
+top:5px;
+width:5px;
+height:26px;
+border-radius:10px;
+background:linear-gradient(
+180deg,
+#6366f1,
+#22c55e
+);
+}
+
+/* topo do bloco */
+.topo-bloco{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px;
+}
+
+/* =========================================
+   BLOCO CADASTRO EM DESTAQUE
+========================================= */
+
+.destaque-cadastro{
+
+border:2px solid #c7d2fe;
+
+background:
+linear-gradient(
+145deg,
+#ffffff,
+#f8fafc
+);
+
+}
+
+/* ================= SEÇÕES ================= */
+
+/* ================= SEÇÃO ================= */
+
+.secao-item{
+
+background:#f8fafc;
+border:1px solid #e2e8f0;
+border-radius:16px;
+padding:22px;
+margin-top:20px;
+position:relative;
+
+}
+
+/* botão remover */
+
+.secao-item .btn-remover-secao{
+
+position:absolute;
+top:-12px;
+right:-12px;
+
+width:34px;
+height:34px;
+
+border-radius:50%;
+background:#ef4444;
+color:white;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+cursor:pointer;
+font-weight:bold;
+
+box-shadow:0 6px 14px rgba(0,0,0,.15);
+
+}
+
+.secao-item .btn-remover-secao:hover{
+background:#dc2626;
+}
+
+/* ================= EDITOR ================= */
+
+.editor-container{
+
+margin-top:14px;
+background:white;
+border:1px solid #e2e8f0;
+border-radius:14px;
+padding:16px;
+
+}
+
+.secao-editor{
+
+min-height:120px;
+outline:none;
+
+}
+
+.secao-editor img{
+display:block;
+max-width:100%;
+margin:15px 0;
+border-radius:8px;
+}
+
+/* toolbar */
+
+.editor-toolbar{
+
+display:flex;
+gap:10px;
+margin-bottom:12px;
+
+}
+
+.editor-toolbar button{
+
+background:#f1f5f9;
+border:1px solid #e2e8f0;
+border-radius:10px;
+padding:8px 14px;
+font-size:13px;
+cursor:pointer;
+
+}
+
+.editor-toolbar button:hover{
+
+background:#e2e8f0;
+
+}
+
+/* ================= MODAL IMAGEM ================= */
+
+.modal{
+
+position:fixed;
+top:0;
+left:0;
+
+width:100%;
+height:100%;
+
+background:rgba(0,0,0,0.45);
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+z-index:5000;
+
+}
+
+/* caixa do modal */
+
+.modal-content{
+
+background:white;
+padding:28px;
+border-radius:16px;
+
+width:420px;
+max-width:90%;
+
+box-shadow:0 20px 50px rgba(0,0,0,0.25);
+
+display:flex;
+flex-direction:column;
+gap:12px;
+
+}
+
+/* preview da imagem */
+
+.modal-preview img{
+
+max-width:100%;
+border-radius:10px;
+
+}
+
+/* botões */
+
+.modal-actions{
+
+display:flex;
+justify-content:flex-end;
+gap:10px;
+margin-top:10px;
+
+}
+
+.modal-actions button{
+
+padding:8px 14px;
+border-radius:8px;
+border:none;
+cursor:pointer;
+
+}
+
+/* =========================================
+   MENSAGEM DE FEEDBACK
+========================================= */
+
+.mensagem{
+
+margin-bottom:15px;
+font-size:14px;
+font-weight:600;
+
+}
+
+.mensagem.sucesso{
+color:#16a34a;
+}
+
+.mensagem.erro{
+color:#dc2626;
+}
+
+/* ================= UTILIDADES ================= */
+
+.hidden{
+display:none;
+}
+
+/* BOTÃO HAMBURGUER */
+.btn-menu {
+    display: none;
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 2000;
+
+    background: #4338ca;
+    color: white;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 18px;
+    cursor: pointer;
+
+    box-shadow: 0 5px 15px rgba(0,0,0,.2);
+}

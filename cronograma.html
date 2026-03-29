@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Cronograma</title>
+
+    <!-- CSS padrão do sistema -->
+    <link rel="stylesheet" href="css/layout.css">
+    <!-- CSS específico do cronograma -->
+    <link rel="stylesheet" href="css/cronograma.css">
+    <link rel="stylesheet" href="css/responsive/responsive-cronograma.css">
+</head>
+<body>
+
+<div class="container">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <a href="inicial.html" class="logo">
+            📚 <span>Plataforma</span>
+        </a>
+
+        <nav class="menu">
+            <a href="inicial.html" class="menu-item">Início</a>
+            <a href="materias.html" class="menu-item">Matérias</a>
+            <a href="questoes.html" class="menu-item">Questões</a>
+            <a href="cronograma.html" class="menu-item active">Cronograma</a>
+            <a href="redacao.html" class="menu-item">Redação</a>
+            <a href="login.html" class="menu-item">🔐 Login</a>
+        </nav>
+    </aside>
+    <div id="overlay" class="overlay"></div>
+
+    <!-- CONTEÚDO -->
+    <main class="content">
+        <button id="btn-menu" class="btn-menu">
+    <span></span>
+    <span></span>
+    <span></span>
+    </button>
+        <h1>📅 Cronograma de Estudos</h1>
+
+        <div class="cronograma-layout">
+
+            <!-- COLUNA ESQUERDA -->
+            <aside class="left-column">
+
+                <!-- Usuário -->
+                <div class="usuario-panel">
+                    <h3>👤 Usuário</h3>
+                    <div id="nomeUsuario" class="nome-usuario">Carregando...</div>
+                </div>
+
+                <button class="salvar-btn">
+                    💾 Salvar Cronograma
+                </button>
+
+                <div class="materias-panel">
+                    <h3>📌 Matérias</h3>
+
+                    <button class="materia-btn" data-materia="Matemática">Matemática</button>
+                    <button class="materia-btn" data-materia="Português">Português</button>
+                    <button class="materia-btn" data-materia="Redação">Redação</button>
+                    <button class="materia-btn" data-materia="Física">Física</button>
+                    <button class="materia-btn" data-materia="Química">Química</button>
+                    <button class="materia-btn" data-materia="Biologia">Biologia</button>
+                    <button class="materia-btn" data-materia="História">História</button>
+                    <button class="materia-btn" data-materia="Geografia">Geografia</button>
+                    <button class="materia-btn" data-materia="Filosofia">Filosofia</button>
+                    <button class="materia-btn" data-materia="Sociologia">Sociologia</button>
+                    <button class="materia-btn" data-materia="Inglês">Inglês</button>
+
+                    <button id="borrachaBtn" class="borracha-btn">🧽 Borracha</button>
+                </div>
+
+                <!-- Estatísticas -->
+                <div class="status-panel">
+                <h3>📊 Status por Matéria</h3>
+
+                <div class="status-resumo">
+                    <div><span>Planejado</span><b id="totalPlanejado">0h</b></div>
+                    <div><span>Concluído</span><b id="totalConcluido">0h</b></div>
+                    <div><span>Total</span><b id="totalHoras">0h</b></div>
+                </div>
+
+                <ul id="horasPorMateria" class="status-lista"></ul>
+                </div>
+
+            </aside>
+
+            <!-- CRONOGRAMA -->
+            <section class="cronograma-panel">
+                <table id="cronograma">
+                    <thead>
+                        <tr>
+                            <th>Hora</th>
+                            <th>Seg</th>
+                            <th>Ter</th>
+                            <th>Qua</th>
+                            <th>Qui</th>
+                            <th>Sex</th>
+                            <th>Sáb</th>
+                            <th>Dom</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </section>
+
+        </div>
+    </main>
+
+</div>
+
+<script type="module" src="src/modulos/cronograma.js"></script>
+<script src="src/menu.js"></script>
+</body>
+</html>

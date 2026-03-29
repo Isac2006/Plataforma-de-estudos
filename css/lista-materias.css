@@ -1,0 +1,154 @@
+/* =========================
+   ÁREA PRINCIPAL
+========================= */
+
+.content {
+    margin-left: 260px;
+    min-height: 100vh;
+    padding: 50px 50px;
+    max-width: 150vh;
+    background: linear-gradient(135deg, #eef2ff, #f8fafc);
+    box-sizing: border-box;
+}
+
+/* =========================
+   TÍTULO DA MATÉRIA
+========================= */
+
+.titulo-materia {
+    font-size: 26px;
+    font-weight: 700;
+    margin: 0 auto 30px auto;
+    max-width: 900px;
+    color: #1e293b;
+    position: relative;
+    padding-left: 16px;
+    transform: translateX(-15px);
+}
+
+.titulo-materia::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 4px;
+    width: 5px;
+    height: 24px;
+    border-radius: 6px;
+}
+
+/* =========================
+   LISTA
+========================= */
+
+.lista-temas {
+    max-width: 900px;
+    margin: 0 auto;   /* centraliza */
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* =========================
+   ITEM DO TEMA
+========================= */
+
+.tema-item {
+    background: #ffffff;
+    padding: 16px 20px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+/* 🔥 Barra roxa lateral animada */
+.tema-item::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 5px;
+    height: 100%;
+    background: linear-gradient(180deg, #6366f1, #4f46e5);
+    border-radius: 12px 0 0 12px;
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 0.25s ease;
+}
+
+.tema-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(79, 70, 229, 0.12);
+    border-color: #c7d2fe;
+}
+
+.tema-item:hover::before {
+    transform: scaleY(1);
+}
+
+/* =========================
+   TÍTULO
+========================= */
+
+.tema-item h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 4px;
+}
+
+/* =========================
+   RESUMO
+========================= */
+
+.tema-resumo {
+    font-size: 13px;
+    color: #6b7280;
+    line-height: 1.4;
+    margin: 0;
+    /* 🔥 Limite de 3 linhas */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    /* fallback elegante */
+    text-overflow: ellipsis;
+}
+
+/* =========================
+   MENSAGEM VAZIA
+========================= */
+
+.lista-temas > p {
+    color: #6b7280;
+    font-size: 14px;
+    margin: 10px 0;
+}
+
+/* =========================
+   RESPONSIVO
+========================= */
+
+@media (max-width: 1024px) {
+
+    .content {
+        margin-left: 0;
+        width: 100%;
+        padding: 40px 25px;
+    }
+
+}
+
+@media (max-width: 600px) {
+
+    .titulo-materia {
+        font-size: 24px;
+    }
+
+    .tema-item {
+        padding: 18px;
+    }
+
+}

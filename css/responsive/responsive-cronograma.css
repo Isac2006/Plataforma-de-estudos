@@ -1,0 +1,163 @@
+/* ================= BASE ================= */
+.content {
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ================= TABLET ================= */
+@media (max-width: 1024px) {
+
+  .content {
+    padding: 28px;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+}
+
+/* ================= MOBILE ================= */
+@media (max-width: 900px) {
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 250px;
+    height: 100vh;
+    transform: translateX(-100%);
+    transition: 0.3s;
+    z-index: 2000;
+  }
+
+  .sidebar.ativo {
+    transform: translateX(0);
+  }
+
+  /* OVERLAY */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.3s;
+    z-index: 1000;
+  }
+
+  .overlay.ativo {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  /* BOTÃO MENU */
+  .btn-menu {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 3000;
+
+    width: 44px;
+    height: 44px;
+
+    background: #4338ca;
+    border-radius: 12px;
+    border: none;
+  }
+
+  .btn-menu span {
+    position: absolute;
+    width: 20px;
+    height: 2px;
+    background: white;
+    transition: 0.3s;
+  }
+
+  .btn-menu span:nth-child(1) { transform: translateY(-6px); }
+  .btn-menu span:nth-child(2) { transform: translateY(0); }
+  .btn-menu span:nth-child(3) { transform: translateY(6px); }
+
+  .btn-menu.ativo span:nth-child(1) { transform: rotate(45deg); }
+  .btn-menu.ativo span:nth-child(2) { opacity: 0; }
+  .btn-menu.ativo span:nth-child(3) { transform: rotate(-45deg); }
+
+
+  body.menu-aberto .logo {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  body.menu-aberto .logo span {
+    opacity: 0;
+  }
+
+  body.menu-aberto {
+  overflow: hidden;
+    }
+
+  /* CONTENT */
+  .content {
+    margin-left: 0;
+    padding: 20px;
+  }
+
+  /* 🔥 LAYOUT DO CRONOGRAMA */
+  .cronograma-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* COLUNA ESQUERDA */
+  .left-column {
+    width: 100%;
+  }
+
+  /* TABELA RESPONSIVA */
+  .cronograma-panel {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  #cronograma {
+    min-width: 700px; /* permite scroll horizontal */
+  }
+}
+
+/* ================= MOBILE PEQUENO ================= */
+@media (max-width: 430px) {
+
+  .content {
+    padding: 14px;
+  }
+
+  h1 {
+    font-size: 18px;
+  }
+
+  /* melhora leitura da tabela */
+  #cronograma th,
+  #cronograma td {
+    font-size: 12px;
+    padding: 6px;
+  }
+
+  body.menu-aberto {
+  overflow: hidden;
+}
+.content {
+  overflow-x: hidden;
+}
+
+.cronograma-panel {
+  overflow-x: auto;
+}
+
+
+}

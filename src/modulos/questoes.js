@@ -1,126 +1,125 @@
 let listaDeQuestoesLocal = [];
 import { registrarRespostaQuestao } from './estatisticas.js';
-// 1. FUNÇÃO PARA BUSCAR E EXIBIR AS QUESTÕES
-export async function aparecerquestoes() {
-    const diciplinapedido = document.getElementById("diciplinapedido").value;
-    const temapedido = document.getElementById("temapedido").value;
-    const divquetao = document.getElementById("questao-container");
 
-    if (!diciplinapedido || !temapedido) {
-        alert("Por favor, selecione a disciplina e o tema!");
+/* =========================================================
+   🎯 BUSCAR E EXIBIR QUESTÕES
+========================================================= */
+
+export async function aparecerquestoes() {
+    const disciplinaPedido = document.getElementById("sistema-disciplina")?.value;
+    const divQuestao = document.getElementById("resultado-questoes");
+
+    if (!disciplinaPedido) {
+        alert("Selecione a disciplina!");
         return;
     }
 
     try {
-        const url = `http://localhost:3000/questoes?disciplina=${diciplinapedido}&tema=${temapedido}`;
+        const url = `http://localhost:3000/api/questoes?disciplina=${encodeURIComponent(disciplinaPedido)}`;
+        
         const resposta = await fetch(url);
-        listaDeQuestoesLocal = await resposta.json();
 
-        divquetao.innerHTML = "";
+        if (!resposta.ok) throw new Error("Erro ao buscar questões");
 
-        if (listaDeQuestoesLocal.length === 0) {
-            divquetao.innerHTML = "<p>Nenhuma questão encontrada para este tema.</p>";
+        const lista = await resposta.json();
+
+        listaDeQuestoesLocal = lista;
+
+        divQuestao.innerHTML = "";
+
+        if (!lista.length) {
+            divQuestao.innerHTML = "<p>Nenhuma questão encontrada.</p>";
             return;
         }
 
-        listaDeQuestoesLocal.forEach((questao, i) => {
-            const questaoCard = document.createElement("div");
-            questaoCard.classList.add("card-questao");
-            questaoCard.style = "border: 1px solid #ccc; padding: 20px; margin-bottom: 20px; border-radius: 8px; background: #f9f9f9;";
-            
-            questaoCard.innerHTML = `
-                <h3>Questão ${i + 1}</h3>
-                <p class="enunciado" style="font-size: 1.1em; margin-bottom: 15px;">${questao.enunciado}</p>
-                <div class="alternativas" style="margin-bottom: 15px;">
-                    ${questao.alternativas.map((alt, index) => `
-                        <label class="alternativa-item" style="display: block; margin-bottom: 8px; cursor: pointer;">
-                            <input type="radio" name="questao-${i}" value="${index}">
-                            <span>${String.fromCharCode(65 + index)}) ${alt}</span>
+        lista.forEach((q, i) => {
+            divQuestao.innerHTML += `
+                <div class="card-questao">
+                    <h3>Questão ${i + 1}</h3>
+                    <p>${q.enunciado}</p>
+
+                    ${q.alternativas.map((alt, indexAlt) => `
+                        <label>
+                            <input type="radio" name="questao-${i}" value="${indexAlt}">
+                            ${alt}
                         </label>
-                    `).join('')}
-                </div>
-                <div class="botoes-acao" style="display: flex; gap: 10px;">
+                    `).join("<br>")}
+
+                    <br>
                     <button class="btn-responder" data-index="${i}">Responder</button>
                     <button class="btn-ver" data-index="${i}">Ver Resposta</button>
                     <button class="btn-editar" data-index="${i}">Editar</button>
-                    <button class="btn-apagar" data-id="${questao.id}" style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Apagar</button>
+                    <button class="btn-apagar" data-id="${q.id}">Apagar</button>
+
+                    <div id="res-${i}" style="margin-top:8px;"></div>
                 </div>
-                <p id="res-${i}" style="font-weight: bold; margin-top: 15px; min-height: 20px;"></p>
-                <hr style="margin-top: 20px; border: 0; border-top: 1px solid #eee;">
             `;
-            divquetao.appendChild(questaoCard);
         });
 
         configurarEventosDosBotoes();
 
     } catch (erro) {
-        console.error("Erro ao carregar questões:", erro);
-        alert("Erro ao conectar com o servidor!");
+        console.error("Erro:", erro);
+        alert("Erro ao conectar com servidor");
     }
 }
 
-// 2. FUNÇÃO PARA INICIAR A EDIÇÃO
+/* =========================================================
+   ✏️ EDIÇÃO
+========================================================= */
+
 export function iniciarEdicao(indice) {
     const questao = listaDeQuestoesLocal[indice];
-    const divquetao = document.querySelectorAll(".card-questao")[indice];
+    const divQuestao = document.querySelectorAll(".card-questao")[indice];
 
-    divquetao.innerHTML = `
-        <h3>Editando Questão ${indice + 1}</h3>
-        <textarea id="edit-enunciado-${indice}" style="width: 100%; height: 60px; margin-bottom: 10px;">${questao.enunciado}</textarea>
-        <div class="alternativas-edit">
-            ${questao.alternativas.map((alt, altIdx) => `
-                <div style="display: flex; align-items: center; margin-bottom: 5px;">
-                    <span style="margin-right: 5px;">${String.fromCharCode(65 + altIdx)})</span>
-                    <input type="text" class="edit-alt-${indice}" value="${alt}" style="width: 100%;">
-                </div>
-            `).join('')} 
-        </div>
-        <p style="margin-top: 10px;"><strong>Gabarito:</strong></p>
-        <input type="text" id="edit-correta-${indice}" value="${questao.resposta_correta}" style="width: 100%; margin-bottom: 15px;">
-        <div style="margin-top: 10px; display: flex; gap: 10px;">
-            <button class="btn-salvar-edit" data-index="${indice}" data-id="${questao.id}" style="background-color: green; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">Salvar Alterações</button>
-            <button class="btn-cancelar-edit" style="background-color: gray; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">Cancelar</button>
-        </div>
+    divQuestao.innerHTML = `
+        <h3>Editando Questão ${parseInt(indice) + 1}</h3>
+        <textarea id="edit-enunciado-${indice}">${questao.enunciado}</textarea>
+        ${questao.alternativas.map((alt) => `
+            <input type="text" class="edit-alt-${indice}" value="${alt}">
+        `).join('')}
+        <input type="text" id="edit-correta-${indice}" value="${questao.resposta_correta}">
+        <button class="btn-salvar-edit" data-index="${indice}" data-id="${questao.id}">
+            Salvar Alterações
+        </button>
+        <button class="btn-cancelar-edit">Cancelar</button>
     `;
 
-    // Vincula os eventos dos novos botões gerados
-    divquetao.querySelector('.btn-salvar-edit').onclick = (e) => {
-        const btn = e.target;
-        salvarEdicao(btn.dataset.index, btn.dataset.id);
+    divQuestao.querySelector('.btn-salvar-edit').onclick = (e) => {
+        salvarEdicao(e.target.dataset.index, e.target.dataset.id);
     };
-    divquetao.querySelector('.btn-cancelar-edit').onclick = () => aparecerquestoes();
+
+    divQuestao.querySelector('.btn-cancelar-edit').onclick = () => aparecerquestoes();
 }
 
-// 3. FUNÇÃO PARA SALVAR A EDIÇÃO NO SERVIDOR
 export async function salvarEdicao(indice, id) {
     const enunciado = document.getElementById(`edit-enunciado-${indice}`).value;
     const alternativas = Array.from(document.querySelectorAll(`.edit-alt-${indice}`)).map(i => i.value);
     const resposta_correta = document.getElementById(`edit-correta-${indice}`).value;
 
-    const dadosAtualizados = { enunciado, alternativas, resposta_correta };
-
     try {
         const response = await fetch(`http://localhost:3000/questoes/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dadosAtualizados)
+            body: JSON.stringify({ enunciado, alternativas, resposta_correta })
         });
 
-        if (response.ok) {
-            alert("✅ Questão atualizada com sucesso!");
-            aparecerquestoes();
-        } else {
-            alert("❌ Erro ao atualizar questão.");
-        }
+        if (!response.ok) throw new Error("Erro ao atualizar");
+
+        alert("✅ Questão atualizada com sucesso!");
+        aparecerquestoes();
+
     } catch (erro) {
         console.error("Erro na edição:", erro);
-        alert("Erro ao salvar edição.");
+        alert("❌ Erro ao atualizar questão.");
     }
 }
 
-// 4. DEMAIS FUNÇÕES (RESPONDER, VER RESPOSTA, APAGAR)
+/* =========================================================
+   🧠 RESPONDER / VER / APAGAR
+========================================================= */
 
-export function responder(indice) { // Removido nomeUsuario dos parâmetros
+export function responder(indice, nomeUsuario) {
     const questao = listaDeQuestoesLocal[indice];
     const feedback = document.getElementById(`res-${indice}`);
     const marcado = document.querySelector(`input[name="questao-${indice}"]:checked`);
@@ -130,29 +129,18 @@ export function responder(indice) { // Removido nomeUsuario dos parâmetros
         return;
     }
 
-    // --- BUSCA O ID AO INVÉS DO NOME ---
-    const idUsuario = localStorage.getItem("usuarioId");
-
-    if (!idUsuario || idUsuario === "undefined") {
-        console.error("ID do usuário não encontrado no localStorage");
-        alert("Erro: Usuário não identificado. Tente fazer login novamente.");
-        return;
-    }
-
     const textoSelecionado = questao.alternativas[parseInt(marcado.value)];
-    const correto = String(textoSelecionado).trim() === String(questao.resposta_correta).trim();
+    const correto = textoSelecionado.trim() === questao.resposta_correta.trim();
 
-    const disciplina = questao.disciplina || document.getElementById("diciplinapedido").value;
-    
-    // Agora enviamos o ID, que é o que o servidor espera na rota /registrar-resposta
-    registrarRespostaQuestao(idUsuario, disciplina, correto); 
+    registrarRespostaQuestao(nomeUsuario, questao.disciplina, correto);
 
-    feedback.innerHTML = correto ? "✅ Resposta Correta!" : `❌ Errado! Gabarito: ${questao.resposta_correta}`;
+    feedback.innerHTML = correto
+        ? "✅ Resposta Correta!"
+        : `❌ Errado! Gabarito: ${questao.resposta_correta}`;
+
     feedback.style.color = correto ? "green" : "red";
-
-    const btnResponder = document.querySelector(`.btn-responder[data-index="${indice}"]`);
-    if(btnResponder) btnResponder.disabled = true;
 }
+
 export function verResposta(indice) {
     const feedback = document.getElementById(`res-${indice}`);
     feedback.innerHTML = `Gabarito: ${listaDeQuestoesLocal[indice].resposta_correta}`;
@@ -160,37 +148,27 @@ export function verResposta(indice) {
 }
 
 export async function apagarQuestao(id) {
-    if (!confirm("Tem certeza que deseja excluir permanentemente esta questão?")) return;
+    if (!confirm("Tem certeza que deseja excluir esta questão?")) return;
 
     try {
-        const response = await fetch(`http://localhost:3000/questoes/${id}`, { method: 'DELETE' });
-        if (response.ok) {
-            alert("Questão apagada!");
-            aparecerquestoes();
-        }
+        const response = await fetch(`http://localhost:3000/questoes/${id}`, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) throw new Error("Erro ao apagar");
+
+        alert("Questão apagada!");
+        aparecerquestoes();
+
     } catch (erro) {
         console.error("Erro ao apagar:", erro);
     }
 }
 
-// 5. CONFIGURAÇÃO DE EVENTOS (Versão Única e Corrigida)
-function configurarEventosDosBotoes() {
-    // --- MUDANÇA AQUI: Pegamos o ID em vez do nome ---
-    const idUsuario = localStorage.getItem("usuarioId");
+/* =========================================================
+   🚀 INICIALIZAÇÃO
+========================================================= */
 
-    // Configura o botão RESPONDER (passando o ID do usuário)
-    document.querySelectorAll('.btn-responder').forEach(btn => {
-        btn.onclick = () => responder(btn.dataset.index, idUsuario);
-    });
-
-    // ... (restante dos botões Ver, Editar e Apagar permanecem iguais)
-    document.querySelectorAll('.btn-ver').forEach(btn => {
-        btn.onclick = () => verResposta(btn.dataset.index);
-    });
-    document.querySelectorAll('.btn-editar').forEach(btn => {
-        btn.onclick = () => iniciarEdicao(btn.dataset.index);
-    });
-    document.querySelectorAll('.btn-apagar').forEach(btn => {
-        btn.onclick = () => apagarQuestao(btn.dataset.id);
-    });
-}
+document.addEventListener("DOMContentLoaded", () => {
+    console.log("📘 questoes.js carregado (modo CRUD)");
+});

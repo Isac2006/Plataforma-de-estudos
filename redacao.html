@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Redação</title>
+
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/redacao.css">
+    <link rel="stylesheet" href="css/responsive/responsive-redacao.css">
+</head>
+<body>
+
+<div class="container">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <a href="inicial.html" class="logo">
+            📚 <span>Plataforma</span>
+        </a>
+
+        <nav class="menu">
+            <a href="inicial.html" class="menu-item">Início</a>
+            <a href="materias.html" class="menu-item ">Matérias</a>
+            <a href="questoes.html" class="menu-item">Questões</a>
+            <a href="cronograma.html" class="menu-item">Cronograma</a>
+            <a href="redacao.html" class="menu-item active">Redação</a>
+            <a href="login.html" class="menu-item">🔐 Login</a>
+        </nav>
+    </aside>
+    <div id="overlay" class="overlay"></div>
+
+    <!-- CONTEÚDO -->
+    <main class="content">
+        <button id="btn-menu" class="btn-menu">
+    <span></span>
+    <span></span>
+    <span></span>
+    </button>
+        <h1>✍️ Redação</h1>
+
+        <p id="info-redacao" class="info-redacao"></p>
+
+        <!-- CONTROLES -->
+        <div class="redacao-toolbar">
+            <select id="cor" class="professores">
+                <option value="#fde68a">Amarelo</option>
+                <option value="#bbf7d0">Verde</option>
+                <option value="#bfdbfe">Azul</option>
+                <option value="#fecaca">Vermelho</option>
+            </select>
+
+            <button id="btnDestacar" class="professores">✏️ Destacar</button>
+            <button id="btnEnviar">📤 Enviar</button>
+            <button id="btnProxima" class="professores">🧑‍🏫 Próxima (Professor)</button>
+            <button id="btnSalvar" class="professores">✅ Salvar Correção</button>
+        </div>
+
+        <!-- EDITOR -->
+        <div id="editor" contenteditable="true" class="editor"></div>
+
+        <!-- COMENTÁRIOS -->
+        <aside class="comentarios">
+            <h3>🗒️ Comentários</h3>
+            <div id="listaComentarios"></div>
+        </aside>
+
+        <!-- CONSULTA -->
+        <section class="consulta">
+            <h3>🔎 Consultar Minhas Redações</h3>
+            <button id="btnConsultar">Buscar</button>
+            <div id="resultado-consulta"></div>
+        </section>
+
+    </main>
+</div>
+
+<!-- SCRIPT ÚNICO E CORRETO -->
+<script type="module">
+    import {
+        destacar,
+        enviarRedacao,
+        consultarMinhaRedacao,
+        buscarProximaFila,
+        salvarCorrecaoProfessor
+    } from "./src/modulos/moduloRedacao.js";
+
+    document.getElementById("btnDestacar").addEventListener("click", destacar);
+    document.getElementById("btnEnviar").addEventListener("click", enviarRedacao);
+    document.getElementById("btnConsultar").addEventListener("click", consultarMinhaRedacao);
+    document.getElementById("btnProxima").addEventListener("click", buscarProximaFila);
+    document.getElementById("btnSalvar").addEventListener("click", salvarCorrecaoProfessor);
+</script>
+<script src="src/menu.js"></script>
+
+</body>
+</html>

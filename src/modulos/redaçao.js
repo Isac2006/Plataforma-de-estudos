@@ -1,12 +1,17 @@
 import { registrarProgresso } from './estatisticas.js';
 
-// Variáveis de controle interno
+// ========================
+// ESTADO DO MÓDULO
+// ========================
 let comentarios = [];
 let idRedacaoAtual = null;
 
-/* 1. LÓGICA DE DESTACAR (TEXTO) - (Mantida igual) */
+// ========================
+// 1. DESTACAR TRECHO
+// ========================
 export function destacar() {
     const selecao = window.getSelection();
+
     if (!selecao.rangeCount || selecao.isCollapsed) {
         alert("Selecione um trecho do texto para comentar.");
         return;
@@ -15,14 +20,14 @@ export function destacar() {
     const textoComentario = prompt("Digite a observação pedagógica:");
     if (!textoComentario) return;
 
-    const cor = document.getElementById("cor") ? document.getElementById("cor").value : "#ffeb3b";
+    const cor = document.getElementById("cor")?.value || "#fde68a";
     const range = selecao.getRangeAt(0);
     const trecho = range.toString();
 
     const span = document.createElement("span");
     span.style.backgroundColor = cor;
-    span.style.padding = "2px 2px";
-    span.style.borderRadius = "3px";
+    span.style.padding = "2px 3px";
+    span.style.borderRadius = "4px";
     span.textContent = trecho;
 
     range.deleteContents();
@@ -33,13 +38,15 @@ export function destacar() {
     atualizarVisualComentarios();
 }
 
-/* 2. ATUALIZAR LISTA LATERAL (Privada do módulo) */
+// ========================
+// 2. LISTA DE COMENTÁRIOS
+// ========================
 function atualizarVisualComentarios() {
     const lista = document.getElementById("listaComentarios");
     if (!lista) return;
 
     if (comentarios.length === 0) {
-        lista.innerHTML = '<p style="color: #999; font-style: italic;">Nenhum comentário.</p>';
+        lista.innerHTML = `<p class="comentario-vazio">Nenhum comentário.</p>`;
         return;
     }
 
@@ -47,149 +54,180 @@ function atualizarVisualComentarios() {
     comentarios.forEach(c => {
         const div = document.createElement("div");
         div.className = "comment";
-        div.style.borderColor = c.cor || "#ccc";
-        div.innerHTML = `<span>No trecho: "${c.trecho}"</span><p>${c.comentario}</p>`;
+        div.style.borderLeft = `4px solid ${c.cor}`;
+        div.innerHTML = `
+            <span class="trecho">"${c.trecho}"</span>
+            <p>${c.comentario}</p>
+        `;
         lista.appendChild(div);
     });
 }
 
-/* 3. ALUNO: ENVIAR PARA O BANCO (AGORA COM ID) */
+// ========================
+// 3. ALUNO — ENVIAR REDAÇÃO
+// ========================
 export async function enviarRedacao() {
-    // Recupera dados do localStorage (salvos no login)
-    const idUsuario = localStorage.getItem("usuarioId");
-    const nomeUsuario = localStorage.getItem("nomeUsuario");
+    const nomeAluno = prompt("Digite seu nome completo:");
     const tituloRedacao = prompt("Título da redação:");
 
-    if (!idUsuario) {
-        alert("Erro: Você precisa estar logado para enviar uma redação.");
+    if (!nomeAluno || !tituloRedacao) {
+        alert("Nome e título são obrigatórios.");
         return;
     }
 
-    if (!tituloRedacao) {
-        alert("O título é obrigatório!");
+    const editor = document.getElementById("editor");
+    if (!editor || editor.innerHTML.trim() === "") {
+        alert("Escreva sua redação antes de enviar.");
         return;
     }
 
     const dados = {
-        idUsuario: idUsuario, // MUDANÇA: Envia o ID para vincular corretamente
-        usuario: nomeUsuario, // Envia o nome apenas para exibição visual
+        usuario: nomeAluno,
         titulo: tituloRedacao,
-        conteudo_html: document.getElementById("editor").innerHTML
+        conteudo_html: editor.innerHTML,
+        comentarios // ✅ mantém os comentários
     };
 
     try {
-        const res = await fetch('http://localhost:3000/redacoes', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+        const res = await fetch("http://localhost:3000/redacoes", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(dados)
         });
 
-        if (res.ok) {
-            // --- LÓGICA DE ESTATÍSTICA COM ID ---
-            // Agora registramos o progresso usando o ID único
-            await registrarProgresso(idUsuario, "redacoesFeitas");
-            
-            alert(`Sucesso! Sua redação foi enviada.`);
-            location.reload();
-        } else {
-            alert("Erro ao salvar redação no servidor.");
+        if (!res.ok) {
+            throw new Error("Erro ao enviar redação");
         }
-    } catch (e) { 
+
+        await registrarProgresso(nomeAluno, "redacoesFeitas");
+        alert(`✅ ${nomeAluno}, sua redação foi enviada com sucesso!`);
+        location.reload();
+
+    } catch (e) {
         console.error(e);
-        alert("Erro ao conectar ao servidor."); 
+        alert("❌ Erro ao conectar ou salvar no servidor.");
     }
 }
 
-/* 4. CONSULTAR REDAÇÃO (AGORA POR ID) */
+// ========================
+// 4. CONSULTAR REDAÇÕES DO ALUNO
+// ========================
 export async function consultarMinhaRedacao() {
+    const nome = document.getElementById("consulta-nome")?.value.trim();
     const resultadoDiv = document.getElementById("resultado-consulta");
-    
-    // MUDANÇA: Pega o ID automático, não pede para digitar nome
-    const idUsuario = localStorage.getItem("usuarioId");
 
-    if (!idUsuario) {
-        if(resultadoDiv) resultadoDiv.innerHTML = "<p>Faça login para ver suas redações.</p>";
+    if (!nome) return alert("Digite seu nome!");
+    if (!resultadoDiv) {
+        alert("Elemento de resultado não encontrado no HTML.");
         return;
     }
 
     try {
-        // MUDANÇA: A URL agora busca por ?idUsuario=...
-        const response = await fetch(`http://localhost:3000/redacoes/aluno?idUsuario=${idUsuario}`);
-        const redacoes = await response.json();
+        const response = await fetch(
+            `http://localhost:3000/redacoes/aluno?nome=${encodeURIComponent(nome)}`
+        );
 
-        if (resultadoDiv) {
-            if (redacoes.length === 0) {
-                resultadoDiv.innerHTML = "<p>Nenhuma redação encontrada para você.</p>";
-                return;
-            }
-
-            resultadoDiv.innerHTML = "<h4>Suas redações:</h4>";
-            redacoes.forEach(r => {
-                const btn = document.createElement("button");
-                // Mostra o Título e o Status (Corrigida/Pendente)
-                btn.textContent = `${r.titulo} - ${r.status || 'Pendente'}`;
-                btn.className = "btn-consulta"; 
-                btn.style.display = "block";
-                btn.style.margin = "5px 0";
-                
-                btn.onclick = () => {
-                    document.getElementById("editor").innerHTML = r.conteudo_html;
-                    comentarios = r.comentarios || [];
-                    atualizarVisualComentarios();
-                    const info = document.getElementById("info-redacao");
-                    if(info) info.innerText = `📄 Vendo: ${r.titulo} (${r.status || 'Pendente'})`;
-                };
-                
-                resultadoDiv.appendChild(btn);
-            });
+        if (!response.ok) {
+            throw new Error("Erro ao buscar redações");
         }
 
-    } catch (erro) {
-        console.error(erro);
-        alert("Erro ao buscar redações.");
+        const redacoes = await response.json();
+        resultadoDiv.innerHTML = "";
+
+        if (!redacoes.length) {
+            resultadoDiv.innerHTML = "<p>Nenhuma redação encontrada.</p>";
+            return;
+        }
+
+        resultadoDiv.innerHTML = "<h4>Suas redações:</h4>";
+
+        redacoes.forEach(r => {
+            const btn = document.createElement("button");
+            btn.className = "btn-consulta";
+            btn.textContent = `${r.titulo} — ${r.status}`;
+
+            btn.onclick = () => {
+                document.getElementById("editor").innerHTML = r.conteudo_html;
+                comentarios = r.comentarios || [];
+                atualizarVisualComentarios();
+                document.getElementById("info-redacao").innerText =
+                    `📄 ${r.titulo} (${r.status})`;
+            };
+
+            resultadoDiv.appendChild(btn);
+        });
+
+    } catch (e) {
+        console.error(e);
+        alert("❌ Erro ao buscar redações.");
     }
 }
 
-/* 5. PROFESSOR: BUSCAR MAIS ANTIGA (GET) */
+// ========================
+// 5. PROFESSOR — PRÓXIMA DA FILA
+// ========================
 export async function buscarProximaFila() {
     try {
-        const res = await fetch('http://localhost:3000/redacoes/proxima');
-        if (res.status === 404) return alert("Fila vazia! Todas as redações foram corrigidas.");
+        const res = await fetch("http://localhost:3000/redacoes/proxima");
+
+        if (res.status === 404) {
+            alert("Fila vazia!");
+            return;
+        }
+
+        if (!res.ok) {
+            throw new Error("Erro ao buscar próxima redação");
+        }
 
         const redacao = await res.json();
-        idRedacaoAtual = redacao.id; // Isso já vem do banco (ID da redação, não do aluno)
-        
+        idRedacaoAtual = redacao.id;
+
         document.getElementById("editor").innerHTML = redacao.conteudo_html;
-        const info = document.getElementById("info-redacao");
-        if(info) info.innerText = `🧐 Corrigindo: ${redacao.titulo} (Aluno: ${redacao.usuario})`;
-        
+        document.getElementById("info-redacao").innerText =
+            `🧐 Corrigindo: ${redacao.titulo} (${redacao.usuario})`;
+
         comentarios = redacao.comentarios || [];
         atualizarVisualComentarios();
-    } catch (e) { 
+
+    } catch (e) {
         console.error(e);
-        alert("Erro ao carregar redação."); 
+        alert("❌ Erro ao carregar redação.");
     }
 }
 
-/* 6. PROFESSOR: SALVAR CORREÇÃO (PUT) */
+// ========================
+// 6. PROFESSOR — SALVAR CORREÇÃO
+// ========================
 export async function salvarCorrecaoProfessor() {
-    if (!idRedacaoAtual) return alert("Selecione uma redação na fila primeiro!");
+    if (!idRedacaoAtual) {
+        alert("Nenhuma redação selecionada.");
+        return;
+    }
 
     const dados = {
         conteudo_html: document.getElementById("editor").innerHTML,
-        comentarios: comentarios
-        // O status "Corrigida" geralmente é setado no servidor ao receber essa requisição
+        comentarios
     };
 
     try {
-        const res = await fetch(`http://localhost:3000/redacoes/corrigir/${idRedacaoAtual}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dados)
-        });
-        if (res.ok) {
-            alert("✅ Correção finalizada! O aluno já pode visualizar.");
-            location.reload();
+        const res = await fetch(
+            `http://localhost:3000/redacoes/corrigir/${idRedacaoAtual}`,
+            {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(dados)
+            }
+        );
+
+        if (!res.ok) {
+            throw new Error("Erro ao salvar correção");
         }
-    } catch (e) { alert("Erro ao salvar correção."); }
+
+        alert("✅ Correção salva com sucesso!");
+        location.reload();
+
+    } catch (e) {
+        console.error(e);
+        alert("❌ Erro ao salvar correção.");
+    }
 }

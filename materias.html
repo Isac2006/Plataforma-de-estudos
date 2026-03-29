@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro de Matérias</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- CSS DA MATÉRIA (já inclui sidebar/layout) -->
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/aula.css">
+    <link rel="stylesheet" href="css/materias/explorer.css">
+    <link rel="stylesheet" href="css/materias/gridMaterias.css">
+    <link rel="stylesheet" href="css/materias/listaMaterias.css">
+    <link rel="stylesheet" href="css/materia.css">
+    <link rel="stylesheet" href="css/responsive/responsive-materia.css">
+</head>
+<body>
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <a href="inicial.html" class="logo">
+            📚 <span>Plataforma</span>
+        </a>
+
+        <nav class="menu">
+            <a href="inicial.html" class="menu-item">Início</a>
+            <a href="materias.html" class="menu-item active">Matérias</a>
+            <a href="questoes.html" class="menu-item">Questões</a>
+            <a href="cronograma.html" class="menu-item">Cronograma</a>
+            <a href="redacao.html" class="menu-item">Redação</a>
+            <a href="login.html" class="menu-item">🔐 Login</a>
+        </nav>
+    </aside>
+    <div id="overlay" class="overlay"></div>
+
+    <!-- CONTEÚDO -->
+    <main class="content">
+        <button id="btn-menu" class="btn-menu">
+    <span></span>
+    <span></span>
+    <span></span>
+    </button>
+    <div class="materias-wrapper">
+
+        <!-- ================================= -->
+        <!-- EXPLORAR DISCIPLINAS -->
+        <!-- ================================= -->
+        <section class="card-bloco">
+            <div class="topo-bloco">
+                <h2>📚 Explorar Disciplinas</h2>
+            </div>
+
+            <div id="grid-materias" class="grid-materias"></div>
+        </section>
+
+<br><br>
+
+        <!-- ================================= -->
+        <!-- LISTA DE MATÉRIAS -->
+        <!-- ================================= -->
+        <section class="card-bloco">
+            <h2>📖 Matérias Cadastradas</h2>
+
+            <div class="busca-container">
+                <input 
+                    type="text" 
+                    id="busca-materia-lista" 
+                    placeholder="🔎 Pesquisar tema..."
+                >
+                <p id="contador-resultados" class="contador-resultados"></p>
+            </div>
+
+            <div id="listaMateriasCadastradas" class="lista-materias-cadastradas"></div>
+        </section>
+
+<br><br>
+
+        <!-- ================================= -->
+        <!-- CADASTRO DE MATÉRIA -->
+        <!-- ================================= -->
+        <section class="card-bloco destaque-cadastro">
+
+        <h2>📘 Cadastro de Matéria</h2>
+
+        <div id="mensagem-topo" class="mensagem"></div>
+
+        <div id="formulario-cadastro">
+
+        <!-- DISCIPLINA E TEMA -->
+        <div class="grupo-campo">
+            <label>📚 Selecione a Disciplina</label>
+            <select id="materia-disciplina">
+                <option value="">Selecione a Disciplina</option>
+                <option value="matematica">Matemática</option>
+                <option value="portugues">Português</option>
+                <option value="historia">História</option>
+                <option value="geografia">Geografia</option>
+                <option value="ciencias">Ciências</option>
+                <option value="filosofia">Filosofia</option>
+                <option value="sociologia">Sociologia</option>
+                <option value="fisica">Física</option>
+            </select>
+        </div>
+
+        <div class="grupo-campo">
+            <label>📝 Tema da Matéria</label>
+            <input 
+                type="text" 
+                id="materia-tema" 
+                placeholder="Digite o tema da matéria">
+        </div>
+
+        <!-- RESUMO -->
+        <div class="grupo-campo">
+            <label>📄 Resumo</label>
+            <textarea id="materia-resumo" placeholder="Escreva aqui o resumo da matéria"></textarea>
+        </div>
+
+        <div class="barra-acoes">
+
+        <button type="button" id="btn-add-secao" class="btn-acao">
+            ➕ Nova Seção
+        </button>
+        </div>
+
+        <div id="container-secoes">
+
+        <div class="secao-item">
+
+        <button type="button" class="btn-remover-secao">✖</button>
+        
+        <div class="grupo-campo">
+            <label>📌 Título da Seção</label>
+            <input 
+                type="text" 
+                class="secao-titulo" 
+                placeholder="Digite o título da seção">
+        </div>
+
+        <div class="editor-container">
+
+        <div class="editor-toolbar">
+            <button type="button" data-action="bold"><b>Negrito</b></button>
+            <button type="button" data-action="italic"><i>Itálico</i></button>
+            <button type="button" class="btn-add-img">Imagem</button>
+        </div>
+
+        <div class="secao-editor" contenteditable="true"></div>
+
+        </div>
+
+        </div>
+
+        </div>
+
+        <!-- BOTÃO FINAL -->
+        <div class="acoes-materias">
+            <button type="button" id="btn-cadastrar-materia" class="btn-principal">
+                📘 Cadastrar Matéria
+            </button>
+        </div>
+
+        <div id="preview-imagens"></div>
+
+    </div>
+
+</section>
+    <div id="modal-imagem" class="modal hidden">
+        <div class="modal-content">
+            <h3>🖼 Inserir imagem</h3>
+            <input id="modal-input-file"type="file"accept="image/*">
+            <input id="modal-input-url"type="text"placeholder="Ou cole a URL da imagem">
+            <div class="modal-preview"></div>
+
+            <div class="modal-actions">
+                <button id="modal-cancelar"> Cancelar </button>
+                <button id="modal-inserir"> Inserir </button>
+            </div>
+
+        </div>
+    </div>
+
+<br><br>
+
+        <!-- ================================= -->
+        <!-- CADASTRO DE AULA -->
+        <!-- ================================= -->
+        <section class="card-bloco">
+            <h2>🎓 Cadastro de Aula</h2>
+
+            <select id="disciplina-aula">
+                <option value="">Selecione a disciplina</option>
+                <option value="matematica">Matemática</option>
+                <option value="portugues">Português</option>
+                <option value="historia">História</option>
+            </select>
+
+            <input type="text" id="tema-aula" placeholder="Tema da aula">
+            <input type="text" id="url-aula" placeholder="URL do vídeo principal">
+            <input type="text" id="url-aula-2" placeholder="URL do segundo vídeo (opcional)">
+
+            <button id="btn-salvar-aula" class="btn-salvar">
+                💾 Salvar Aula
+            </button>
+        </section>
+
+<br><br>
+
+        <!-- ================================= -->
+        <!-- ASSISTIR AULA -->
+        <!-- ================================= -->
+        <section class="card-bloco">
+            <h2>🎥 Assistir Aula</h2>
+
+            <select id="select-disciplina">
+                <option value="">Selecione a Disciplina</option>
+                <option value="matematica">Matemática</option>
+                <option value="portugues">Português</option>
+                <option value="historia">História</option>
+                <option value="geografia">Geografia</option>
+                <option value="ciencias">Ciências</option>
+            </select>
+
+            <select id="select-tema-aula" disabled>
+                <option value="">Selecione a matéria primeiro</option>
+            </select>
+
+            <p id="status-aula"></p>
+
+            <div class="video-container">
+                <iframe id="video-player" allowfullscreen></iframe>
+            </div>
+
+            <div class="video-container hidden" id="container-video-2">
+                <iframe id="video-player-2" allowfullscreen></iframe>
+            </div>
+        </section>
+
+<br>
+
+        <!-- ================================= -->
+        <!-- MÓDULOS -->
+        <!-- ================================= -->
+<!-- AQUI -->
+<section class="explorer-modulos">
+
+<h2>📚 Explorar módulos</h2>
+
+<div class="explorer-layout">
+
+<div class="explorer-sidebar">
+
+<input 
+type="text"
+id="busca-disciplina"
+placeholder="🔎 Buscar disciplina..."
+>
+
+<div id="lista-disciplinas"></div>
+
+<div id="lista-materias"></div>
+
+<button id="btn-voltar" class="hidden">
+⬅ Voltar para disciplinas
+</button>
+
+<hr>
+
+<div id="lista-modulos-explorer"></div>
+
+</div>
+
+<div class="explorer-conteudo">
+
+<div id="explorer-vazio">
+Selecione um módulo para visualizar
+</div>
+
+<div id="explorer-conteudo" class="explorer-conteudo hidden">
+
+<h2 id="explorer-titulo"></h2>
+
+<div class="abas-modulo">
+
+<!-- BOTÕES DAS ABAS -->
+<div class="abas-topo">
+
+<button class="aba-btn ativa" data-aba="video">
+🎥 Vídeo
+</button>
+
+<button class="aba-btn" data-aba="resumo">
+📄 Resumo
+</button>
+
+<button class="aba-btn" data-aba="questoes">
+❓ Questões
+</button>
+
+</div>
+
+
+<!-- ABA VIDEO -->
+<div id="aba-video" class="aba ativa">
+
+<div class="videos">
+
+<iframe id="video1" allowfullscreen></iframe>
+<iframe id="video2" class="hidden" allowfullscreen></iframe>
+
+</div>
+
+</div>
+
+
+<!-- ABA RESUMO -->
+<div id="aba-resumo" class="aba">
+
+<div id="explorer-resumo"></div>
+
+</div>
+
+
+<!-- ABA QUESTOES -->
+<div id="aba-questoes" class="aba">
+
+<div id="explorer-questoes"></div>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+    </div>
+
+</main>
+</div>
+
+<!-- JS -->
+<script type="module" src="src/modulos/materia/materia.js"></script>
+<script src="src/assistirAula.js"></script>
+<script src="src/cadastrarAula.js"></script>
+<script src="src/menu.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,177 @@
+/* ======================== VARIÁVEIS ======================== */
+:root {
+    --bg-page: #f8fafc;
+
+    --card-bg: #ffffff;
+    --card-radius: 18px;
+    --card-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+
+    --primary: #4f46e5;
+    --primary-hover: #4338ca;
+
+    --text-title: #1f2937;
+    --text-muted: #6b7280;
+    --text-error: #ef4444;
+
+    --input-bg: #f9fafb;
+    --input-border: #e5e7eb;
+    --input-focus: #6366f1;
+
+    --transition: all 0.25s ease;
+}
+
+/* ======================== BODY ======================== */
+body {
+    background: var(--bg-page);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Inter", system-ui, sans-serif;
+}
+
+/* ======================== WRAPPER ======================== */
+.auth-wrapper {
+    width: 100%;
+    padding: 20px;
+}
+
+/* ======================== CARD ======================== */
+.auth-box {
+    max-width: 440px;
+    margin: 0 auto;
+    padding: 32px 30px;
+    background: var(--card-bg);
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+    animation: fadeIn 0.4s ease;
+}
+
+/* ======================== TÍTULO ======================== */
+.auth-box h2 {
+    text-align: center;
+    margin-bottom: 22px;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-title);
+}
+
+/* ======================== INPUTS ======================== */
+.input-group {
+    margin-bottom: 14px;
+}
+
+.auth-box input {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--input-border);
+    background: var(--input-bg);
+    font-size: 14px;
+    transition: var(--transition);
+}
+
+.auth-box input::placeholder {
+    color: var(--text-muted);
+}
+
+.auth-box input:focus {
+    outline: none;
+    border-color: var(--input-focus);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    background: #fff;
+}
+
+/* ======================== BOTÃO ======================== */
+.auth-box button {
+    width: 100%;
+    margin-top: 10px;
+    padding: 12px;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.auth-box button:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+/* ======================== ERRO ======================== */
+.erro {
+    min-height: 16px;
+    margin-top: 12px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-error);
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: var(--transition);
+}
+
+.erro.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ======================== LINK ======================== */
+.auth-link {
+    text-align: center;
+    margin-top: 18px;
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+.auth-link a {
+    color: var(--primary);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.auth-link a:hover {
+    text-decoration: underline;
+}
+
+/* ======================== ERRO ANIMADO ======================== */
+@keyframes shake {
+    0% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+    100% { transform: translateX(0); }
+}
+
+.auth-box.error {
+    animation: shake 0.35s ease;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.auth-box.error input {
+    border-color: #ef4444;
+    background: #fef2f2;
+}
+
+/* ======================== ANIMAÇÃO ======================== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ======================== RESPONSIVO ======================== */
+@media (max-width: 480px) {
+    .auth-box {
+        padding: 26px 22px;
+    }
+}

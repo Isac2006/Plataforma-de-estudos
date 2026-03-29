@@ -1,0 +1,493 @@
+/* ================================
+   VARIÁVEIS GLOBAIS (DESIGN SYSTEM)
+================================ */
+:root {
+    /* Backgrounds */
+    --bg-page: #f8fafc;
+    --card-bg: #ffffff;
+
+    /* Bordas */
+    --border-soft: #e5e7eb;
+
+    /* Texto */
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+
+    /* Cores principais */
+    --primary: #6366f1;
+    --primary-light: rgba(99, 102, 241, 0.15);
+
+    --success: #22c55e;
+    --warning: #facc15;
+    --info: #38bdf8;
+    --purple: #7c3aed;
+
+    /* Sombra padrão */
+    --shadow-soft: 0 10px 30px rgba(0,0,0,0.06);
+    --shadow-card: 0 6px 18px rgba(0,0,0,0.08);
+
+    /* Radius */
+    --radius-lg: 18px;
+    --radius-md: 12px;
+
+    --consulta-bg-card: #f8f7ff;
+    --consulta-bg-hover: #4b34af;
+
+    --consulta-border: #e0e7ff;
+    --consulta-accent: #4f46e5;
+
+    --consulta-text-main: #1e1b4b;
+    --consulta-text-muted: #2cb6c0;
+
+    --consulta-shadow: 0 6px 14px rgba(79,70,229,0.15);
+}
+
+/* ================================
+   BASE VISUAL DA PÁGINA
+================================ */
+body {
+    background: var(--bg-page);
+    color: var(--text-main);
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* ================================
+   CONTAINER PRINCIPAL (FIX SIDEBAR)
+================================ */
+.content {
+    display: grid;
+    grid-template-columns: 2.4fr 1fr 1fr;
+    grid-template-rows: auto auto auto 1fr;
+    gap: 20px;
+
+    max-width: 1400px;
+
+    /* 🔥 AJUSTE CORRETO */
+    margin-left: 360px; /* igual à sidebar */
+    margin-top: 100px;
+    margin-right: auto;
+
+    padding: 32px;
+    align-items: start;
+}
+
+/* ================================
+   TÍTULO
+================================ */
+.content > h1 {
+    grid-column: 1 / -1;
+    grid-row: 1;
+
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: var(--text-main);
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+
+/* ================================
+   TOOLBAR
+================================ */
+.redacao-toolbar {
+    grid-column: 1 / -1;
+    grid-row: 2;
+
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+
+    align-items: center;
+
+    background: var(--card-bg);
+    padding: 14px 16px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-soft);
+    box-shadow: var(--shadow-soft);
+}
+
+.redacao-toolbar select {
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-soft);
+    background: #f9fafb;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.redacao-toolbar button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    border: none;
+
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+
+    box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+    transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.redacao-toolbar button:hover {
+    transform: translateY(-1px);
+    filter: brightness(0.96);
+}
+
+/* Botões */
+.redacao-toolbar button:nth-child(2) {
+    background: var(--warning);
+    color: #1f2937;
+}
+
+.redacao-toolbar button:nth-child(3) {
+    background: var(--info);
+    color: #ffffff;
+}
+
+.redacao-toolbar button:nth-child(4) {
+    background: var(--success);
+    color: #ffffff;
+}
+
+.redacao-toolbar button:nth-child(5) {
+    background: var(--purple);
+    color: #ffffff;
+}
+
+
+/* ================================
+   SELECT (AMARELO)
+================================ */
+.redacao-toolbar select {
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* ================================
+   BOTÕES DA TOOLBAR
+================================ */
+.redacao-toolbar button {
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: none;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* Destacar */
+.redacao-toolbar button:nth-child(2) {
+    background: #facc15;
+    color: #1f2937;
+}
+
+/* Enviar */
+.redacao-toolbar button:nth-child(3) {
+    background: #38bdf8;
+    color: #ffffff;
+}
+
+/* Próxima */
+.redacao-toolbar button:nth-child(4) {
+    background: #22c55e;
+    color: #ffffff;
+}
+
+/* Salvar correção */
+.redacao-toolbar button:nth-child(5) {
+    background: #7c3aed;
+    color: #ffffff;
+}
+
+/* Hover */
+.redacao-toolbar button:hover {
+    filter: brightness(0.95);
+    transform: translateY(-1px);
+}
+
+/* ================================
+   INFO
+================================ */
+.info-redacao {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    font-size: 14px;
+    color: #475569;
+}
+
+.info-redacao:empty {
+    display: none;
+}
+
+/* ================================
+   EDITOR DE REDAÇÃO
+================================ */
+#editor {
+    grid-column: 1 / 2;
+    grid-row: 4;
+
+    width: 100%;
+    min-height: 520px;
+    max-height: 520px; /* 🔒 trava a altura */
+    padding: 22px;
+
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-soft);
+    box-shadow: var(--shadow-soft);
+
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--text-main);
+
+    /* 🧠 NOVO — comportamento do texto */
+    overflow-y: auto;          /* scroll interno */
+    overflow-x: hidden;        /* evita estouro horizontal */
+    white-space: pre-wrap;     /* quebra linha correta */
+    word-break: break-word;    /* palavras longas não estouram */
+}
+
+
+#editor:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+#editor:empty::before {
+    content: "Comece sua redação aqui...";
+    color: #94a3b8;
+    pointer-events: none;
+}
+
+
+/* ================================
+   COMENTÁRIOS
+================================ */
+.comentarios {
+    grid-column: 2 / 3;
+    grid-row: 4;
+
+    background: var(--card-bg);
+    padding: 16px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-soft);
+    box-shadow: var(--shadow-card);
+
+    min-height: 520px;
+    max-height: 520px; /* 🔒 trava a altura */
+
+    /* 🧠 NOVO — controle de conteúdo */
+    overflow-y: auto;          /* scroll interno */
+    overflow-x: hidden;
+}
+
+.comentarios h3 {
+    margin: 0 0 12px 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+#listaComentarios {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;              /* ✅ espaço entre comentários */
+}
+
+.comment {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 12px 14px;
+
+    border-left: 4px solid var(--primary);
+
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+
+    font-size: 13px;
+    line-height: 1.5;
+
+    word-break: break-word;
+}
+
+.comment small {
+    display: block;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.comment p {
+    margin: 0 0 6px 0;
+    font-style: italic;
+    color: #334155;
+}
+
+.comment strong {
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+/* ================================
+   CONSULTA
+================================ */
+.consulta {
+    grid-column: 3 / 4;
+    grid-row: 4;
+
+    background: var(--card-bg);
+    padding: 16px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-soft);
+    box-shadow: var(--shadow-card);
+
+    min-height: 520px;
+    max-height: 520px; /* 🔒 trava a altura */
+
+    display: flex;
+    flex-direction: column;
+
+    /* 🧠 garante que o conteúdo não estoure */
+    overflow: hidden;
+}
+
+
+.consulta h3 {
+    margin: 0 0 12px 0;
+    font-size: 15px;
+    color: #1f2937;
+}
+
+.consulta input {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 10px;
+}
+
+.consulta button {
+    width: 100%;
+    background: #7c3aed;
+    color: #ffffff;
+    border: none;
+    padding: 10px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#resultado-consulta {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px; /* controle fino da distância */
+}
+
+/* ================================
+   RESULTADO CONSULTA
+================================ */
+#resultado-consulta {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 12px;
+
+    /* 🔽 NOVO */
+    overflow-y: auto;
+    overflow-x: hidden;
+    flex: 1;               /* ocupa o espaço restante */
+    padding-right: 4px;    /* evita cortar scrollbar */
+}
+
+/* Botão / Card da redação */
+.btn-consulta {
+    width: 100%;
+    text-align: left;
+
+    background: var(--consulta-bg-card);
+    border: 1px solid var(--consulta-border);
+    border-left: 6px solid var(--consulta-accent);
+
+    padding: 14px 16px;
+    border-radius: 14px;
+
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--consulta-text-main);
+
+    cursor: pointer;
+    box-shadow: var(--consulta-shadow);
+
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+
+    /* 🧠 evita quebra visual */
+    word-break: break-word;
+    white-space: normal;
+}
+
+.btn-consulta:hover {
+    transform: translateY(-1px);
+    filter: brightness(0.97);
+}
+
+.btn-consulta:active {
+    transform: scale(0.98);
+}
+
+/* Subtexto automático */
+.btn-consulta::after {
+    content: "Visualizar redação";
+    display: block;
+
+    margin-top: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--consulta-text-muted);
+}
+
+.usuario-logado {
+    background: #f3f4f6;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 600;
+    margin-bottom: 10px;
+
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ================================
+   RESPONSIVO
+================================ */
+@media (max-width: 1100px) {
+    .content {
+        grid-template-columns: 1fr;
+    }
+
+    .content > h1,
+    .redacao-toolbar,
+    .info-redacao,
+    #editor,
+    .comentarios,
+    .consulta {
+        grid-column: 1 / -1;
+        grid-row: auto;
+    }
+}

@@ -1,0 +1,245 @@
+/* ================= CORREÇÃO DE LAYOUT ================= */
+
+.content {
+    padding: 40px;
+    margin-left: 250px; /* compensar sidebar */
+    min-height: 100vh;
+    background: #f1f5f9;
+}
+
+/* botão não sobrepor conteúdo */
+.materias-wrapper {
+    max-width: 1100px;
+    margin: 60px auto 0; /* 🔥 espaço pro botão menu */
+}
+
+/* ================= TÍTULOS ================= */
+.content h1 {
+    font-size: 26px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 28px;
+}
+
+.content h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 22px;
+}
+
+/* ================= ÁREA PRINCIPAL ================= */
+.materias-wrapper {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+/* ================= MENSAGENS ================= */
+.mensagem {
+    display: none;
+    padding: 14px 16px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    font-weight: 600;
+    background: #eef2ff;
+    color: #3730a3;
+}
+
+/* ================= PAINÉIS ================= */
+#formulario-cadastro,
+#sistema-questoes {
+    background: #ffffff;
+    padding: 32px;
+    border-radius: 18px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+    width: 100%;
+    margin-bottom: 40px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ================= INPUTS ================= */
+select,
+input[type="text"],
+input[type="number"],
+textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    font-size: 14px;
+    margin-bottom: 14px;
+    background: #f9fafb;
+    color: #0f172a;
+    transition: all 0.2s ease;
+}
+
+textarea {
+    min-height: 110px;
+    resize: vertical;
+}
+
+select:focus,
+input:focus,
+textarea:focus {
+    outline: none;
+    background: #ffffff;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+/* ================= AÇÕES ================= */
+.acoes-materias {
+    margin-top: 28px;
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+/* ================= BOTÕES ================= */
+button {
+    border: none;
+    padding: 12px 22px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.25s ease;
+}
+
+/* Botão principal */
+#btn-cadastrar-questao,
+#btn-gerar-questoes {
+    background: linear-gradient(135deg, #4f46e5, #4338ca);
+    color: #ffffff;
+}
+
+#btn-cadastrar-questao:hover,
+#btn-gerar-questoes:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 18px rgba(79, 70, 229, 0.35);
+}
+
+/* ================= RESULTADO QUESTÕES ================= */
+#resultado-questoes {
+    margin-top: 24px;
+}
+
+/* ================= MENSAGEM LOCAL ================= */
+.mensagem-local {
+    position: static;
+    transform: none;
+    margin: 20px 0;
+    max-width: 100%;
+}
+
+/* ================= QUESTÕES GERADAS ================= */
+
+.questao-card {
+    background: #f8fafc;
+    border-radius: 18px;
+    padding: 28px;
+    margin-bottom: 26px;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.06);
+    border-left: 6px solid #6366f1;
+    animation: fadeInUp 0.4s ease;
+}
+
+.questao-card h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 14px;
+}
+
+.questao-card p {
+    font-size: 15px;
+    color: #334155;
+    margin-bottom: 18px;
+    line-height: 1.6;
+}
+
+/* ================= ALTERNATIVAS ================= */
+
+.questao-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.questao-card li {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #0f172a;
+    transition: all 0.2s ease;
+}
+
+.questao-card li:hover {
+    border-color: #6366f1;
+    background: #eef2ff;
+    transform: translateX(4px);
+}
+
+/* ================= ALTERNATIVA SELECIONADA ================= */
+
+.questao-card li.selecionada {
+    background: #e0e7ff;
+    border-color: #4f46e5;
+    font-weight: 600;
+}
+
+/* ================= CORRETA / ERRADA (FUTURO) ================= */
+
+.questao-card li.correta {
+    background: #dcfce7;
+    border-color: #16a34a;
+    color: #065f46;
+}
+
+.questao-card li.errada {
+    background: #fee2e2;
+    border-color: #dc2626;
+    color: #7f1d1d;
+}
+
+.explicacao {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: 
+        max-height 0.4s ease,
+        opacity 0.3s ease,
+        transform 0.3s ease;
+
+    margin-top: 12px;
+    padding: 0 10px;
+    border-left: 4px solid #007bff;
+    background: #f4f8ff;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.explicacao.mostrar {
+    max-height: 200px; /* suficiente para a maioria das explicações */
+    opacity: 1;
+    transform: translateY(0);
+    padding: 10px;
+}
+
+/* ================= ANIMAÇÃO ================= */
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

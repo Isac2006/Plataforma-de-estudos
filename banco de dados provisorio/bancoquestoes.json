@@ -37,5 +37,61 @@
       "c = 4 e corta o eixo y em y = 4"
     ],
     "resposta_correta": "c = −4 e corta o eixo y em y = −4"
+  },
+  {
+    "id": 1769536265965,
+    "disciplina": "matematica",
+    "tema": "dssdsdsdds",
+    "enunciado": "dssdsdsd",
+    "alternativas": [
+      "sddsdsds",
+      "dsdssd",
+      "sddssddsds",
+      "sdsdsdds"
+    ],
+    "resposta_correta": "A",
+    "explicacao": "sdsdsddssd"
+  },
+  {
+    "id": 1770154216297,
+    "disciplina": "matematica",
+    "tema": "dssdsddssd",
+    "enunciado": "sdsdsdsdsdsd",
+    "alternativas": [
+      "dsdssdsd",
+      "dsddssd",
+      "dsdssdsd",
+      "sdsdsdsdsd"
+    ],
+    "resposta_correta": "A",
+    "explicacao": "sdsddssddssd"
+  },
+  {
+    "id": 1770154401889,
+    "disciplina": "matematica",
+    "tema": "sdsddsdssdsd",
+    "enunciado": "dsdddsdsdsd",
+    "alternativas": [
+      "dsdssds",
+      "sddsddsds",
+      "sdsdsddssd",
+      "sdsddsdssdsd"
+    ],
+    "resposta_correta": "A",
+    "explicacao": "sdsddsdssdsdsdsdsd"
+  },
+  {
+    "id": 1771194307514,
+    "disciplina": "matematica",
+    "tema": "ddfdfdfdfdfdfdfdfdf",
+    "enunciado": "dfdffddf",
+    "alternativas": [
+      "dfdfdfdfdfdfdfdfdfdfdfdfdf",
+      "dfdfdfffffdddddddddddddd",
+      "sssssssssssssssss",
+      "xxxxxxxxxxxxxxxxxxxx"
+    ],
+    "resposta_correta": "A",
+    "explicacao": ""
   }
 ]

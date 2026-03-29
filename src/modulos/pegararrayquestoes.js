@@ -25,13 +25,19 @@ export function pegarquestoesdobanco(disciplina, tema) {
         // 5. Tratamento de JSON vazio
         const todasAsQuestoes = JSON.parse(dadosRaw.trim() || '[]');
 
-        // 6. Filtro com validação de segurança
         return todasAsQuestoes.filter(questao => {
-            return (
-                questao.disciplina?.toLowerCase() === disciplina?.toLowerCase() && 
-                questao.tema?.toLowerCase() === tema?.toLowerCase()
-            );
-        });
+    const disciplinaOk =
+        questao.disciplina?.toLowerCase().trim() ===
+        disciplina?.toLowerCase().trim();
+
+    const temaOk =
+        !tema || questao.tema?.toLowerCase().includes(
+            tema.toLowerCase().trim()
+        );
+
+    return disciplinaOk && temaOk;
+});
+
 
     } catch (erro) {
         console.error("❌ Erro no módulo de banco:", erro.message);

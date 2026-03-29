@@ -68,7 +68,11 @@ export async function carregarAula(usuarioLogado) {
     if (!disciplina || !tema) return alert("Selecione a disciplina e o tema!");
 
     try {
-        const res = await fetch(`http://localhost:3000/aulas/buscar?disciplina=${disciplina}&tema=${tema}`);
+        const res = await fetch('http://localhost:3000/aulas', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...dados, usuarioId: usuarioLogado.id })
+});
         if (res.ok) {
             const aula = await res.json();
             

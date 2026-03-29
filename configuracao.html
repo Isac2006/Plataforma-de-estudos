@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Configurações - Plataforma</title>
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/configuracao.css">
+</head>
+<body>
+
+<div class="container">
+
+    <!-- MENU -->
+    <aside class="sidebar">
+        <a href="index.html" class="logo">📚 <span>Plataforma</span></a>
+
+        <nav class="menu">
+            <a href="inicial.html" class="menu-item">Início</a>
+            <a href="materias.html" class="menu-item">Matérias</a>
+            <a href="questoes.html" class="menu-item">Questões</a>
+            <a href="cronograma.html" class="menu-item">Cronograma</a>
+            <a href="redacao.html" class="menu-item">Redação</a>
+            <a href="config.html" class="menu-item active">⚙️ Configurações</a>
+            <a href="login.html" class="menu-item">🔐 Login</a>
+        </nav>
+    </aside>
+
+    <!-- CONTEÚDO -->
+    <main class="content">
+        <section class="config-page">
+            <h1>⚙️ Configurações</h1>
+
+            <!-- CONTA -->
+            <div class="config-card">
+                <h2>👤 Conta</h2>
+
+                <div class="config-group">
+                    <label>Nome</label>
+                    <input type="text">
+                </div>
+
+                <div class="config-group">
+                    <label>Email</label>
+                    <input type="email">
+                </div>
+
+                <div class="config-group">
+                    <label>Nova senha</label>
+                    <input type="password">
+                </div>
+
+                <div class="config-actions">
+                    <button class="btn-primary">Salvar alterações</button>
+                    <button class="btn-danger">Excluir conta</button>
+                </div>
+            </div>
+
+            <!-- APARÊNCIA -->
+            <div class="config-card">
+                <h2>🎨 Aparência</h2>
+
+                <div class="config-group">
+                    <label>Tema</label>
+                    <select id="temaSelect">
+                        <option value="claro">Claro</option>
+                        <option value="escuro">Escuro</option>
+                        <option value="auto">Automático</option>
+                    </select>
+                </div>
+
+                <div class="config-group">
+                    <label>Tamanho da fonte</label>
+                    <select id="fonteSelect">
+                        <option value="pequena">Pequena</option>
+                        <option value="normal" selected>Normal</option>
+                        <option value="grande">Grande</option>
+                    </select>
+                </div>
+
+                <div class="config-group toggle">
+                    <label>
+                        <input type="checkbox" id="altoContraste">
+                        Alto contraste
+                    </label>
+                </div>
+            </div>
+
+        </section>
+    </main>
+</div>
+
+<script type="module" src="src/modulos/configuracao.js"></script>
+</body>
+</html>

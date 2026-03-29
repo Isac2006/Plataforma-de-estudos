@@ -1,0 +1,338 @@
+/* ================= TABLET ================= */
+@media (max-width: 1024px) {
+
+    /* SIDEBAR menor */
+    .sidebar {
+        width: 200px;
+        padding: 16px;
+    }
+
+    /* conteúdo acompanha a sidebar */
+    .content {
+        margin-left: 200px;
+        padding: 32px;
+    }
+
+    /* centralização melhor */
+    .materias-wrapper {
+        max-width: 900px;
+    }
+
+    /* cards mais compactos */
+    .card-bloco {
+        padding: 25px;
+        border-radius: 18px;
+    }
+
+    /* formulário mais compacto */
+    #formulario-cadastro {
+        padding: 25px;
+    }
+
+    /* inputs menores */
+    select,
+    input[type="text"],
+    textarea {
+        font-size: 13px;
+        padding: 10px 12px;
+    }
+
+    /* títulos menores */
+    h1 {
+        font-size: 24px;
+    }
+
+    h2 {
+        font-size: 18px;
+    }
+
+    /* editor mais compacto */
+    .editor-container {
+        padding: 12px;
+    }
+
+    .secao-editor {
+        min-height: 100px;
+    }
+
+    /* botões menores */
+    button {
+        padding: 10px 18px;
+        font-size: 13px;
+    }
+
+    /* topo do bloco quebra linha se precisar */
+    .topo-bloco {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+}
+
+/* ================= MOBILE MENU AVANÇADO ================= */
+@media (max-width: 900px) {
+
+    /* botão hamburguer */
+    .btn-menu {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 4000;
+
+        width: 45px;
+        height: 45px;
+
+        background: #4338ca;
+        border-radius: 12px;
+        cursor: pointer;
+    }
+
+    /* linhas do hamburguer */
+    .btn-menu span {
+        position: absolute;
+        width: 22px;
+        height: 2px;
+        background: white;
+        transition: .3s;
+    }
+
+    .btn-menu span:nth-child(1) {
+        transform: translateY(-6px);
+    }
+
+    .btn-menu span:nth-child(2) {
+        opacity: 1;
+    }
+
+    .btn-menu span:nth-child(3) {
+        transform: translateY(6px);
+    }
+
+    /* ANIMAÇÃO PARA X */
+    .btn-menu.ativo span:nth-child(1) {
+        transform: rotate(45deg);
+    }
+
+    .btn-menu.ativo span:nth-child(2) {
+        opacity: 0;
+    }
+
+    .btn-menu.ativo span:nth-child(3) {
+        transform: rotate(-45deg);
+    }
+
+    /* sidebar escondida */
+    .sidebar {
+        transform: translateX(-100%);
+        transition: 0.3s;
+        z-index: 3000;
+    }
+
+    .sidebar.ativo {
+        transform: translateX(0);
+    }
+
+    /* overlay escuro */
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+
+        background: rgba(0,0,0,0.5);
+        opacity: 0;
+        pointer-events: none;
+
+        transition: 0.3s;
+        z-index: 2000;
+    }
+
+    .overlay.ativo {
+        opacity: 1;
+        pointer-events: all;
+    }
+
+    body.menu-aberto .logo {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+.logo {
+    transition: 0.3s;
+}
+
+body.menu-aberto .logo span {
+    opacity: 0;
+}
+
+    /* conteúdo */
+    .content {
+        margin-left: 0;
+        padding: 20px;
+    }
+}
+
+/* ================= IPHONE 14 PRO (NÍVEL APP) ================= */
+@media (max-width: 430px) {
+
+    /* layout mais moderno */
+    body {
+        background: #f1f5f9;
+    }
+
+    /* botão hamburguer estilo app */
+    .btn-menu {
+        top: 12px;
+        left: 12px;
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    }
+
+    /* conteúdo */
+    .content {
+        padding: 14px;
+    }
+
+    /* wrapper */
+    .materias-wrapper {
+        max-width: 100%;
+    }
+
+    /* títulos mais elegantes */
+    h2 {
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+    }
+
+    /* cards estilo iOS */
+    .card-bloco {
+        padding: 16px;
+        border-radius: 18px;
+        margin-bottom: 16px;
+
+        box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+        border: none;
+    }
+
+    /* grid INTELIGENTE */
+    .grid-materias {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 10px;
+    }
+
+    /* cards das matérias mais modernos */
+    .card-materia {
+        padding: 12px;
+        border-radius: 14px;
+        font-size: 12px;
+
+        box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+    }
+
+    /* inputs estilo app */
+    input,
+    select,
+    textarea {
+        font-size: 14px;
+        padding: 11px;
+        border-radius: 12px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+    }
+
+    /* foco bonito */
+    input:focus,
+    select:focus,
+    textarea:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 2px rgba(99,102,241,0.15);
+    }
+
+    /* botão principal TOP */
+    .btn-principal {
+        width: 100%;
+        padding: 12px;
+        border-radius: 14px;
+
+        background: linear-gradient(135deg,#4f46e5,#6366f1);
+
+        box-shadow: 0 8px 18px rgba(79,70,229,0.35);
+    }
+
+    /* botão salvar aula */
+    .btn-salvar {
+        width: 100%;
+        border-radius: 14px;
+        padding: 12px;
+    }
+
+    /* seções mais leves */
+    .secao-item {
+        padding: 16px;
+        border-radius: 14px;
+    }
+
+    /* editor */
+    .editor-container {
+        padding: 10px;
+        border-radius: 12px;
+    }
+
+    /* toolbar menor */
+    .editor-toolbar button {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    /* container do vídeo */
+.video-container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+
+    border-radius: 16px;
+    overflow: hidden;
+
+    background: #000;
+
+    box-shadow: 
+        0 10px 25px rgba(0,0,0,0.25),
+        0 4px 10px rgba(0,0,0,0.15);
+
+    margin-top: 10px;
+}
+
+/* iframe ocupa tudo */
+.video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+    /* remove espaços exagerados */
+    br {
+        display: none;
+    }
+
+    /* topo mais compacto */
+    .topo-bloco {
+        margin-bottom: 10px;
+    }
+
+    /* sidebar mobile */
+    .sidebar {
+        width: 230px;
+    }
+}

@@ -5,6 +5,521 @@
     "tema": "função quadrática",
     "resumo": "A função quadrática é dada por f(x) = ax² + bx + c, com a ≠ 0. Seu polinômio é de grau 2.\nO domínio é ℝ e o contradomínio é ℝ; a imagem depende do vértice e da concavidade da parábola.\n\nO gráfico é uma parábola, que pode cortar o eixo x em até dois pontos (raízes), conforme o discriminante Δ:\n\nΔ > 0: duas raízes reais;\n\nΔ = 0: uma raiz real (tangencia o eixo x);\n\nΔ < 0: não há raízes reais.\n\nParâmetros:\n\na: define a concavidade (a > 0 para cima; a < 0 para baixo);\n\nb: indica se a parábola cruza o eixo y na subida (b > 0) ou descida (b < 0);\n\nc: é a ordenada do ponto onde a parábola corta o eixo y.\n\nAs raízes são os valores de x que tornam f(x) = 0 e podem ser encontradas pela Fórmula de Bhaskara.\nExemplo: em f(x) = x² − 5x + 6, as raízes são 2 e 3.\n",
     "conteudoCompleto": "A função quadrática, também chamada de função polinomial de 2º grau, é uma função representada pela seguinte expressão:\n\nf(x) = ax2 + bx + c\n\nOnde a, b e c são números reais e a ≠ 0.\n\nExemplo:\n\nf(x) = 2x2 + 3x + 5,\n\nsendo,\n\na = 2\nb = 3\nc = 5\n\nNesse caso, o polinômio da função quadrática é de grau 2, por ser o maior expoente da variável x.\n\nO conjunto domínio das funções quadráticas são os números reais, assim como seu contradomínio (f dois pontos reto números reais seta para a direita reto números reais). Já o conjunto imagem depende do vértice da parábola e de sua concavidade.\n\nGráfico da função quadrática: a parábola\nO gráfico das funções do 2º grau são curvas que recebem o nome de parábolas. Diferente das funções do 1º grau, onde conhecendo dois pontos é possível traçar o gráfico, nas funções quadráticas são necessários conhecer vários pontos.\n\nA curva de uma função quadrática corta o eixo x nas raízes ou zeros da função, em no máximo dois pontos dependendo do valor do discriminante (Δ). Assim, temos:\n\nSe Δ > 0, o gráfico cortará o eixo x em dois pontos;\nSe Δ < 0, o gráfico não cortará o eixo x;\nSe Δ = 0, a parábola tocará o eixo x em apenas um ponto.\nConcavidade do gráfico da função quadrática\nParábolas com concavidades opostas.\nRelação entre a parábola e os parâmetros a, b e c\nÉ possível identificar a posição da concavidade da curva analisando apenas o sinal do coeficiente a. Se o coeficiente for positivo, a concavidade ficará voltada para cima e se for negativo ficará para baixo.\n\nO parâmetro b indica se a parábola corta o eixo y no ramo descendente ou ascendente. Caso o b seja negativo, a parábola cruza o eixo y na \"descida\", como na parábola da esquerda da imagem anterior. Já se o b for positivo, a parábola cruza o eixo y na \"subida\", como na parábola da direita da imagem anterior.\n\nO parâmetro c indica exatamente a ordenada do ponto onde a parábola cruza o eixo y. Ou seja, ele indica o valor do y no ponto onde a parábola corta seu eixo.\n\nExemplo da parábola da função f(x) = 2x2 + 3x + 5.\n\na = 2\nb = 3\nc =5\nSendo a um valor positivo, a parábola tem concavidade para cima.\n\nO parâmetro b também é positivo, logo a parábola cortará o eixo y na subida.\n\nAinda, a parábola irá cortar o eixo y na ordenada 5.\n\nParábola do exemplo.\n\nComo a parábola não cruza o eixo x, esse é um caso em que Δ < 0.\n\nA partir dos pares ordenados dados (x, y), podemos construir a parábola num plano cartesiano, por meio da ligação entre os pontos encontrados.\n\nAprenda mais sobre:\n\nFunções do 1º grau\nVértice da parábola\nAinda com dúvidas? Pergunta ao Ajudante IA do Toda Matéria\nCaracteres: 0/900\nUtilizações: 0/5\nResolver\nInsira ou cole sua questão (Ctrl + V). Depois, aperte Resolver.\nColar texto\nou\nInserir imagem\nRaízes da Função\nAs raízes ou zeros da função do segundo grau representam aos valores de x tais que f(x) = 0. As raízes da função são determinadas pela resolução da equação de segundo grau, bastante fazer f(x) = 0.\n\n\nRemover anúncios\n0 = ax2 +bx + c\n\nPara resolver a equação do 2º grau podemos utilizar vários métodos, sendo um dos mais utilizados é aplicando a Fórmula de Bhaskara, ou seja:\n\nFunção Quadrática\n\nFunção Quadrática\n\nExemplo de cálculo das raízes da função f(x) = x2 – 5x + 6.\n\nResolução:\n\nSendo\na = 1\nb = – 5\nc = 6\n\nSubstituindo esses valores na fórmula de Bhaskara, temos:\n\nreto x igual a numerador menos reto b mais ou menos raiz quadrada de reto b ao quadrado menos 4 ac fim da raiz sobre denominador 2 reto a fim da fração reto x igual a numerador 5 mais ou menos raiz quadrada de 25 menos 24 fim da raiz sobre denominador 2 fim da fração reto x igual a numerador 5 mais ou menos raiz quadrada de 1 sobre denominador 2 fim da fração reto x com 1 subscrito igual a numerador 5 mais 1 sobre denominador 2 fim da fração igual a 6 sobre 2 igual a 3 reto x com 2 subscrito igual a numerador 5 menos 1 sobre denominador 2 fim da fração igual a 4 sobre 2 igual a 2\n\nPortanto, as raízes são 2 e 3.",
-    "dataCriacao": "2025-12-28T14:28:28.297Z"
+    "criadoEm": "2025-12-28T14:28:28.297Z"
+  },
+  {
+    "id": 1767023628288,
+    "disciplina": "portugues",
+    "tema": "sahbdsabjbdjasdsadf",
+    "resumo": "asffssafasffasfas",
+    "conteudoCompleto": "safsaffasfasfasfas",
+    "imagens": [
+      "https://tse1.explicit.bing.net/th/id/OIP.-_tQc0MpFsU3X2abTnoA-AHaE8?rs=1&pid=ImgDetMain&o=7&rm=3"
+    ],
+    "criadoEm": "2025-12-29T15:53:48.288Z"
+  },
+  {
+    "id": 1767025051076,
+    "disciplina": "matematica",
+    "tema": "ssddssd",
+    "resumo": "sdsdsdsdds",
+    "conteudoCompleto": "dsdssdsdds",
+    "imagens": [
+      "https://www.otempo.com.br/content/dam/otempo/editorias/entretenimento/filmes-e-series/2023/5/entretenimento-roberto-gomez-bolanos-roberto-gomez-fernandez-chaves-hbo-max-1708776126.jpeg"
+    ],
+    "criadoEm": "2025-12-29T16:17:31.076Z"
+  },
+  {
+    "id": 1767025137001,
+    "disciplina": "geografia",
+    "tema": "dssdds",
+    "resumo": "sdsdsd",
+    "conteudoCompleto": "ssdsdsd",
+    "imagens": [
+      "https://www.otempo.com.br/content/dam/otempo/editorias/entretenimento/filmes-e-series/2023/5/entretenimento-roberto-gomez-bolanos-roberto-gomez-fernandez-chaves-hbo-max-1708776126.jpeg"
+    ],
+    "criadoEm": "2025-12-29T16:18:57.001Z"
+  },
+  {
+    "id": 1767025256420,
+    "disciplina": "portugues",
+    "tema": "ccscscsc",
+    "resumo": "csccscssc",
+    "conteudoCompleto": "cscscscs",
+    "imagens": [
+      "https://www.otempo.com.br/content/dam/otempo/editorias/entretenimento/filmes-e-series/2023/5/entretenimento-roberto-gomez-bolanos-roberto-gomez-fernandez-chaves-hbo-max-1708776126.jpeg"
+    ],
+    "criadoEm": "2025-12-29T16:20:56.420Z"
+  },
+  {
+    "id": 1767025284866,
+    "disciplina": "matematica",
+    "tema": "cscscs",
+    "resumo": "scsccs",
+    "conteudoCompleto": "cscc",
+    "imagens": [
+      "https://www.otempo.com.br/content/dam/otempo/editorias/entretenimento/filmes-e-series/2023/5/entretenimento-roberto-gomez-bolanos-roberto-gomez-fernandez-chaves-hbo-max-1708776126.jpeg"
+    ],
+    "criadoEm": "2025-12-29T16:21:24.866Z"
+  },
+  {
+    "id": 1767025403425,
+    "disciplina": "portugues",
+    "tema": "sdsdsd",
+    "resumo": "sdsdsd",
+    "conteudoCompleto": "sddsdss",
+    "imagens": [
+      "https://www.otempo.com.br/content/dam/otempo/editorias/entretenimento/filmes-e-series/2023/5/entretenimento-roberto-gomez-bolanos-roberto-gomez-fernandez-chaves-hbo-max-1708776126.jpeg"
+    ],
+    "criadoEm": "2025-12-29T16:23:23.425Z"
+  },
+  {
+    "id": 1767025547314,
+    "disciplina": "matematica",
+    "tema": "dsdssd",
+    "resumo": "dssdsdds",
+    "conteudoCompleto": "sdsdsdsd",
+    "imagens": [
+      "https://tse4.mm.bing.net/th/id/OIP.jwPUNP0PNoI2TDTgLLQatgHaFj?w=700&h=525&rs=1&pid=ImgDetMain&o=7&rm=3",
+      "https://www.otempo.com.br/content/dam/otempo/editorias/entretenimento/filmes-e-series/2023/5/entretenimento-roberto-gomez-bolanos-roberto-gomez-fernandez-chaves-hbo-max-1708776126.jpeg"
+    ],
+    "criadoEm": "2025-12-29T16:25:47.314Z"
+  },
+  {
+    "id": 1767136090178,
+    "disciplina": "matematica",
+    "tema": "sdsdsd",
+    "resumo": "sdsdsd",
+    "conteudoCompleto": "sdsdsdsd",
+    "imagens": [],
+    "criadoEm": "2025-12-30T23:08:10.178Z"
+  },
+  {
+    "id": 1767136121861,
+    "disciplina": "matematica",
+    "tema": "oi",
+    "resumo": "sdsdsd",
+    "conteudoCompleto": "dsdsdssd",
+    "imagens": [],
+    "criadoEm": "2025-12-30T23:08:41.861Z"
+  },
+  {
+    "id": 1767136159137,
+    "disciplina": "portugues",
+    "tema": "sssddd",
+    "resumo": "ssss",
+    "conteudoCompleto": "ssss",
+    "imagens": [
+      "https://www.westerndigital.com/content/dam/store/en-us/assets/products/internal-storage/ssd-plus-sata-iii-ssd/gallery/ssd-plus-sata-iii-ssd-left.png.thumb.1280.1280.png",
+      "https://www.westerndigital.com/content/dam/store/en-us/assets/products/internal-storage/ssd-plus-sata-iii-ssd/gallery/ssd-plus-sata-iii-ssd-left.png.thumb.1280.1280.png",
+      "https://www.westerndigital.com/content/dam/store/en-us/assets/products/internal-storage/ssd-plus-sata-iii-ssd/gallery/ssd-plus-sata-iii-ssd-left.png.thumb.1280.1280.png",
+      "https://www.westerndigital.com/content/dam/store/en-us/assets/products/internal-storage/ssd-plus-sata-iii-ssd/gallery/ssd-plus-sata-iii-ssd-left.png.thumb.1280.1280.png",
+      "https://www.westerndigital.com/content/dam/store/en-us/assets/products/internal-storage/ssd-plus-sata-iii-ssd/gallery/ssd-plus-sata-iii-ssd-left.png.thumb.1280.1280.png",
+      "https://www.westerndigital.com/content/dam/store/en-us/assets/products/internal-storage/ssd-plus-sata-iii-ssd/gallery/ssd-plus-sata-iii-ssd-left.png.thumb.1280.1280.png"
+    ],
+    "criadoEm": "2025-12-30T23:09:19.137Z"
+  },
+  {
+    "id": 1767742969183,
+    "disciplina": "matematica",
+    "tema": "sdsdsd",
+    "resumo": "sdsd",
+    "conteudoCompleto": "sdsdsd",
+    "imagens": [],
+    "criadoEm": "2026-01-06T23:42:49.183Z"
+  },
+  {
+    "id": 1767743024883,
+    "disciplina": "matematica",
+    "tema": "sddssdds",
+    "resumo": "sdsdsd",
+    "conteudoCompleto": "ssdsdsdsd",
+    "imagens": [
+      "https://tse1.mm.bing.net/th/id/OIP.LDsEA9_tTeZpHDlwLweIFQHaEK?rs=1&pid=ImgDetMain&o=7&rm=3"
+    ],
+    "criadoEm": "2026-01-06T23:43:44.883Z"
+  },
+  {
+    "id": 1767746964188,
+    "disciplina": "portugues",
+    "tema": "ddfdf",
+    "resumo": "dfdfdfdf",
+    "conteudoCompleto": "dfdfdf",
+    "imagens": [],
+    "criadoEm": "2026-01-07T00:49:24.188Z"
+  },
+  {
+    "id": 1767747191527,
+    "disciplina": "matematica",
+    "tema": "sddssdsd",
+    "resumo": "sdsddssdsd",
+    "conteudoCompleto": "sfsdsdsd",
+    "imagens": [
+      "https://th.bing.com/th/id/OIP.rzR_Zjk5lDPJiae1sRyvigHaCJ?w=285&h=180&c=7&r=0&o=7&pid=1.7&rm=3"
+    ],
+    "criadoEm": "2026-01-07T00:53:11.527Z"
+  },
+  {
+    "id": 1767747575573,
+    "disciplina": "ciencias",
+    "tema": "sdsdsddsd",
+    "resumo": "fddfdf",
+    "conteudoCompleto": "dddf",
+    "imagens": [
+      "https://th.bing.com/th/id/OIP.pz8tElnXPCcrwB9Ptth0qwHaD4?w=108&h=108&c=1&bgcl=626976&r=0&o=7&pid=ImgRC&rm=3"
+    ],
+    "criadoEm": "2026-01-07T00:59:35.573Z"
+  },
+  {
+    "id": 1768869604730,
+    "disciplina": "matematica",
+    "tema": "função",
+    "resumo": "função",
+    "conteudoCompleto": "1º função",
+    "imagens": [
+      "https://tse2.mm.bing.net/th/id/OIP.d6lrMI2d-EeLokziRKHhJAHaEK?rs=1&pid=ImgDetMain&o=7&rm=3"
+    ],
+    "criadoEm": "2026-01-20T00:40:04.730Z"
+  },
+  {
+    "id": 1770149819166,
+    "disciplina": "matematica",
+    "tema": "ssdssdsdsd",
+    "resumo": "sddssdsdsd",
+    "conteudoCompleto": "sdsdsddsds",
+    "imagens": [],
+    "criadoEm": "2026-02-03T20:16:59.166Z"
+  },
+  {
+    "id": 1770149866294,
+    "disciplina": "historia",
+    "tema": "sddssdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsd",
+    "resumo": "sdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsd",
+    "conteudoCompleto": "sdsdsdsdsdsdsdsdsdsdsdsdsdsd",
+    "imagens": [
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQmbmDo_bCcHeH7eUMFWgYwIZe2Hxc3oQz4Pg&s"
+    ],
+    "criadoEm": "2026-02-03T20:17:46.294Z"
+  },
+  {
+    "id": 1770153685019,
+    "disciplina": "historia",
+    "tema": "sssssssssssss",
+    "resumo": "ssssssssssssss",
+    "conteudoCompleto": "ssssssssssssss",
+    "imagens": [],
+    "criadoEm": "2026-02-03T21:21:25.019Z"
+  },
+  {
+    "id": 1770153953695,
+    "disciplina": "matematica",
+    "tema": "csscscsc",
+    "resumo": "cscscscs",
+    "conteudoCompleto": "cscscsc",
+    "imagens": [],
+    "criadoEm": "2026-02-03T21:25:53.695Z"
+  },
+  {
+    "id": 1771355239554,
+    "disciplina": "filosofia",
+    "tema": "csccssccs",
+    "resumo": "scscscscsc",
+    "conteudoCompleto": "csccscscscscscs",
+    "imagens": [],
+    "criadoEm": "2026-02-17T19:07:19.554Z"
+  },
+  {
+    "id": 1771355344378,
+    "disciplina": "sociologia",
+    "tema": "dsdssdsdsd",
+    "resumo": "dsdssdds",
+    "conteudoCompleto": "dssddsdsds",
+    "imagens": [],
+    "criadoEm": "2026-02-17T19:09:04.378Z"
+  },
+  {
+    "id": 1771355352132,
+    "disciplina": "fisica",
+    "tema": "sdsdsdsdsdsdsdsdsdsdsdsd",
+    "resumo": "sdsdsdsdsdsdsdsdsdsdsd",
+    "conteudoCompleto": "sdsdsdsdsdsdsdsdsdsd",
+    "imagens": [],
+    "criadoEm": "2026-02-17T19:09:12.132Z"
+  },
+  {
+    "id": 1771356541191,
+    "disciplina": "matematica",
+    "tema": "sdssddssddssd",
+    "resumo": "sdsddssd",
+    "conteudoCompleto": "dsdsdsds",
+    "imagens": [],
+    "criadoEm": "2026-02-17T19:29:01.191Z"
+  },
+  {
+    "id": 1771359593391,
+    "disciplina": "matematica",
+    "tema": "dsssssssssssssssssssssssssssssssssssssssssssssss",
+    "resumo": "ddddddddddddddddddddddddddddddddddd",
+    "conteudoCompleto": "sdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsd",
+    "imagens": [],
+    "criadoEm": "2026-02-17T20:19:53.391Z"
+  },
+  {
+    "id": 1771359614386,
+    "disciplina": "matematica",
+    "tema": "oi",
+    "resumo": "ccccccccccccccccc",
+    "conteudoCompleto": "cccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "imagens": [],
+    "criadoEm": "2026-02-17T20:20:14.386Z"
+  },
+  {
+    "id": 1771359765151,
+    "disciplina": "matematica",
+    "tema": "oioioi",
+    "resumo": "sdsdsdd",
+    "conteudoCompleto": "cccccccccccccccccc",
+    "imagens": [],
+    "criadoEm": "2026-02-17T20:22:45.151Z"
+  },
+  {
+    "id": 1771373061527,
+    "disciplina": "matematica",
+    "tema": "banana",
+    "resumo": "dsdsdsdsdsds",
+    "conteudoCompleto": "sddssdsd\nhttps://th.bing.com/th/id/OIP.930gyLo_nvEjjYLzUPodsAHaHa?w=193&h=193&c=7&r=0&o=7&pid=1.7&rm=3\nsddssdsdsdds",
+    "imagens": [],
+    "criadoEm": "2026-02-18T00:04:21.527Z"
+  },
+  {
+    "id": 1771373106418,
+    "disciplina": "matematica",
+    "tema": "dssdsdsddssd",
+    "resumo": "sdsdsdsdsd",
+    "conteudoCompleto": "sdsdsdsd.\nhttps://th.bing.com/th/id/OIP.930gyLo_nvEjjYLzUPodsAHaHa?w=193&h=193&c=7&r=0&o=7&pid=1.7&rm=3\ndssdsddssdsdsdsddsdsds",
+    "imagens": [],
+    "criadoEm": "2026-02-18T00:05:06.418Z"
+  },
+  {
+    "id": 1771373536256,
+    "disciplina": "matematica",
+    "tema": "regra de tres",
+    "resumo": "sksdkjsdkjdskjsdkjsdkjsdjksdjksdjksdkjsdkj",
+    "conteudoCompleto": "cccccccccccccccccc\n[imagem: https://site.com/revolucao.jpg]\nsdsdsddssdsddsds",
+    "imagens": [],
+    "criadoEm": "2026-02-18T00:12:16.257Z"
+  },
+  {
+    "id": 1771374193815,
+    "disciplina": "matematica",
+    "tema": "maca",
+    "resumo": "sdsddsdssdsdds",
+    "conteudoCompleto": "sdddddddd\nhttps://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1PZHQj.img?w=696&h=464&m=6&x=279&y=100&s=142&d=142\nsdsdsddssdsdsdds",
+    "imagens": [],
+    "criadoEm": "2026-02-18T00:23:13.815Z"
+  },
+  {
+    "id": 1771374499368,
+    "disciplina": "matematica",
+    "tema": "uva",
+    "resumo": "dssdsdsddssdsdsdsdsd",
+    "conteudoCompleto": "sdsdsdsd\n[imagem: https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1PZHQj.img?w=696&h=464&m=6&x=279&y=100&s=142&d=142]\nsdsdsdsdsdsddsds\n[imagem: https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1PZHQj.img?w=696&h=464&m=6&x=279&y=100&s=142&d=142]",
+    "imagens": [],
+    "criadoEm": "2026-02-18T00:28:19.368Z"
+  },
+  {
+    "id": 1771374593834,
+    "disciplina": "matematica",
+    "tema": "brolo",
+    "resumo": "dsdssdsdsdsd",
+    "conteudoCompleto": "sdsddssdsd\n[imagem: https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1PZHQj.img?w=696&h=464&m=6&x=279&y=100&s=142&d=142]\njkssdjdjsksdjkkkdsdkjdksjk\n[imagem: https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1PZHQj.img?w=696&h=464&m=6&x=279&y=100&s=142&d=142]",
+    "imagens": [],
+    "criadoEm": "2026-02-18T00:29:53.834Z"
+  },
+  {
+    "id": 1771511003952,
+    "disciplina": "portugues",
+    "tema": "importante",
+    "resumo": "sdsddsdsdsdsdssd",
+    "conteudoCompleto": "sddssdsddsdssd",
+    "imagens": [],
+    "criadoEm": "2026-02-19T14:23:23.952Z"
+  },
+  {
+    "id": 1771516513151,
+    "disciplina": "matematica",
+    "tema": "sdsdsdsd",
+    "resumo": "sdsdsdsd",
+    "conteudoCompleto": "dssddsdssddsdssd",
+    "imagens": [],
+    "criadoEm": "2026-02-19T15:55:13.151Z"
+  },
+  {
+    "id": 1771516991661,
+    "disciplina": "matematica",
+    "tema": "sdsdd",
+    "resumo": "dssddsds",
+    "conteudoCompleto": "sddssd",
+    "imagens": [],
+    "criadoEm": "2026-02-19T16:03:11.661Z"
+  },
+  {
+    "id": 1771517251287,
+    "disciplina": "matematica",
+    "tema": "sdsdsd",
+    "resumo": "sddsdsd",
+    "conteudoCompleto": "sddsds",
+    "imagens": [],
+    "criadoEm": "2026-02-19T16:07:31.287Z"
+  },
+  {
+    "id": 1771518648029,
+    "disciplina": "matematica",
+    "tema": "sdsdsdsd",
+    "resumo": "sdsdsdsdsd",
+    "conteudoCompleto": "<img src=\"http://localhost:3000/uploads/1771518635584-f47bbacd-d8cf-42fe-be6a-b94c814409e9.jfif\" style=\"max-width:100%; margin:15px 0;\">\n\n<img src=\"http://localhost:3000/uploads/1771518635586-f47bbacd-d8cf-42fe-be6a-b94c814409e9.jfif\" style=\"max-width:100%; margin:15px 0;\">",
+    "imagens": [],
+    "criadoEm": "2026-02-19T16:30:48.029Z"
+  },
+  {
+    "id": 1771518697144,
+    "disciplina": "matematica",
+    "tema": "sddsdssd",
+    "resumo": "sddssdsd",
+    "conteudoCompleto": "sdsddssdsd\n<img src=\"http://localhost:3000/uploads/1771518678393-f47bbacd-d8cf-42fe-be6a-b94c814409e9.jfif\" style=\"max-width:100%; margin:15px 0;\">\n\n<img src=\"http://localhost:3000/uploads/1771518678396-f47bbacd-d8cf-42fe-be6a-b94c814409e9.jfif\" style=\"max-width:100%; margin:15px 0;\">\ndssdsdsdsdsdsdsd\n<img src=\"http://localhost:3000/uploads/1771518687640-tilemap_packed.png\" style=\"max-width:100%; margin:15px 0;\">\n\n<img src=\"http://localhost:3000/uploads/1771518687641-tilemap_packed.png\" style=\"max-width:100%; margin:15px 0;\">\n\n<img src=\"http://localhost:3000/uploads/1771518693729-tilemap.png\" style=\"max-width:100%; margin:15px 0;\">\n\n<img src=\"http://localhost:3000/uploads/1771518693731-tilemap.png\" style=\"max-width:100%; margin:15px 0;\">",
+    "imagens": [],
+    "criadoEm": "2026-02-19T16:31:37.144Z"
+  },
+  {
+    "id": 1771519036997,
+    "disciplina": "matematica",
+    "tema": "manje",
+    "resumo": "sdsdsdsddssddssdsdsdsdsdsdsdsdsd",
+    "conteudoCompleto": "sdsdsdsdssdsddsdsdssdsdsddsdsdsddsdcxxccxccc\n\n<img src=\"http://localhost:3000/uploads/1771519024208-tilemap_packed.png\" style=\"max-width:100%; display:block; margin:20px auto;\">\nsdsdsdsddsdssdsddssdds\n\n<img src=\"http://localhost:3000/uploads/1771519032131-tilemap.png\" style=\"max-width:100%; display:block; margin:20px auto;\">",
+    "imagens": [],
+    "criadoEm": "2026-02-19T16:37:16.997Z"
+  },
+  {
+    "id": 1771519297036,
+    "disciplina": "matematica",
+    "tema": "sdsdddddsd",
+    "resumo": "sddsdddsds",
+    "conteudoCompleto": "sdsddddddddd\n\n<img src=\"http://localhost:3000/uploads/1771519292023-tilemap.png\" style=\"max-width:100%; display:block; margin:20px auto;\">\n\n\n\n<img src=\"http://localhost:3000/uploads/1771519295877-tilemap_packed.png\" style=\"max-width:100%; display:block; margin:20px auto;\">",
+    "imagens": [],
+    "criadoEm": "2026-02-19T16:41:37.036Z"
+  },
+  {
+    "id": 1771519690758,
+    "disciplina": "ciencias",
+    "tema": "dssddssdsd",
+    "resumo": "dssddsdsdsd",
+    "conteudoCompleto": "<img src=\"http://localhost:3000/uploads/1771519682901-tilemap.png\">\n    sdsdsdsdsdsdsdsddsds",
+    "imagens": [],
+    "criadoEm": "2026-02-19T16:48:10.758Z"
+  },
+  {
+    "id": 1771519791854,
+    "disciplina": "filosofia",
+    "tema": "sddsdsds",
+    "resumo": "dssddssdds",
+    "conteudoCompleto": "sdsddsdssdsddsdssdsd\n        <img src=\"https://th.bing.com/th?id=ORMS.08556b91abdc503b3c063649e875c75c&pid=Wdp&w=612&h=304&qlt=90&c=1&rs=1&dpr=1&p=0\">\n    sdsdsdsddsdssdsdsdsd",
+    "imagens": [],
+    "criadoEm": "2026-02-19T16:49:51.854Z"
+  },
+  {
+    "id": 1771541034844,
+    "disciplina": "matematica",
+    "tema": "ccccc",
+    "resumo": "djsddsiidisjdid",
+    "conteudoCompleto": "sdjhsdjdjsdshsdsdhsj\n        <img src=\"http://localhost:3000/uploads/1771540973911-tilemap.png\">\n    ddssddssdsdsdsdsddssd",
+    "imagens": [],
+    "criadoEm": "2026-02-19T22:43:54.844Z"
+  },
+  {
+    "id": 1771964596007,
+    "disciplina": "matematica",
+    "tema": "triangulo escaleno",
+    "resumo": "O triângulo escaleno é um polígono de três lados onde todos os lados e ângulos internos possuem medidas diferentes entre si. Ele não possui eixos de simetria e a soma de seus ângulos internos é sempre \n. É uma forma irregular, frequentemente exemplificada por terrenos ou triângulos retângulos com lados desiguais, como o 3-4-5.",
+    "conteudoCompleto": "Triângulo escaleno é o polígono que possui três lados com diferentes medidas e três ângulos diferentes. Assim sendo, os triângulos escalenos não são polígonos regulares e nem possuem eixo de simetria.\n\nPor possuir lados com dimensões diferentes, os ângulos internos também serão diferentes. Ou seja, o triângulo escaleno é aquele formado por três lados e três ângulos diferentes entre si.\n\nO perímetro de um triângulo escaleno é encontrado somando todos os lados e o valor da soma dos seus ângulos internos, como todos os triângulos, é igual a 180º.\n        <img src=\"https://static.todamateria.com.br/upload/tr/ia/trianguloescaleno.jpg\">\n    Área do Triângulo Escaleno\nPara calcular a área dos triângulos escalenos usamos a mesma fórmula que usamos para os triângulos em geral, ou seja:\n\ncomeçar estilo tamanho matemático 18px reto A igual a numerador reto b espaço. espaço reto h sobre denominador 2 fim da fração fim do estilo\n\nOnde,\nA: área\nb: medida da base\nh: medida da altura relativa à base\n\nQuando conhecemos as medidas dos lados do triângulo, podemos também encontrar a área usando a fórmula de Heron:\n\ncomeçar estilo tamanho matemático 18px reto A igual a raiz quadrada de reto p. parêntese esquerdo reto p menos reto a parêntese direito. parêntese esquerdo reto p menos reto b parêntese direito. parêntese esquerdo reto p menos reto c parêntese direito fim da raiz fim do estilo\n\nSendo a, b e c as medidas dos lados do triângulo e p o semiperímetro, dado pela fórmula:\n\nreto p igual a numerador reto a mais reto b mais reto c sobre denominador 2 fim da fração\n\nExemplo:\nQual a área do triângulo escaleno representado na figura abaixo?\n        <img src=\"https://static.todamateria.com.br/upload/tr/ia/trianguloescalenoexercicio.jpg\">\n    Calcularemos a área usando os valores dos lados. Primeiro, vamos encontrar o valor do semi-perímetro p:\n\na = 8 cm\nb = 7 cm\nc = 5 cm\np igual a numerador 5 mais 7 mais 8 sobre denominador 2 fim da fração igual a 20 sobre 2 igual a 10\n\nAgora, basta substituir na fórmula da área:\n        \n        <img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPoAAAB/CAYAAADGkd9WAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAABGJhU0UAAAA9mEzejwAACtBJREFUeNrtnX9oHcUWx4cQSpBQDApSqijhIUVKCNTyLLGU/FNKKKWUBpVHKUUJoUgJ7x8tGvCfhyIFpYIQavEPqYUStUiJhYcUCUEiUsujlFIpUt4fUgIK5aGXEO2b4z2X3mx2787enb376/OBQ7J79+7u2Z0zc2Z273yNKS6D1u5jGObFCsuL1q4YAKg0X1l7JcfjH7f2Tsmv4TvqB37jdyF51Nqv+jcPRqx9W5EKc0n9wW/83sDJnE922toXHT5/2tqstWsdttls7UNry2pzus71Yo3mcNwkuPbHdlhbrInf9yvst/CQtdPW/metYe2yta3d3u9RvWDbcgx06Zsf7vD5J9amYgYZvrZ2oG15v65z8X8ph+N2U+BdWdQCUAW/o5i0dqbifp+19i9r/dY2aaq+3OX9/su5s2p58JS1FWsDKQr7pNZ8Qd639lLMPt+19moOx80y0E849D/L4ncYj2nhHqi4343Acp+11W7u9xPWbur/N3S517weUjMnvQHz1vaGrB/Xzzoh6dDuHI6bZaDvcmhlyuJ3GF9GpN5V81tS9sFAoP+3G79PmQejdse1tkvTX+rm+d0P1valLOy/aGoTRNbdjdnnvYjvZn3cLAN9k/pVBb/DxnNma+L3aW2t2wP6VFK/paa43Xbi0g/4KVCD+CRsv9ut/azHTlPY1zp8ZzVmn2s5HbebQF/VG7pg7Z8x96oqfrfzpPZR+2vi94juV+wbjZXdSY9/MqRmlOXXPJ/s36x9rBfv+cBnb1t7z0Ortpagn9OrG9/IKCvq14GXWe12bStYgc/Kb6OFfTxmm6r4LZXaOWtb2hrjHdo4j7j63a9fGAqsl+Vb2hfwddJvaqDLc/LvAp9JBvGsh0C/G5FSDWScuqc5rg/2auHvdQqbh9+Tmsnk2WXppd+fRwS0VHRXXP2ejgnWlzO4UTIG8KdpjpgKz1n7MUHaHjdIsi8iEOIGSf5tbSyH4/qi0eWgVJn87tPsZTRmuyr53UjwWaTf160Nd0gZrmdUKH+z9qn+/4G1tzwNSB0y4SP3kklk+XgtzXF9sF0zsyCvmviB1TL5fTAic6my3ze02xvkGe2rx/o94VD7nNftfPORtd+1FV8xyV/S6dSPk3Rmxjx4ueCNiMIR7GJ0eoHC53F9pHK7tHXr05bltha+IGEvUJTV71Z5POawXZX8PqTBPt52z8f1nk87+P3XSe2MOUiS1wmT8LC1P6x9ZpK9a+wyFiDjC2c1rZHMQV5NHHQIdKPnMpLxcX30UW/pgJA85rkQcR+j7l1Z/W71jYe6LLNl9lvu+VUdaGto7B7sUaymZlEv4EyBzokfd+B3HfzuKTs10B8v2HlJOlT2ny1KP20Kv/G7KBw2AAAAAAAAAAAAAAAAAAAAAAAAAFUH7TV0uqAGoL0GUAPy1l4DgIzJW3sNoBbUXXutE1n2bWXGEJnwUCYwkIkFZGIJUf14xMO+ZV40mUlIJg1c1Wv3D4p6fam79ppLoGfpt0wZtClwPy572LfMRiLzmLVmP5G5xpZMb+aygwJSd+21PAM9insZ7Vcm/vwPRb5+oL1WvEAfbrsnWdCg2NcPtNeKE+gy3/0x7adPZHSMXSZ+BlSoGHXXXjuv5nLMJJpnSfYdVnnOeNx3O9I1kkHKMYp+vai79lrSDMRV86ybfQsyjfBBDcY9Gez7YkT3BioM2mvpiNI885X5LHvu81804aofUHHQXktPloNavvYtWYcMdD5Eka8naK+lI0rzzAcjmlWlRSrUCwkrUqgQdddeS0oSzbOkyPlN6jm3tLWkO3PUw74vmXxfgoKcqbv2WlJcNc+6YbcGZENNKqv9nvbNz1IhV4qovQYAnimq9hoAeAbtNQAAAAAAAAAAAAAAAAAAAAAAAKg+RdNe6zWt48q0VTKvGxNFQCVBe62J/FxVJum4yqWAKoL22nqYlhkqB9pr65HJIb/hMoBviqq9lkSbzFV7LSuNNl9s0T76MMUSfFJk7bUk2mSu2mtZabT5QMQkL2mwA3ilTNprLYLaZK7aa1lqtPloyRcKll1ARSib9pox4dpkrtprPjTaxrT/LF2JO9aOtH3WeiwnE2t+r9vIfgfbjrOs65e0BW+xYJjMETKiTNprnbTJXLXX0mq0jWr2IYoqfRqo5wLXZ0q7HM/ouqOaRUwE1h/RyqDTtQVITVm011y0yVy117rRaAtmDidiznXebFS6kRZ8LmT9GsUQsqZs2mudtMlctde60WgLjg1sjgn0gYTrATKjrNprrcwgqE3mqr2WVqPtfpef3+9yfwCpKKv2WlTr66q9llajbcWhRSfQoTCUVXtNCNMmc9VeS6vRdsahj06gQyEok/ZaEm0yV+21NBptUjne0QpDzmerWf/+AYEOhaFM2mtJtMlctdfSarSN6hiBDOxdM+vfsiPQARS01wBqANprADUB7TUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICaIr/rlrncV/XvgZBt+B01QIn5u2lODrldl7fr8i4CHaA6zJuNM7XI8kUCHaA6yPzkwWmPN5mNmmYEOkCJiQrUVQIdgBadQAcoWR89OMouckefB9bJTKdB1ZbTBDpAOZAJGmWUvaXsOaLLY4HtZGro1hzqoqF2wdoLBDpAeZBR9pvaL7+uLXqQJzTYZZuvzYPHbwQ6AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAiDpvnjG1+WNa3jyA+Ilkzz14IAEMOL1q6U8Lzl9//HrV3lFgLE85W1V0p8/g1uIUBnHrX2q/4tI3tMcx4AAK+c7NFxnrY2a+1ah202W/vQ2rLanK5LwrS1L0LWj1tbsPabtpi3rL1v7ZEC3Yst2kcfpliCT0ZNcxBoWw+O9Ym1KdN5cEtmsmmfz26/rkuC9M0PR6w/ZNZPjCn+Xy7IvZCK8JIGO4D34Dur1iuiAn3SNCefDCKt7kuO+37K2oq1gQTnc68gLflCF9kLQCwyJ9xN/f+GLucZ6DI77d6IlHvecd+vWzuT4FyG266BC2Paf5bU/461IyF+TVj7XreR8x5s82NZ1y9pC95ioUdZFdSQU6b5KMfo33cdAtTH8+ao7X4xG+ebN7ruruO+f7C2z2G7x6wd0376RIJujmQLMpFmnwbquYBfU9pFaM2we1SzlInA+iNaGXS6tgCpkVbmdltg9Vv7qa31yaNFX+vwndWQ8w8iYpE/qy+uldVMgvOW1vlEzL7nzca58KUFnwtZv0YxhKyRkfbZwDpZfq2ggd56rixvjH2s+3g+sM3b1t5zPIchbZklld6ToC+/OcavgYTrATKjX1vzoZDCfyuk5elV6n43InUfaEvd39RAl+fk3wW2k4zk2S4ym+WU5x33OdJWkAvTMcH6ck4t+nxE/3qv2TgYJ2MKf2pfW3jO2o8xaXtcthDHikOLTqBDYRBllqgXMp7Uz/MIdHnGHTZiLi142OM1efHlU/3/A2tvdXEuI5rFuHDGoY9OoEMhmDDxj6rOG/eRaJ+BLsjI9Iy2zJLGv2GiXwf9yNrvuq20tnGPp2Q/k7q9dE/GNd0/6njeUjne0QpJvr/VrH//gECHwiCFfWfMNjusLWYU4HF9+iENnoa22HMm+knAw9b+sPaZtW8djr/bNN88a6hJpbI/oQ+j2qeXgUN5lfcAgQ6QPYsm+WMyACgZOzXQH+dSAFSbw1wCgAf8H6Tvze5gEYpzAAADbHRFWHRNYXRoTUwAPG1hdGggeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzE5OTgvTWF0aC9NYXRoTUwiPjxtaSBtYXRodmFyaWFudD0ibm9ybWFsIj5BPC9taT48bW8+PTwvbW8+PG1zcXJ0Pjxtbj4xMDwvbW4+PG1vPi48L21vPjxtbz4oPC9tbz48bW4+MTA8L21uPjxtbz4tPC9tbz48bW4+NTwvbW4+PG1vPik8L21vPjxtbz4uPC9tbz48bW8+KDwvbW8+PG1uPjEwPC9tbj48bW8+LTwvbW8+PG1uPjc8L21uPjxtbz4pPC9tbz48bW8+LjwvbW8+PG1vPig8L21vPjxtbj4xMDwvbW4+PG1vPi08L21vPjxtbj44PC9tbj48bW8+KTwvbW8+PC9tc3FydD48bXNwYWNlIGxpbmVicmVhaz0ibmV3bGluZSIvPjxtaSBtYXRodmFyaWFudD0ibm9ybWFsIj5BPC9taT48bW8+PTwvbW8+PG1zcXJ0Pjxtbj4xMDwvbW4+PG1vPiYjeEI3OzwvbW8+PG1vPiYjeDIwMDk7PC9tbz48bW4+NTwvbW4+PG1vPiYjeEI3OzwvbW8+PG1vPiYjeDIwMDk7PC9tbz48bW4+MzwvbW4+PG1vPiYjeEI3OzwvbW8+PG1vPiYjeDIwMDk7PC9tbz48bW4+MjwvbW4+PC9tc3FydD48bXNwYWNlIGxpbmVicmVhaz0ibmV3bGluZSIvPjxtaSBtYXRodmFyaWFudD0ibm9ybWFsIj5BPC9taT48bW8+PTwvbW8+PG1zcXJ0Pjxtbj4zMDA8L21uPjwvbXNxcnQ+PG1vPiYjeEEwOzwvbW8+PG1zdXA+PG1pPmNtPC9taT48bW4+MjwvbW4+PC9tc3VwPjxtc3BhY2UgbGluZWJyZWFrPSJuZXdsaW5lIi8+PG1pPm91PC9taT48bXNwYWNlIGxpbmVicmVhaz0ibmV3bGluZSIvPjxtaSBtYXRodmFyaWFudD0ibm9ybWFsIj5BPC9taT48bW8+PTwvbW8+PG1uPjEwPC9tbj48bXNxcnQ+PG1uPjM8L21uPjxtbz4mI3hBMDs8L21vPjwvbXNxcnQ+PG1zdXA+PG1pPmNtPC9taT48bW4+MjwvbW4+PC9tc3VwPjwvbWF0aD5sEwtKAAAAAElFTkSuQmCC\">\n    \nÂngulos do triângulo escaleno\nUm triângulo escaleno possui os três ângulos com medidas diferentes. A soma dos ângulos internos de todo triângulo é a igual a 180º.\n        <img src=\"https://static.todamateria.com.br/upload/im/ag/imagem2-18.jpg\">\n    No triângulo acima temos que reto a não igual reto b não igual reto c.\n\nreto teta mais reto gama mais reto alfa igual a 180 º\n\nEm um triângulo o maior lado é oposto ao maior ângulo. Também, o menor lado é oposto ao menor ângulo.",
+    "imagens": [],
+    "criadoEm": "2026-02-24T20:23:16.009Z"
+  },
+  {
+    "id": 1771964812032,
+    "disciplina": "matematica",
+    "tema": "sdsdsdsdsdsd",
+    "resumo": "sdsdsdsdsdsdsd",
+    "conteudoCompleto": "<img src=\"https://static.todamateria.com.br/upload/im/ag/imagem2-18.jpg\">",
+    "imagens": [],
+    "criadoEm": "2026-02-24T20:26:52.032Z"
+  },
+  {
+    "id": 1771965077497,
+    "disciplina": "matematica",
+    "tema": "sdsddsdsdssd",
+    "resumo": "sdsdsdsdsd",
+    "conteudoCompleto": "sddsdssd",
+    "imagens": [],
+    "criadoEm": "2026-02-24T20:31:17.497Z"
+  },
+  {
+    "id": 1771976807303,
+    "disciplina": "matematica",
+    "tema": "triangulo escaleno",
+    "resumo": "O triângulo escaleno é um polígono com três lados de comprimentos diferentes e, consequentemente, três ângulos internos distintos. Ele é caracterizado pela ausência de simetria (não possui eixos de simetria) e pela desigualdade de seus lados e ângulos. A soma dos ângulos internos é sempre 180°.",
+    "secoes": [
+      {
+        "titulo": "Triângulo Escaleno",
+        "conteudo": "<h2 style=\"margin-bottom: 0.5rem; line-height: 1.1; color: rgb(64, 64, 64); font-size: 2.375rem; padding-top: 0.5rem; padding-bottom: 0.5rem; -webkit-font-smoothing: antialiased; font-family: Roboto, system-ui, -apple-system, &quot;Segoe UI&quot;, &quot;Helvetica Neue&quot;, Arial, &quot;Noto Sans&quot;, &quot;Liberation Sans&quot;, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, &quot;Noto Color Emoji&quot;;\">Triângulo Escaleno</h2><div><p style=\"margin-bottom: 1rem; font-size: 1.09375rem; line-height: 1.65; color: rgb(64, 64, 64); font-family: Roboto, system-ui, -apple-system, &quot;Segoe UI&quot;, &quot;Helvetica Neue&quot;, Arial, &quot;Noto Sans&quot;, &quot;Liberation Sans&quot;, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, &quot;Noto Color Emoji&quot;;\">Triângulo escaleno é o polígono que possui três lados com diferentes medidas e três ângulos diferentes. Assim sendo, os triângulos escalenos não são polígonos regulares e nem possuem eixo de simetria.</p><p style=\"margin-bottom: 1rem; font-size: 1.09375rem; line-height: 1.65; color: rgb(64, 64, 64); font-family: Roboto, system-ui, -apple-system, &quot;Segoe UI&quot;, &quot;Helvetica Neue&quot;, Arial, &quot;Noto Sans&quot;, &quot;Liberation Sans&quot;, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, &quot;Noto Color Emoji&quot;;\">Por possuir lados com dimensões diferentes, os ângulos internos também serão diferentes. Ou seja,&nbsp;<span style=\"font-weight: bolder;\">o triângulo escaleno é aquele formado por três lados e três ângulos diferentes entre si</span>.</p><p style=\"margin-bottom: 1rem; font-size: 1.09375rem; line-height: 1.65; color: rgb(64, 64, 64); font-family: Roboto, system-ui, -apple-system, &quot;Segoe UI&quot;, &quot;Helvetica Neue&quot;, Arial, &quot;Noto Sans&quot;, &quot;Liberation Sans&quot;, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, &quot;Noto Color Emoji&quot;;\">O perímetro de um triângulo escaleno é encontrado somando todos os lados e o valor da soma dos seus ângulos internos, como todos os triângulos, é igual a 180º.</p></div><img src=\"https://static.todamateria.com.br/upload/tr/ia/trianguloescaleno.jpg\" title=\"Clique para remover\" style=\"max-width: 100%; cursor: pointer;\"><div><br></div>"
+      },
+      {
+        "titulo": "Área do Triângulo Escaleno",
+        "conteudo": "<h2 style=\"margin-bottom: 0.5rem; line-height: 1.2; color: rgb(64, 64, 64); font-size: 1.625rem; font-family: Roboto, system-ui, -apple-system, &quot;Segoe UI&quot;, &quot;Helvetica Neue&quot;, Arial, &quot;Noto Sans&quot;, &quot;Liberation Sans&quot;, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, &quot;Noto Color Emoji&quot;; padding-top: 1.5rem; padding-bottom: 0.5rem; -webkit-font-smoothing: antialiased;\">Área do Triângulo Escaleno</h2><div><span style=\"color: rgb(64, 64, 64); font-family: Roboto, system-ui, -apple-system, &quot;Segoe UI&quot;, &quot;Helvetica Neue&quot;, Arial, &quot;Noto Sans&quot;, &quot;Liberation Sans&quot;, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, &quot;Noto Color Emoji&quot;; font-size: 17.5px;\">Para calcular a área dos triângulos escalenos usamos a mesma fórmula que usamos para os triângulos em geral, ou seja:</span></div><div><span style=\"color: rgb(64, 64, 64); font-family: Roboto, system-ui, -apple-system, &quot;Segoe UI&quot;, &quot;Helvetica Neue&quot;, Arial, &quot;Noto Sans&quot;, &quot;Liberation Sans&quot;, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, &quot;Noto Color Emoji&quot;; font-size: 17.5px;\"><br></span></div>\n        <img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAE0AAAAmCAYAAACBOhYpAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAABGJhU0UAAAAZpE86XgAAAd9JREFUeNrtmr9LAmEYxw9xiIggIiLapEEiQgiHaAqiIcI9xKG9PSIiJNya+gekoa0hQqSloSGiRSREJJCGCIk2hzgisOfg++J5et5r3Ovdq88XvujzHvr4fu7eXw8aRvjUgkctF0NjaCMG7YJskj/I+4pzpch15Lsjz+sI7dT2XnhTUa5Uj1zXOkJ7Jq+QI+S8oo6IXA3yATlK3kWbqSO0BVvbItqainLZh35Ex7nO7Qdbbb9DzKU9NHH3vxmafEfW0FZmaP07ckueI0+TC2jLSX7HDjxW0JqAZt8CfAGin5tW36C94wNvAUJ7Is+Si+QfbD8SCnb6vkBLOu5u0mB56hywqgPOIWOtOmBt4fV1gEdcxiMnsayXEJcQJxiau3Lo2CHiY8RnPADdVQOkJcRxxLUh7s3C7g6tOoam0Aval3l4divr0dksQ+tW1aOzFZ69OiXmrkuX61e4HmdUbYmyctrlegbXTxhVW2XHqulUTFFZhhUCWefkPAoOJiolRZxuWP9YxTOMp7ceyHvkKcST5CMj2DKX1k+gyRjktQ5oj4xCThM4FlqV3w3G4a0Z8j1W0G3G4a0YKjOVPntPluNI+Em+werJ8pD116gGth5RxiGnAhcW/D0RtBhPwND+ALQOLYHDlYLDAAABFXRFWHRNYXRoTUwAPG1hdGggeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzE5OTgvTWF0aC9NYXRoTUwiPjxtc3R5bGUgbWF0aHNpemU9IjE4cHgiPjxtaSBtYXRodmFyaWFudD0ibm9ybWFsIj5BPC9taT48bW8+PTwvbW8+PG1mcmFjPjxtcm93PjxtaSBtYXRodmFyaWFudD0ibm9ybWFsIj5iPC9taT48bW8+JiN4QTA7PC9tbz48bW8+LjwvbW8+PG1vPiYjeEEwOzwvbW8+PG1pIG1hdGh2YXJpYW50PSJub3JtYWwiPmg8L21pPjwvbXJvdz48bW4+MjwvbW4+PC9tZnJhYz48L21zdHlsZT48L21hdGg+LHpjDgAAAABJRU5ErkJggg==\" title=\"Clique para remover\" style=\"max-width: 100%; cursor: pointer;\"><div><span style=\"color: rgb(64, 64, 64); font-family: Roboto, system-ui, -apple-system, &quot;Segoe UI&quot;, &quot;Helvetica Neue&quot;, Arial, &quot;Noto Sans&quot;, &quot;Liberation Sans&quot;, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, &quot;Noto Color Emoji&quot;; font-size: 17.5px;\">Onde,</span><br style=\"display: block; content: &quot;&quot;; color: rgb(64, 64, 64); font-family: Roboto, system-ui, -apple-system, &quot;Segoe UI&quot;, &quot;Helvetica Neue&quot;, Arial, &quot;Noto Sans&quot;, &quot;Liberation Sans&quot;, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, &quot;Noto Color Emoji&quot;; font-size: 17.5px;\"><span style=\"color: rgb(64, 64, 64); font-family: Roboto, system-ui, -apple-system, &quot;Segoe UI&quot;, &quot;Helvetica Neue&quot;, Arial, &quot;Noto Sans&quot;, &quot;Liberation Sans&quot;, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, &quot;Noto Color Emoji&quot;; font-size: 17.5px;\">A: área</span><br style=\"display: block; content: &quot;&quot;; color: rgb(64, 64, 64); font-family: Roboto, system-ui, -apple-system, &quot;Segoe UI&quot;, &quot;Helvetica Neue&quot;, Arial, &quot;Noto Sans&quot;, &quot;Liberation Sans&quot;, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, &quot;Noto Color Emoji&quot;; font-size: 17.5px;\"><span style=\"color: rgb(64, 64, 64); font-family: Roboto, system-ui, -apple-system, &quot;Segoe UI&quot;, &quot;Helvetica Neue&quot;, Arial, &quot;Noto Sans&quot;, &quot;Liberation Sans&quot;, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, &quot;Noto Color Emoji&quot;; font-size: 17.5px;\">b: medida da base</span><br style=\"display: block; content: &quot;&quot;; color: rgb(64, 64, 64); font-family: Roboto, system-ui, -apple-system, &quot;Segoe UI&quot;, &quot;Helvetica Neue&quot;, Arial, &quot;Noto Sans&quot;, &quot;Liberation Sans&quot;, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, &quot;Noto Color Emoji&quot;; font-size: 17.5px;\"><span style=\"color: rgb(64, 64, 64); font-family: Roboto, system-ui, -apple-system, &quot;Segoe UI&quot;, &quot;Helvetica Neue&quot;, Arial, &quot;Noto Sans&quot;, &quot;Liberation Sans&quot;, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, &quot;Noto Color Emoji&quot;; font-size: 17.5px;\">h: medida da altura relativa à base</span></div><div><span style=\"color: rgb(64, 64, 64); font-family: Roboto, system-ui, -apple-system, &quot;Segoe UI&quot;, &quot;Helvetica Neue&quot;, Arial, &quot;Noto Sans&quot;, &quot;Liberation Sans&quot;, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, &quot;Noto Color Emoji&quot;; font-size: 17.5px;\"><br></span></div><div><span style=\"color: rgb(64, 64, 64); font-family: Roboto, system-ui, -apple-system, &quot;Segoe UI&quot;, &quot;Helvetica Neue&quot;, Arial, &quot;Noto Sans&quot;, &quot;Liberation Sans&quot;, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, &quot;Noto Color Emoji&quot;; font-size: 17.5px;\">Quando conhecemos as medidas dos lados do triângulo, podemos também encontrar a área usando a fórmula de Heron:</span><span style=\"color: rgb(64, 64, 64); font-family: Roboto, system-ui, -apple-system, &quot;Segoe UI&quot;, &quot;Helvetica Neue&quot;, Arial, &quot;Noto Sans&quot;, &quot;Liberation Sans&quot;, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, &quot;Noto Color Emoji&quot;; font-size: 17.5px;\"></span></div><div><span style=\"color: rgb(64, 64, 64); font-family: Roboto, system-ui, -apple-system, &quot;Segoe UI&quot;, &quot;Helvetica Neue&quot;, Arial, &quot;Noto Sans&quot;, &quot;Liberation Sans&quot;, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, &quot;Noto Color Emoji&quot;; font-size: 17.5px;\"><br></span></div><img src=\"data:image/png;base64,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\" title=\"Clique para remover\" style=\"max-width: 100%; cursor: pointer;\"><div><span style=\"color: rgb(64, 64, 64); font-family: Roboto, system-ui, -apple-system, &quot;Segoe UI&quot;, &quot;Helvetica Neue&quot;, Arial, &quot;Noto Sans&quot;, &quot;Liberation Sans&quot;, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, &quot;Noto Color Emoji&quot;; font-size: 17.5px;\">Sendo&nbsp;</span><span style=\"font-weight: bolder; color: rgb(64, 64, 64); font-family: Roboto, system-ui, -apple-system, &quot;Segoe UI&quot;, &quot;Helvetica Neue&quot;, Arial, &quot;Noto Sans&quot;, &quot;Liberation Sans&quot;, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, &quot;Noto Color Emoji&quot;; font-size: 17.5px;\">a</span><span style=\"color: rgb(64, 64, 64); font-family: Roboto, system-ui, -apple-system, &quot;Segoe UI&quot;, &quot;Helvetica Neue&quot;, Arial, &quot;Noto Sans&quot;, &quot;Liberation Sans&quot;, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, &quot;Noto Color Emoji&quot;; font-size: 17.5px;\">,&nbsp;</span><span style=\"font-weight: bolder; color: rgb(64, 64, 64); font-family: Roboto, system-ui, -apple-system, &quot;Segoe UI&quot;, &quot;Helvetica Neue&quot;, Arial, &quot;Noto Sans&quot;, &quot;Liberation Sans&quot;, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, &quot;Noto Color Emoji&quot;; font-size: 17.5px;\">b</span><span style=\"color: rgb(64, 64, 64); font-family: Roboto, system-ui, -apple-system, &quot;Segoe UI&quot;, &quot;Helvetica Neue&quot;, Arial, &quot;Noto Sans&quot;, &quot;Liberation Sans&quot;, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, &quot;Noto Color Emoji&quot;; font-size: 17.5px;\">&nbsp;e&nbsp;</span><span style=\"font-weight: bolder; color: rgb(64, 64, 64); font-family: Roboto, system-ui, -apple-system, &quot;Segoe UI&quot;, &quot;Helvetica Neue&quot;, Arial, &quot;Noto Sans&quot;, &quot;Liberation Sans&quot;, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, &quot;Noto Color Emoji&quot;; font-size: 17.5px;\">c</span><span style=\"color: rgb(64, 64, 64); font-family: Roboto, system-ui, -apple-system, &quot;Segoe UI&quot;, &quot;Helvetica Neue&quot;, Arial, &quot;Noto Sans&quot;, &quot;Liberation Sans&quot;, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, &quot;Noto Color Emoji&quot;; font-size: 17.5px;\">&nbsp;as medidas dos lados do triângulo e&nbsp;</span><span style=\"font-weight: bolder; color: rgb(64, 64, 64); font-family: Roboto, system-ui, -apple-system, &quot;Segoe UI&quot;, &quot;Helvetica Neue&quot;, Arial, &quot;Noto Sans&quot;, &quot;Liberation Sans&quot;, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, &quot;Noto Color Emoji&quot;; font-size: 17.5px;\">p</span><span style=\"color: rgb(64, 64, 64); font-family: Roboto, system-ui, -apple-system, &quot;Segoe UI&quot;, &quot;Helvetica Neue&quot;, Arial, &quot;Noto Sans&quot;, &quot;Liberation Sans&quot;, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, &quot;Noto Color Emoji&quot;; font-size: 17.5px;\">&nbsp;o semiperímetro, dado pela fórmula:</span></div><div><span style=\"color: rgb(64, 64, 64); font-family: Roboto, system-ui, -apple-system, &quot;Segoe UI&quot;, &quot;Helvetica Neue&quot;, Arial, &quot;Noto Sans&quot;, &quot;Liberation Sans&quot;, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, &quot;Noto Color Emoji&quot;; font-size: 17.5px;\"><br></span></div><img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAAAjCAYAAABrVA/6AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAABGJhU0UAAAAXQ/cXWQAAAdJJREFUeNrtmjtLA0EUhYcgIiKClUgKIYhIkJBOQrC1EhFBRMRC7C3sLcRfIWJpIxYi/oEUFmlExEIECwsRSbeFhCCsZ/BUgmQns3cf2Xvgg90UucyceezZWWOKo9Co1IAid2yoJv6vNdAGPfACmkIG1ECLdT7AoaABTdbqgjewm2UDLkCV13vgSciAO7AKSmCG99sCteqgA9ZZa55tzIVKHKESBkz9+a3BURp3rStwMKzrehiBqP9pzf4SqBWAyTx1+BHX/u8+DZPYhHsJ1sqkTsEmGBuwAT6dMgreBWp18jQDAs8R5GPAFjgXqHWWpz3gGezzugxO+IhYFjDgBizyvsbacwIGVPjoucF9puxodKKyHXHPtdhmgSVwDD4FZpp9xH3lXmNrLgu2q8722FoPzDoqlUospqs8DXCN6YOGFJVQTFfFHP37xXTfekXHO6brEiQ8A1xjuipmA1xjusrTAN+YrvI0IMmYroq4CQ+T7BmtPakK+HBh38/sqAHJqcVgOcH7qnE/ExZTt6AzfxY86gKog6+wanAZUqUgewbdNm4fgalikn3xeA1WtCuSV4WdryEzBS2Y3y8WxrUrktc0uAQj2hXp6JYzQJVi2s/cucUPDAPnyzYj6ZcAAAD/dEVYdE1hdGhNTAA8bWF0aCB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OC9NYXRoL01hdGhNTCI+PG1pIG1hdGh2YXJpYW50PSJub3JtYWwiPnA8L21pPjxtbz49PC9tbz48bWZyYWM+PG1yb3c+PG1pIG1hdGh2YXJpYW50PSJub3JtYWwiPmE8L21pPjxtbz4rPC9tbz48bWkgbWF0aHZhcmlhbnQ9Im5vcm1hbCI+YjwvbWk+PG1vPis8L21vPjxtaSBtYXRodmFyaWFudD0ibm9ybWFsIj5jPC9taT48L21yb3c+PG1uPjI8L21uPjwvbWZyYWM+PC9tYXRoPresZQIAAAAASUVORK5CYII=\" title=\"Clique para remover\" style=\"max-width: 100%; cursor: pointer;\"><div><span style=\"font-weight: bolder; color: rgb(64, 64, 64); font-family: Roboto, system-ui, -apple-system, &quot;Segoe UI&quot;, &quot;Helvetica Neue&quot;, Arial, &quot;Noto Sans&quot;, &quot;Liberation Sans&quot;, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, &quot;Noto Color Emoji&quot;; font-size: 17.5px;\">Exemplo</span><span style=\"color: rgb(64, 64, 64); font-family: Roboto, system-ui, -apple-system, &quot;Segoe UI&quot;, &quot;Helvetica Neue&quot;, Arial, &quot;Noto Sans&quot;, &quot;Liberation Sans&quot;, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, &quot;Noto Color Emoji&quot;; font-size: 17.5px;\">:</span><br style=\"display: block; content: &quot;&quot;; color: rgb(64, 64, 64); font-family: Roboto, system-ui, -apple-system, &quot;Segoe UI&quot;, &quot;Helvetica Neue&quot;, Arial, &quot;Noto Sans&quot;, &quot;Liberation Sans&quot;, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, &quot;Noto Color Emoji&quot;; font-size: 17.5px;\"><span style=\"color: rgb(64, 64, 64); font-family: Roboto, system-ui, -apple-system, &quot;Segoe UI&quot;, &quot;Helvetica Neue&quot;, Arial, &quot;Noto Sans&quot;, &quot;Liberation Sans&quot;, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;, &quot;Noto Color Emoji&quot;; font-size: 17.5px;\">Qual a área do triângulo escaleno representado na figura abaixo?</span></div><img src=\"https://static.todamateria.com.br/upload/tr/ia/trianguloescalenoexercicio.jpg\" title=\"Clique para remover\" style=\"max-width: 100%; cursor: pointer;\">"
+      }
+    ],
+    "criadoEm": "2026-02-24T23:46:47.303Z"
+  },
+  {
+    "id": 1773698321621,
+    "disciplina": "fisica",
+    "tema": "klllklkklk",
+    "resumo": "kjokjkkjmkcmkcmkmcccc",
+    "secoes": [
+      {
+        "titulo": "kjkdjskjdkjksjdkdjkjskjdd",
+        "conteudo": "<div><b><img src=\"https://th.bing.com/th?id=ORMS.4661df429bed6297f4c4521e337c70dd&amp;pid=Wdp&amp;w=268&amp;h=140&amp;qlt=90&amp;c=1&amp;rs=1&amp;dpr=1&amp;p=0\" title=\"Clique para remover\" style=\"max-width: 100%; cursor: pointer;\">sdsddsdssddssd</b><i style=\"font-weight: bold;\">dssdsdsddsdsdsdsds</i>dssdsdsdssdsdsd</div>"
+      }
+    ],
+    "criadoEm": "2026-03-16T21:58:41.621Z"
+  },
+  {
+    "id": 1773702879915,
+    "disciplina": "ciencias",
+    "tema": "dssdsdsdsdsdsddssdsddssd",
+    "resumo": "sdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsd",
+    "secoes": [
+      {
+        "titulo": "sdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsd",
+        "conteudo": "<b>dssssssssssssssssssssssssssssssssssssssssddddddddddddddddddd</b><br><img src=\"data:image/png;base64,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\" title=\"Clique para remover\" style=\"max-width: 100%; cursor: pointer;\">dssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"
+      },
+      {
+        "titulo": "sdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsd",
+        "conteudo": "<b>sdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsd</b><br><img src=\"data:image/png;base64,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\" title=\"Clique para remover\" style=\"max-width: 100%; cursor: pointer;\">dsssssssssssssssssssssssssssssssss"
+      }
+    ],
+    "criadoEm": "2026-03-16T23:14:39.915Z"
+  },
+  {
+    "id": 1773703417067,
+    "disciplina": "geografia",
+    "tema": "dssdsdsdsd",
+    "resumo": "dssdsdsdsdsd",
+    "secoes": [
+      {
+        "titulo": "sdsdsddssdsd",
+        "conteudo": "sdsdsdsddssdsd"
+      }
+    ],
+    "criadoEm": "2026-03-16T23:23:37.067Z"
   }
 ]

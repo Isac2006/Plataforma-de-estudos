@@ -1,189 +1,238 @@
-// --- CONFIGURAÇÕES DO MÓDULO ---
-const metasAlvo = {
-    "Matemática": 8, "Português": 6, "Redação": 4, "Física": 4, "Química": 4,
-    "Biologia": 4, "História": 3, "Geografia": 3, "Filosofia": 2, "Sociologia": 2, "Inglês": 2
+import { obterUsuarioLogado } from '../auth.js';
+
+/* ================= CONFIG ================= */
+
+export const metasAlvo = {
+    Matemática: 8, Português: 6, Redação: 4, Física: 4, Química: 4,
+    Biologia: 4, História: 3, Geografia: 3, Filosofia: 2, Sociologia: 2, Inglês: 2
 };
 
-const dias = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+export const coresMaterias = {
+    Matemática: "#e6d816",
+    Português: "#0643a5",
+    Redação: "#ec4899",
+    Física: "#f97316",
+    Química: "#8b5cf6",
+    Biologia: "#10b981",
+    História: "#f59e0b",
+    Geografia: "#0a6407",
+    Filosofia: "#793e08",
+    Sociologia: "#6366f1",
+    Inglês: "#14b8a6"
+};
 
-// --- FUNÇÕES DE INICIALIZAÇÃO ---
+const dias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+let borrachaAtiva = false;
 
-export async function inicializarCronograma() {
-    const tbody = document.querySelector('#cronograma tbody');
+/* ================= INIT ================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+    const usuario = obterUsuarioLogado();
+    if (!usuario) {
+        window.location.href = "login.html";
+        return;
+    }
+
+    const nomeEl = document.getElementById("nomeUsuario");
+    if (nomeEl) nomeEl.textContent = `Olá, ${usuario.nome}`;
+
+    // Inicializa cronograma
+    inicializarCronograma();
+    carregarCronograma();
+    configurarBorracha();
+
+    // ✅ Adiciona o evento ao botão de salvar
+    const salvarBtn = document.querySelector(".salvar-btn");
+    if (salvarBtn) {
+        salvarBtn.addEventListener("click", salvarCronograma);
+    }
+});
+
+
+/* ================= CRONOGRAMA ================= */
+
+export function inicializarCronograma() {
+    const tbody = document.querySelector("#cronograma tbody");
     if (!tbody) return;
 
-    // Recupera o ID do usuário logado
-    const idUsuario = localStorage.getItem("usuarioId");
+    tbody.innerHTML = "";
 
-    // 1. Gera a estrutura visual vazia
-    tbody.innerHTML = ''; 
     for (let h = 7; h <= 23; h++) {
-        const horaStr = String(h).padStart(2, '0') + ':00';
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td class="hora">${horaStr}</td>` +
-            dias.map(dia => `<td data-dia="${dia}" data-hora="${horaStr}" class="celula-horario"></td>`).join('');
+        const hora = String(h).padStart(2, "0") + ":00";
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+            <td class="hora">${hora}</td>
+            ${dias.map(dia => `
+                <td class="celula-horario"
+                    data-dia="${dia}"
+                    data-hora="${hora}">
+                </td>
+            `).join("")}
+        `;
+
         tbody.appendChild(tr);
     }
 
-    // Segurança: Se não houver ID válido, ativa apenas interações locais (modo offline/visitante)
-    if (!idUsuario || idUsuario === "undefined" || idUsuario === "null") {
-        console.warn("Cronograma: Usuário não identificado. Operando em modo local.");
-        configurarInteracoes();
-        return;
-    }
-
-    // 2. Busca os dados salvos do usuário no servidor por ID
-    try {
-        const resposta = await fetch(`http://localhost:3000/usuario/dados?id=${idUsuario}`);
-        if (!resposta.ok) throw new Error("Erro ao buscar dados do cronograma");
-        
-        const dadosUsuario = await resposta.json();
-
-        if (dadosUsuario.cronograma && Array.isArray(dadosUsuario.cronograma)) {
-            // 3. Preenche as células com as matérias salvas
-            dadosUsuario.cronograma.forEach(item => {
-                const seletor = `td[data-dia="${item.dia}"][data-hora="${item.hora}"]`;
-                const celula = tbody.querySelector(seletor);
-                
-                if (celula) {
-                    // Define o status antes de chamar adicionarMateria para o HTML vir correto
-                    celula.dataset.status = item.status || "pendente";
-                    adicionarMateria(celula, item.materia);
-                }
-            });
-        }
-    } catch (erro) {
-        console.error("❌ Erro ao carregar dados do cronograma:", erro);
-    }
-
-    // 4. Ativa as funções de clique e cálculos
-    configurarInteracoes(); 
-    atualizarMetas();
+    configurarInteracoes();
+    atualizarEstatisticas();
 }
+
+/* ================= INTERAÇÕES ================= */
 
 function configurarInteracoes() {
-    // Drag over e Drop nas células
-    document.querySelectorAll('td:not(.hora)').forEach(td => {
-        td.addEventListener('dragover', e => e.preventDefault());
-        td.addEventListener('drop', e => {
-            e.preventDefault();
-            const mat = e.dataTransfer.getData("text/plain");
-            if (mat) {
-                // Ao dropar uma matéria nova, ela sempre começa como pendente
-                td.dataset.status = "pendente"; 
-                adicionarMateria(td, mat);
-            }
+
+    document.querySelectorAll(".materia-btn").forEach(btn => {
+        btn.draggable = true;
+
+        btn.addEventListener("dragstart", e => {
+            e.dataTransfer.setData("text/plain", btn.dataset.materia);
         });
     });
 
-    // Itens arrastáveis (Lista de matérias)
-    document.querySelectorAll('.materia').forEach(m => {
-        m.addEventListener('dragstart', e => {
-            e.dataTransfer.setData("text/plain", m.dataset.materia);
+    document.querySelectorAll(".celula-horario").forEach(td => {
+
+        td.addEventListener("dragover", e => e.preventDefault());
+
+        td.addEventListener("dragenter", () => {
+            td.classList.add("drag-hover");
         });
+
+        td.addEventListener("dragleave", () => {
+            td.classList.remove("drag-hover");
+        });
+
+        td.addEventListener("drop", e => {
+            e.preventDefault();
+            td.classList.remove("drag-hover");
+
+            if (td.dataset.materia) {
+                alert("⚠️ Horário já ocupado");
+                return;
+            }
+
+            const materia = e.dataTransfer.getData("text/plain");
+            if (materia) adicionarMateria(td, materia);
+        });
+    });
+
+    document.addEventListener("dragend", () => {
+        document.querySelectorAll(".drag-hover")
+            .forEach(el => el.classList.remove("drag-hover"));
     });
 }
 
-// --- LÓGICA DE MANIPULAÇÃO DA TABELA ---
+/* ================= MANIPULAÇÃO ================= */
 
-export function adicionarMateria(td, materia) {
-    if (!materia) return;
+export function adicionarMateria(td, materia, status = "pendente") {
     td.dataset.materia = materia;
-    
-    // Fallback de status
-    const status = td.dataset.status || "pendente";
+    td.dataset.status = status;
+
+    const classeMateria = "materia-" + materia.replace(/\s+/g, "");
 
     td.innerHTML = `
-        <div class="bloco ${status}" onclick="alternarStatus(this.parentElement)">
-            <button class="btn-remover" onclick="event.stopPropagation(); removerMateria(this.parentElement.parentElement)">×</button>
-            <b>${materia}</b>
-        </div>`;
-    atualizarMetas();
-}
+        <div class="bloco ${status} ${classeMateria}"
+             style="background:${coresMaterias[materia] || "#64748b"}">
+            ${materia}
+        </div>
+    `;
 
-export function alternarStatus(td) {
-    if (!td || !td.dataset.materia) return;
-    td.dataset.status = (td.dataset.status === "pendente") ? "concluido" : "pendente";
-    const bloco = td.querySelector('.bloco');
-    if (bloco) bloco.className = `bloco ${td.dataset.status}`;
-    atualizarMetas();
+    atualizarEstatisticas();
 }
 
 export function removerMateria(td) {
-    td.innerHTML = "";
-    delete td.dataset.materia;
-    delete td.dataset.status;
-    atualizarMetas();
+    const bloco = td.querySelector(".bloco");
+    if (!bloco) return;
+
+    bloco.classList.add("apagando");
+
+    setTimeout(() => {
+        td.innerHTML = "";
+        td.removeAttribute("data-materia");
+        td.removeAttribute("data-status");
+        atualizarEstatisticas();
+    }, 350);
 }
 
-// --- CÁLCULOS E METAS ---
+/* ================= BORRACHA ================= */
 
-export function atualizarMetas() {
-    const dados = {};
-    for (const m in metasAlvo) dados[m] = { planejado: 0, concluido: 0 };
+function configurarBorracha() {
+    const borrachaBtn = document.getElementById("borrachaBtn");
+    if (!borrachaBtn) return;
 
-    let totalP = 0, totalC = 0;
+    function alternarBorracha() {
+        borrachaAtiva = !borrachaAtiva;
+        borrachaBtn.classList.toggle("active", borrachaAtiva);
+        document.body.classList.toggle("borracha-ativa", borrachaAtiva);
+    }
 
-    // Seleciona apenas células que possuem uma matéria atribuída
-    document.querySelectorAll('td[data-materia]').forEach(td => {
-        const m = td.dataset.materia;
-        if (dados[m]) {
-            dados[m].planejado++;
-            totalP++;
-            if (td.dataset.status === "concluido") {
-                dados[m].concluido++;
-                totalC++;
-            }
+    borrachaBtn.addEventListener("click", alternarBorracha);
+
+    document.addEventListener("keydown", e => {
+        if (e.key.toLowerCase() === "e" && !e.repeat) {
+            alternarBorracha();
         }
     });
 
-    // Atualiza contadores globais
-    const elP = document.getElementById('totalPlanejado');
-    const elC = document.getElementById('totalConcluido');
-    if (elP) elP.textContent = totalP + "h";
-    if (elC) elC.textContent = totalC + "h";
-
-    // Atualiza lista visual de metas
-    const ul = document.getElementById('listaMetas');
-    if (!ul) return;
-    ul.innerHTML = '';
-
-    for (const m in metasAlvo) {
-        const { concluido, planejado } = dados[m];
-        const meta = metasAlvo[m];
-        
-        let classe = 'falta';
-        if (concluido >= meta) classe = 'ok';
-        else if (planejado > 0) classe = 'em-progresso';
-
-        const li = document.createElement('li');
-        li.className = classe;
-        li.innerHTML = `
-            <strong>${m}</strong>
-            <div class="status-badge">
-                <span>Feito: <b>${concluido}h</b></span>
-                <span>Planejado: <b>${planejado}h</b></span>
-                <span>Meta: <b>${meta}h</b></span>
-            </div>
-        `;
-        ul.appendChild(li);
-    }
+    document.addEventListener("click", e => {
+        if (!borrachaAtiva) return;
+        const bloco = e.target.closest(".bloco");
+        if (bloco) removerMateria(bloco.parentElement);
+    });
 }
 
-// --- COMUNICAÇÃO COM O SERVIDOR ---
+/* ================= CONCLUIR BLOCO ================= */
+
+document.addEventListener("dblclick", e => {
+    const bloco = e.target.closest(".bloco");
+    if (!bloco) return;
+
+    const td = bloco.parentElement;
+
+    bloco.classList.toggle("concluido");
+    td.dataset.status = bloco.classList.contains("concluido")
+        ? "concluido"
+        : "pendente";
+});
+
+/* ================= ESTATÍSTICAS ================= */
+
+function atualizarEstatisticas() {
+    const total = {};
+    let soma = 0;
+
+    document.querySelectorAll("td[data-materia]").forEach(td => {
+        const materia = td.dataset.materia;
+        total[materia] = (total[materia] || 0) + 1;
+        soma++;
+    });
+
+    const totalHoras = document.getElementById("totalHoras");
+    if (totalHoras) totalHoras.textContent = soma + "h";
+
+    const ul = document.getElementById("horasPorMateria");
+    if (!ul) return;
+
+    ul.innerHTML = "";
+    Object.entries(total).forEach(([materia, horas]) => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+            <span style="color:${coresMaterias[materia]}">${materia}</span>
+            <b>${horas}h</b>
+        `;
+        ul.appendChild(li);
+    });
+}
 
 export async function salvarCronograma() {
-    const idUsuario = localStorage.getItem("usuarioId");
-    
-    if (!idUsuario || idUsuario === "undefined") {
-        alert("⚠️ Erro: Usuário não identificado. Por favor, faça login novamente.");
-        return;
-    }
+    const usuario = obterUsuarioLogado();
+    if (!usuario) return;
 
-    const itensCronograma = [];
-    // Coleta apenas células que possuem dados preenchidos
-    document.querySelectorAll('td[data-materia]').forEach(td => {
-        itensCronograma.push({
+    const cronogramaData = [];
+
+    // Pega todas as células com matérias
+    document.querySelectorAll("#cronograma td[data-materia]").forEach(td => {
+        cronogramaData.push({
             dia: td.dataset.dia,
             hora: td.dataset.hora,
             materia: td.dataset.materia,
@@ -191,55 +240,51 @@ export async function salvarCronograma() {
         });
     });
 
+    const totalHoras = cronogramaData.length;
+
     try {
-        const response = await fetch('http://localhost:3000/salvar', { 
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                idUsuario: idUsuario, 
-                cronograma: itensCronograma 
+        const res = await fetch("/salvar", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                usuario: usuario.email || usuario.nome, // bate com o backend
+                totalHoras,
+                cronograma: cronogramaData
             })
         });
 
-        if (response.ok) {
-            alert(`✅ Cronograma salvo com sucesso!`);
-        } else {
-            throw new Error("Erro ao salvar no servidor");
-        }
-    } catch (error) {
-        console.error("❌ Erro ao salvar cronograma:", error);
-        alert("❌ Falha ao conectar com o servidor.");
+        if (!res.ok) throw new Error("Erro ao salvar no servidor");
+
+        alert("💾 Cronograma salvo no servidor com sucesso!");
+    } catch (e) {
+        console.error("❌ Erro ao salvar cronograma:", e);
+        alert("❌ Falha ao salvar no servidor");
     }
 }
 
-export async function registrarEstudoAutomatico(materiaEstudada) {
-    const idUsuario = localStorage.getItem("usuarioId");
-    if (!idUsuario || idUsuario === "undefined") return;
+async function carregarCronograma() {
+    const usuario = obterUsuarioLogado();
+    if (!usuario) return;
 
     try {
-        const response = await fetch('http://localhost:3000/registrar-estudo-agora', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ idUsuario, materia: materiaEstudada })
+        const res = await fetch(
+            `/usuario/dados?nome=${encodeURIComponent(usuario.nome)}`
+        );
+
+        if (!res.ok) throw new Error("Erro ao buscar dados do usuário");
+
+        const dados = await res.json();
+        const cronogramaData = dados.cronograma || [];
+
+        cronogramaData.forEach(item => {
+            const td = document.querySelector(
+                `td[data-dia="${item.dia}"][data-hora="${item.hora}"]`
+            );
+            if (td) adicionarMateria(td, item.materia, item.status);
         });
 
-        if (response.ok) {
-            const dados = await response.json(); 
-            const celula = document.querySelector(`td[data-dia="${dados.dia}"][data-hora="${dados.hora}"]`);
-            
-            if (celula) {
-                celula.dataset.status = "concluido";
-                adicionarMateria(celula, materiaEstudada);
-            }
-            atualizarMetas(); 
-        }
-    } catch (erro) {
-        console.error("❌ Erro ao registrar estudo automático:", erro);
+    } catch (e) {
+        console.error("❌ Erro ao carregar cronograma:", e);
     }
 }
 
-// --- REGISTRO GLOBAL ---
-window.alternarStatus = alternarStatus;
-window.removerMateria = removerMateria;
-window.salvarCronograma = salvarCronograma;
-window.registrarEstudoAutomatico = registrarEstudoAutomatico;

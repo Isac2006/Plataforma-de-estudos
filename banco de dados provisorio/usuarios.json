@@ -1,122 +1,10 @@
 [
   {
-    "id": 1701367201462,
-    "nome": "matheus marques souza da silva",
-    "email": "isacqueirozmarques2006@gmail.com",
-    "senha": "$2b$10$Mci1as21GpFsYhN7uHkHpewKoG9urBdW1CMjK.luR0bcprUuJD/6m",
-    "cpf": "50733555047",
-    "nascimento": "1999-12-14",
-    "acessoBloqueado": false,
-    "progressoCurso": 0,
-    "pagamentos": {
-      "mes1": "pendente",
-      "mes2": "pendente",
-      "mes3": "pago",
-      "mes4": "pendente",
-      "mes5": "pendente",
-      "mes6": "pendente"
-    },
-    "aulasAssistidas": 11,
-    "redacoesFeitas": 1,
-    "modulosConcluidos": 1,
-    "questoesFeitas": 7,
-    "estatisticas": {
-      "questoes": {
-        "totalAcertos": 1,
-        "totalErros": 1,
-        "porMateria": {
-          "matematica": {
-            "acertos": 1,
-            "erros": 1
-          }
-        }
-      }
-    },
-    "cronograma": [
-      {
-        "dia": "Seg",
-        "hora": "11:00",
-        "materia": "Sociologia",
-        "status": "pendente"
-      },
-      {
-        "dia": "Seg",
-        "hora": "12:00",
-        "materia": "Sociologia",
-        "status": "pendente"
-      },
-      {
-        "dia": "Ter",
-        "hora": "12:00",
-        "materia": "Sociologia",
-        "status": "pendente"
-      },
-      {
-        "dia": "Seg",
-        "hora": "13:00",
-        "materia": "Filosofia",
-        "status": "pendente"
-      },
-      {
-        "dia": "Ter",
-        "hora": "13:00",
-        "materia": "Sociologia",
-        "status": "pendente"
-      },
-      {
-        "dia": "Seg",
-        "hora": "14:00",
-        "materia": "Sociologia",
-        "status": "pendente"
-      },
-      {
-        "dia": "Ter",
-        "hora": "15:00",
-        "materia": "Inglês",
-        "status": "pendente"
-      }
-    ],
-    "ultimaAtualizacao": "2026-01-03T22:08:15.198Z",
-    "faculdade": "Não informado",
-    "curso": "Não informado"
-  },
-  {
-    "id": 1701367201463,
-    "nome": "isac",
-    "email": "",
-    "senha": "",
-    "cpf": "",
-    "nascimento": "",
-    "acessoBloqueado": false,
-    "progressoCurso": 0,
-    "aulasAssistidas": 0,
-    "redacoesFeitas": 0,
-    "modulosConcluidos": 0,
-    "questoesFeitas": 2,
-    "estatisticas": {
-      "questoes": {
-        "totalAcertos": 0,
-        "totalErros": 1,
-        "porMateria": {
-          "matematica": {
-            "acertos": 0,
-            "erros": 1
-          }
-        }
-      }
-    },
-    "cronograma": [],
-    "ultimaAtualizacao": "2026-01-03T21:55:44.036Z",
-    "faculdade": "Não informado",
-    "curso": "Não informado"
-  },
-  {
-    "nome": "dsada",
-    "id": 1767478703156,
-    "senha": "$2b$10$YBHaiZ1bS7WbAd09ecYHEOA3hirOMONHK7Gcyf8Lo08zVWmSOBVrS",
-    "email": "dasdasd@gmail.com",
+    "nome": "joao",
+    "senha": "$2b$10$9vRh/WVae3ttaOqrS6JPQuPa/gvWEMVbCrFzBDwqmPdvX7QCdewS2",
+    "email": "joao@gmail.com",
     "cpf": "28590482006",
-    "nascimento": "1444-02-12",
+    "nascimento": "2010-10-10",
     "faculdade": "Não informado",
     "curso": "Não informado",
     "aulasAssistidas": 0,
@@ -132,30 +20,239 @@
     "cronograma": []
   },
   {
-    "nome": "gffdgsfg",
-    "id": 1767531248322,
-    "senha": "$2b$10$OjcvHN5lASa/n6Wpb9oCJuZg9YxdxnYOERoXCfl3G/ZJz3QGyA1Yy",
-    "email": "sdfgsdf@gmail.com",
-    "cpf": "61854535684",
-    "nascimento": "1222-12-12",
-    "faculdade": "Não informado",
-    "curso": "Não informado",
+    "nome": "caua",
     "aulasAssistidas": 0,
     "redacoesFeitas": 0,
     "modulosConcluidos": 0,
+    "questoesFeitas": 0,
     "estatisticas": {
       "questoes": {
         "totalAcertos": 0,
-        "totalErros": 1,
+        "totalErros": 0,
+        "porMateria": {}
+      }
+    },
+    "cronograma": [],
+    "ultimaAtualizacao": "2026-01-19T23:12:16.370Z"
+  },
+  {
+    "nome": "ssdsdsd",
+    "aulasAssistidas": 0,
+    "redacoesFeitas": 0,
+    "modulosConcluidos": 0,
+    "questoesFeitas": 0,
+    "estatisticas": {
+      "questoes": {
+        "totalAcertos": 0,
+        "totalErros": 0,
+        "porMateria": {}
+      }
+    },
+    "cronograma": [],
+    "ultimaAtualizacao": "2026-01-19T23:45:05.150Z"
+  },
+  {
+    "nome": "sdsdsds",
+    "aulasAssistidas": 0,
+    "redacoesFeitas": 0,
+    "modulosConcluidos": 0,
+    "questoesFeitas": 0,
+    "estatisticas": {
+      "questoes": {
+        "totalAcertos": 0,
+        "totalErros": 0,
+        "porMateria": {}
+      }
+    },
+    "cronograma": [],
+    "ultimaAtualizacao": "2026-01-19T23:48:25.603Z"
+  },
+  {
+    "nome": "sdsdsdsds",
+    "aulasAssistidas": 0,
+    "redacoesFeitas": 1,
+    "modulosConcluidos": 0,
+    "questoesFeitas": 0,
+    "estatisticas": {
+      "questoes": {
+        "totalAcertos": 0,
+        "totalErros": 0,
+        "porMateria": {}
+      }
+    },
+    "cronograma": [],
+    "ultimaAtualizacao": "2026-01-19T23:51:56.202Z"
+  },
+  {
+    "nome": "SEU_NOME_EXATO",
+    "aulasAssistidas": 0,
+    "redacoesFeitas": 0,
+    "modulosConcluidos": 0,
+    "questoesFeitas": 0,
+    "estatisticas": {
+      "questoes": {
+        "totalAcertos": 0,
+        "totalErros": 0,
+        "porMateria": {}
+      }
+    },
+    "cronograma": [],
+    "ultimaAtualizacao": "2026-01-19T23:55:22.845Z"
+  },
+  {
+    "id": 1769812943103,
+    "nome": "carlos",
+    "email": "cauablack.ff@gmail.com",
+    "senha": "$2b$10$sn2ITxgH2EJWTBDJUanor.kRjr6/lFT5oxoN5ygjQ9apyZmn/q57u",
+    "cpf": "21930202806",
+    "tipo": "professor",
+    "criadoEm": "2026-01-30T22:42:23.103Z",
+    "totalHoras": 4,
+    "cronograma": [
+      {
+        "dia": "Dom",
+        "hora": "07:00",
+        "materia": "Matemática",
+        "status": "pendente"
+      },
+      {
+        "dia": "Dom",
+        "hora": "08:00",
+        "materia": "Física",
+        "status": "pendente"
+      },
+      {
+        "dia": "Dom",
+        "hora": "09:00",
+        "materia": "Redação",
+        "status": "pendente"
+      },
+      {
+        "dia": "Dom",
+        "hora": "10:00",
+        "materia": "Química",
+        "status": "pendente"
+      }
+    ],
+    "ultimaAtualizacao": "2026-02-03T22:44:41.996Z",
+    "redacoesFeitas": 3,
+    "aulasAssistidas": 0,
+    "modulosConcluidos": 0,
+    "questoesFeitas": 38,
+    "estatisticas": {
+      "questoes": {
+        "totalAcertos": 15,
+        "totalErros": 23,
         "porMateria": {
           "matematica": {
-            "acertos": 0,
-            "erros": 1
+            "acertos": 15,
+            "erros": 23
           }
         }
       }
     },
+    "questoesRespondidas": [
+      "1770154401889",
+      "1770154216297",
+      "1769536265965",
+      "1766932203057",
+      "1766932246572",
+      "1766932313557",
+      "1769536265965",
+      "1770154216297",
+      "1770154401889",
+      "1770154401889",
+      "1770154401889",
+      "1770154216297",
+      "1766932203057",
+      "1769536265965",
+      "1769536265965",
+      "1769536265965",
+      "1766932203057",
+      "1771194307514",
+      "1770154216297",
+      "1770154216297",
+      "1770154216297",
+      "1766932246572",
+      "1766932203057",
+      "1766932246572",
+      "1770154216297",
+      "1766932203057",
+      "1770154216297",
+      "1769536265965",
+      "1766932203057",
+      "1770154216297",
+      "1766932203057",
+      "1766932203057",
+      "1766932246572",
+      "1766932203057",
+      "1766932246572",
+      "1766932203057",
+      "1766932203057",
+      "1766932246572"
+    ]
+  },
+  {
+    "id": 1771340706049,
+    "nome": "caua dos santos",
+    "email": "cauadosscaitano@gmail.com",
+    "senha": "$2b$10$nPB6JY3qhErkly3tHt4bx.J7dqXyLHUCi9wNdU3XS5wfBrsSg75TC",
+    "cpf": "54805591846",
+    "tipo": "aluno",
+    "criadoEm": "2026-02-17T15:05:06.049Z",
+    "aulasAssistidas": 0,
+    "redacoesFeitas": 0,
+    "modulosConcluidos": 0,
+    "questoesFeitas": 0,
+    "estatisticas": {
+      "questoes": {
+        "totalAcertos": 0,
+        "totalErros": 0,
+        "porMateria": {}
+      }
+    },
+    "totalHoras": 3,
+    "cronograma": [
+      {
+        "dia": "Dom",
+        "hora": "07:00",
+        "materia": "Matemática",
+        "status": "pendente"
+      },
+      {
+        "dia": "Dom",
+        "hora": "08:00",
+        "materia": "Português",
+        "status": "pendente"
+      },
+      {
+        "dia": "Dom",
+        "hora": "09:00",
+        "materia": "Redação",
+        "status": "pendente"
+      }
+    ],
+    "ultimaAtualizacao": "2026-02-17T15:30:02.707Z"
+  },
+  {
+    "id": 1773775048255,
+    "nome": "[object Object]",
+    "email": "",
+    "cpf": "",
+    "tipo": "aluno",
+    "aulasAssistidas": 0,
+    "redacoesFeitas": 0,
+    "modulosConcluidos": 0,
+    "questoesFeitas": 0,
+    "estatisticas": {
+      "questoes": {
+        "totalAcertos": 0,
+        "totalErros": 0,
+        "porMateria": {}
+      }
+    },
     "cronograma": [],
-    "questoesFeitas": 4
+    "criadoEm": "2026-03-17T19:17:28.255Z",
+    "ultimaAtualizacao": "2026-03-17T19:17:28.255Z"
   }
 ]

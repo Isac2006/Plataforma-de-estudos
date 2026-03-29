@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalhe da Matéria</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/materias/materia-detalhe.css">
+</head>
+<body>
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <a href="inicial.html" class="logo">
+            📚 <span>Plataforma</span>
+        </a>
+
+        <nav class="menu">
+            <a href="inicial.html" class="menu-item">Início</a>
+            <a href="materias.html" class="menu-item active">Matérias</a>
+            <a href="questoes.html" class="menu-item">Questões</a>
+            <a href="cronograma.html" class="menu-item">Cronograma</a>
+            <a href="redacao.html" class="menu-item">Redação</a>
+            <a href="login.html" class="menu-item">🔐 Login</a>
+        </nav>
+    </aside>
+    <div id="overlay" class="overlay"></div>
+
+    <!-- CONTEÚDO -->
+    <main class="content">
+        <button id="btn-menu" class="btn-menu">
+    <span></span>
+    <span></span>
+    <span></span>
+    </button>
+
+        <div id="conteudo-materia">
+            Carregando matéria...
+        </div>
+
+    </main>
+
+</div>
+
+<script type="module" src="src/materia-detalhe.js"></script>
+<script src="src/menu.js"></script>
+</body>
+</html>
