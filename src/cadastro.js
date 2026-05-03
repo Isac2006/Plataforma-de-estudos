@@ -2,14 +2,17 @@ document.getElementById('cadastroForm').addEventListener('submit', async (e) => 
     e.preventDefault();
 
     const nome = document.getElementById('nome').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const cpf = document.getElementById('cpf').value.trim();
+    const email = document.getElementById('email').value.trim().toLowerCase();
+    const cpf = document.getElementById('cpf').value.replace(/\D/g, ''); // 🔥 remove máscara
     const senha = document.getElementById('senha').value.trim();
     const confirmarSenha = document.getElementById('confirmarSenha').value.trim();
     const erroEl = document.getElementById('erro');
 
     erroEl.innerText = '';
 
+    // ========================
+    // VALIDAÇÕES
+    // ========================
     if (!nome || !email || !cpf || !senha || !confirmarSenha) {
         erroEl.innerText = 'Preencha todos os campos';
         return;
@@ -30,6 +33,9 @@ document.getElementById('cadastroForm').addEventListener('submit', async (e) => 
         return;
     }
 
+    // ========================
+    // ENVIO PARA O BACKEND
+    // ========================
     try {
         const response = await fetch('http://localhost:3000/auth/registrar', {
             method: 'POST',
@@ -37,11 +43,11 @@ document.getElementById('cadastroForm').addEventListener('submit', async (e) => 
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                nome,          // ✅ corrigido
+                nome,
                 email,
                 senha,
                 cpf,
-                tipo: "aluno"  // ✅ obrigatório para o backend
+                tipo: "aluno" // 🔥 obrigatório
             })
         });
 
@@ -52,7 +58,7 @@ document.getElementById('cadastroForm').addEventListener('submit', async (e) => 
             return;
         }
 
-        alert('Cadastro realizado com sucesso!');
+        alert('✅ Cadastro realizado com sucesso!');
         window.location.href = 'login.html';
 
     } catch (err) {

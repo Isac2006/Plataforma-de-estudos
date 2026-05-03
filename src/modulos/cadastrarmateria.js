@@ -299,7 +299,7 @@ export async function cadastrarMateria() {
     const secoes = coletarSecoes();
 
     if (secoes.length === 0) {
-        exibirMensagem("⚠️ Adicione pelo menos uma seção.", "erro");
+        exibirMensagem("⚠️ Adicione pelo menos uma seção válida.", "erro");
         return;
     }
 
@@ -314,7 +314,7 @@ export async function cadastrarMateria() {
 
         const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
 
-        if (!usuario) {
+        if (!usuario || !usuario.id) {
             exibirMensagem("⚠️ Usuário não autenticado.", "erro");
             return;
         }
@@ -328,18 +328,18 @@ export async function cadastrarMateria() {
             })
         });
 
+        const resposta = await res.json();
+
         if (!res.ok) {
-            const erroServidor = await res.json();
-            throw new Error(erroServidor.erro || "Erro no servidor");
+            throw new Error(resposta.erro || resposta.mensagem || "Erro no servidor");
         }
 
-        salvarMateriaLocal(dados);
         exibirMensagem("✅ Matéria cadastrada com sucesso!", "sucesso");
         limparFormularioMateria();
 
     } catch (erro) {
         console.error("❌ ERRO DO BACKEND:", erro.message);
-        exibirMensagem("❌ Erro ao conectar com o servidor: " + erro.message, "erro");
+        exibirMensagem("❌ " + erro.message, "erro");
     }
 }
 
@@ -350,16 +350,33 @@ function coletarSecoes() {
 
     secoesDOM.forEach(secao => {
 
-        const titulo = secao.querySelector(".secao-titulo").value.trim();
+        const tituloEl = secao.querySelector(".secao-titulo");
         const editor = secao.querySelector(".secao-editor");
-        const conteudo = editor.innerHTML.trim();
 
-        if (titulo && conteudo) {
+        if (!tituloEl || !editor) return;
+
+        const titulo = tituloEl.value.trim();
+        let conteudo = editor.innerHTML.trim();
+
+        // 🔥 LIMPEZA DO HTML
+        conteudo = conteudo
+            .replace(/<span>\u200B<\/span>/g, "")
+            .replace(/\u200B/g, "")
+            .replace(/<br>\s*<br>/g, "<br>")
+            .trim();
+
+        // 🔥 REMOVE HTML PRA VALIDAR TEXTO REAL
+        const conteudoTexto = conteudo
+            .replace(/<[^>]*>/g, "") // remove tags HTML
+            .trim();
+
+        if (titulo && conteudoTexto) {
             secoes.push({
                 titulo,
                 conteudo
             });
         }
+
     });
 
     return secoes;
@@ -404,9 +421,31 @@ function formatarTema(texto) {
 }
 
 function salvarMateriaLocal(materia) {
-    const materias = JSON.parse(localStorage.getItem("materias")) || [];
-    materias.push(materia);
-    localStorage.setItem("materias", JSON.stringify(materias));
+    try {
+        if (!materia) return;
+
+        // ⚠️ NÃO salvar conteúdo pesado (HTML gigante)
+        const materiaLeve = {
+            disciplina: materia.disciplina,
+            tema: materia.tema,
+            resumo: materia.resumo,
+            criadoEm: new Date().toISOString()
+        };
+
+        const materias = JSON.parse(localStorage.getItem("materias_cache")) || [];
+
+        materias.push(materiaLeve);
+
+        // 🔥 Limita cache (evita crescer infinito)
+        if (materias.length > 10) {
+            materias.shift(); // remove o mais antigo
+        }
+
+        localStorage.setItem("materias_cache", JSON.stringify(materias));
+
+    } catch (e) {
+        console.warn("⚠️ Erro ao salvar cache local:", e);
+    }
 }
 
 function limparFormularioMateria() {

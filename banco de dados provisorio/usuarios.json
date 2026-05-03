@@ -254,5 +254,215 @@
     "cronograma": [],
     "criadoEm": "2026-03-17T19:17:28.255Z",
     "ultimaAtualizacao": "2026-03-17T19:17:28.255Z"
+  },
+  {
+    "id": 1777647167078,
+    "nome": "",
+    "email": "",
+    "cpf": "",
+    "tipo": "professor",
+    "aulasAssistidas": 0,
+    "redacoesFeitas": 0,
+    "modulosConcluidos": 0,
+    "questoesFeitas": 0,
+    "estatisticas": {
+      "questoes": {
+        "totalAcertos": 0,
+        "totalErros": 0,
+        "porMateria": {}
+      }
+    },
+    "cronograma": [],
+    "criadoEm": "2026-05-01T14:52:47.078Z",
+    "ultimaAtualizacao": "2026-05-01T14:52:47.078Z"
+  },
+  {
+    "id": 1777648754826,
+    "nome": "isac",
+    "email": "isacqueirozmarques2004@gmail.com",
+    "senha": "$2b$10$t082v8toNEr0KT3cLGdLjOde.003SC4U67mRnGEPTIJjligYFgvWC",
+    "cpf": "41803207035",
+    "tipo": "professor",
+    "criadoEm": "2026-05-01T15:19:14.826Z",
+    "aulasAssistidas": 0,
+    "redacoesFeitas": 2,
+    "modulosConcluidos": 0,
+    "questoesFeitas": 0,
+    "estatisticas": {
+      "questoes": {
+        "totalAcertos": 0,
+        "totalErros": 0,
+        "porMateria": {}
+      }
+    },
+    "ultimaAtualizacao": "2026-05-01T20:42:29.588Z"
+  },
+  {
+    "id": 1777741383042,
+    "nome": "",
+    "email": "",
+    "cpf": "",
+    "tipo": "aluno",
+    "aulasAssistidas": 0,
+    "redacoesFeitas": 0,
+    "modulosConcluidos": 0,
+    "questoesFeitas": 0,
+    "estatisticas": {
+      "questoes": {
+        "totalAcertos": 0,
+        "totalErros": 0,
+        "porMateria": {}
+      }
+    },
+    "cronograma": [],
+    "criadoEm": "2026-05-02T17:03:03.042Z",
+    "ultimaAtualizacao": "2026-05-02T17:03:03.042Z"
+  },
+  {
+    "id": 1777741740618,
+    "nome": "",
+    "email": "",
+    "cpf": "",
+    "tipo": "aluno",
+    "aulasAssistidas": 0,
+    "redacoesFeitas": 0,
+    "modulosConcluidos": 0,
+    "questoesFeitas": 0,
+    "estatisticas": {
+      "questoes": {
+        "totalAcertos": 0,
+        "totalErros": 0,
+        "porMateria": {}
+      }
+    },
+    "cronograma": [],
+    "criadoEm": "2026-05-02T17:09:00.618Z",
+    "ultimaAtualizacao": "2026-05-02T17:09:00.618Z"
+  },
+  {
+    "id": 1777742346674,
+    "nome": "",
+    "email": "",
+    "cpf": "",
+    "tipo": "aluno",
+    "aulasAssistidas": 0,
+    "redacoesFeitas": 0,
+    "modulosConcluidos": 0,
+    "questoesFeitas": 0,
+    "estatisticas": {
+      "questoes": {
+        "totalAcertos": 0,
+        "totalErros": 0,
+        "porMateria": {}
+      }
+    },
+    "cronograma": [],
+    "criadoEm": "2026-05-02T17:19:06.674Z",
+    "ultimaAtualizacao": "2026-05-02T17:19:06.674Z"
+  },
+  {
+    "id": 1777743438120,
+    "nome": "",
+    "email": "",
+    "cpf": "",
+    "tipo": "aluno",
+    "aulasAssistidas": 0,
+    "redacoesFeitas": 0,
+    "modulosConcluidos": 0,
+    "questoesFeitas": 0,
+    "estatisticas": {
+      "questoes": {
+        "totalAcertos": 0,
+        "totalErros": 0,
+        "porMateria": {}
+      }
+    },
+    "cronograma": [],
+    "criadoEm": "2026-05-02T17:37:18.120Z",
+    "ultimaAtualizacao": "2026-05-02T17:37:18.120Z"
+  },
+  {
+    "id": 1777772195914,
+    "nome": "",
+    "email": "",
+    "cpf": "",
+    "tipo": "aluno",
+    "aulasAssistidas": 0,
+    "redacoesFeitas": 0,
+    "modulosConcluidos": 0,
+    "questoesFeitas": 0,
+    "estatisticas": {
+      "questoes": {
+        "totalAcertos": 0,
+        "totalErros": 0,
+        "porMateria": {}
+      }
+    },
+    "cronograma": [],
+    "criadoEm": "2026-05-03T01:36:35.914Z",
+    "ultimaAtualizacao": "2026-05-03T01:36:35.914Z"
+  },
+  {
+    "id": 1777772548182,
+    "nome": "",
+    "email": "",
+    "cpf": "",
+    "tipo": "aluno",
+    "aulasAssistidas": 0,
+    "redacoesFeitas": 0,
+    "modulosConcluidos": 0,
+    "questoesFeitas": 0,
+    "estatisticas": {
+      "questoes": {
+        "totalAcertos": 0,
+        "totalErros": 0,
+        "porMateria": {}
+      }
+    },
+    "cronograma": [],
+    "criadoEm": "2026-05-03T01:42:28.182Z",
+    "ultimaAtualizacao": "2026-05-03T01:42:28.182Z"
+  },
+  {
+    "id": 1777772849223,
+    "nome": "",
+    "email": "",
+    "cpf": "",
+    "tipo": "aluno",
+    "aulasAssistidas": 0,
+    "redacoesFeitas": 0,
+    "modulosConcluidos": 0,
+    "questoesFeitas": 0,
+    "estatisticas": {
+      "questoes": {
+        "totalAcertos": 0,
+        "totalErros": 0,
+        "porMateria": {}
+      }
+    },
+    "cronograma": [],
+    "criadoEm": "2026-05-03T01:47:29.223Z",
+    "ultimaAtualizacao": "2026-05-03T01:47:29.223Z"
+  },
+  {
+    "id": 1777773902428,
+    "nome": "",
+    "email": "",
+    "cpf": "",
+    "tipo": "aluno",
+    "aulasAssistidas": 0,
+    "redacoesFeitas": 0,
+    "modulosConcluidos": 0,
+    "questoesFeitas": 0,
+    "estatisticas": {
+      "questoes": {
+        "totalAcertos": 0,
+        "totalErros": 0,
+        "porMateria": {}
+      }
+    },
+    "cronograma": [],
+    "criadoEm": "2026-05-03T02:05:02.428Z",
+    "ultimaAtualizacao": "2026-05-03T02:05:02.428Z"
   }
 ]

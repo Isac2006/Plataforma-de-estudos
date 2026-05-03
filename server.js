@@ -7,7 +7,7 @@ import fsSync from 'fs';
 import bcrypt from 'bcrypt';
 import multer from 'multer';
 import { pegarquestoesdobanco } from './src/modulos/pegararrayquestoes.js';
-
+import db from './db.js';
 // 🔥 CRIAR __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -78,7 +78,7 @@ const CAMINHO_BANCO_MODULOS = path.join(__dirname, 'banco de dados provisorio', 
 
 app.use(cors()); 
 app.use(express.json()); 
-app.use(express.static(__dirname, { index: false }));
+
 
 // ==========================================
 //    FUNÇÕES AUXILIARES - LOGIN
@@ -116,7 +116,20 @@ function validarCPF(cpf) {
 
     return resto === parseInt(cpf.substring(10, 11), 10);
 }
+function safeJSONParse(data, fallback = []) {
+    if (!data) return fallback;
 
+    if (typeof data === "object") return data;
+
+    if (typeof data !== "string") return fallback;
+
+    try {
+        return JSON.parse(data);
+    } catch (e) {
+        console.warn("⚠️ JSON inválido:", data);
+        return fallback;
+    }
+}
 
 // ==========================================
 //    AUTH - REGISTRO
@@ -124,89 +137,84 @@ function validarCPF(cpf) {
 
 app.post('/auth/registrar', async (req, res) => {
     let { nome, email, senha, cpf, tipo } = req.body;
+
     email = String(email).toLowerCase().trim();
     cpf = String(cpf).replace(/[^\d]+/g, '');
-    // tipo = "aluno" ou "professor"
 
     if (!nome || !email || !senha || !cpf || !tipo) {
         return res.status(400).json({ erro: "Dados incompletos" });
     }
 
-    if (!validarEmail(email)) {
-        return res.status(400).json({ erro: "Email inválido" });
-    }
-
-    if (!validarCPF(cpf)) {
-        return res.status(400).json({ erro: "CPF inválido" });
-    }
-
     try {
-        const conteudo = await fs.readFile(CAMINHO_BANCO_USUARIOS, 'utf-8').catch(() => '[]');
-        const usuarios = JSON.parse(conteudo || '[]');
-
-        const existe = usuarios.find(
-            u => u.email === email || u.cpf === cpf.replace(/[^\d]+/g, '')
+        const [existe] = await db.execute(
+            `SELECT id FROM usuarios WHERE email = ? OR cpf = ?`,
+            [email, cpf]
         );
 
-        if (existe) {
+        if (existe.length > 0) {
             return res.status(400).json({ erro: "Usuário já cadastrado" });
         }
 
         const senhaHash = await bcrypt.hash(senha, 10);
 
-        const novoUsuario = {
-            id: Date.now(),
-            nome,
-            email,
-            senha: senhaHash,
-            cpf,
-            tipo, // "aluno" ou "professor"
-            criadoEm: new Date().toISOString()
+        const estatisticasPadrao = {
+            questoes: {
+                totalAcertos: 0,
+                totalErros: 0,
+                porMateria: {}
+            }
         };
 
-        console.log("CPF RECEBIDO:", cpf);
-        console.log("CPF É VÁLIDO?", validarCPF(cpf));
-
-        usuarios.push(novoUsuario);
-
-        await fs.writeFile(
-            CAMINHO_BANCO_USUARIOS,
-            JSON.stringify(usuarios, null, 2)
+        await db.execute(
+            `INSERT INTO usuarios 
+            (nome, email, senha, cpf, tipo, aulasAssistidas, redacoesFeitas, modulosConcluidos, questoesFeitas, estatisticas, ultimaAtualizacao)
+            VALUES (?, ?, ?, ?, ?, 0, 0, 0, 0, ?, NOW())`,
+            [
+                nome,
+                email,
+                senhaHash,
+                cpf,
+                tipo,
+                JSON.stringify(estatisticasPadrao)
+            ]
         );
 
         res.status(201).json({ mensagem: "Cadastro realizado com sucesso!" });
+
     } catch (erro) {
-        console.error(erro);
-        res.status(500).json({ erro: "Erro interno no servidor" });
+        console.error("ERRO REGISTRO:", erro);
+        res.status(500).json({ erro: "Erro no servidor" });
     }
 });
-
 app.get("/modulos/:id", async (req, res) => {
-
-    const id = Number(req.params.id);
-
-    const conteudo = await fs.readFile(CAMINHO_BANCO_MODULOS, "utf-8");
-    const banco = JSON.parse(conteudo || "[]");
-
-    const materia = banco.find(m => m.id === id);
-
-    if (!materia) {
-        return res.status(404).json({ erro: "Não encontrada" });
-    }
-
-    res.json(materia);
-});
-
-// 🔹 POST – cadastrar matéria (NOVO MODELO COM SEÇÕES)
-app.post('/materias', apenasProfessor, async (req, res) => {
     try {
-        const { disciplina, tema, resumo, secoes } = req.body || {};
+        const id = Number(req.params.id);
 
-        if (!disciplina || !tema || !resumo || !Array.isArray(secoes) || secoes.length === 0) {
-            return res.status(400).json({ mensagem: "Dados incompletos ou seções inválidas" });
+        const [rows] = await db.execute(`
+            SELECT * FROM modulos WHERE id = ?
+        `, [id]);
+
+        if (!rows.length) {
+            return res.status(404).json({ erro: "Não encontrada" });
         }
 
-        // 🔥 Validação interna das seções
+        res.json(rows[0]);
+
+    } catch (erro) {
+        console.error(erro);
+        res.status(500).json({ erro: "Erro ao buscar módulo" });
+    }
+});
+app.post('/materias', apenasProfessor, async (req, res) => {
+    try {
+        const { disciplina, tema, resumo, secoes } = req.body;
+
+        // ✅ validação correta
+        if (!disciplina || !tema || !resumo || !Array.isArray(secoes) || secoes.length === 0) {
+            return res.status(400).json({ mensagem: "Dados incompletos ou inválidos" });
+        }
+
+        // ✅ limpar e validar seções
         const secoesValidadas = secoes
             .filter(s => s && s.titulo && s.conteudo)
             .map(s => ({
@@ -215,49 +223,29 @@ app.post('/materias', apenasProfessor, async (req, res) => {
             }));
 
         if (secoesValidadas.length === 0) {
-            return res.status(400).json({ mensagem: "Nenhuma seção válida enviada" });
+            return res.status(400).json({ mensagem: "Nenhuma seção válida" });
         }
 
-        const conteudoRaw = await fs.readFile(CAMINHO_BANCO_MATERIAS, 'utf-8')
-            .catch(() => '[]');
-
-        let banco = [];
-
-        try {
-            banco = JSON.parse((conteudoRaw || '').trim() || '[]');
-        } catch {
-            banco = [];
-        }
-
-        const novaMateria = {
-            id: Date.now(),
-            disciplina: normalizarTexto(disciplina),
-            tema: normalizarTexto(tema),
-            resumo: String(resumo).trim(),
-
-            // 🔥 NOVA ESTRUTURA
-            secoes: secoesValidadas,
-
-            criadoEm: new Date().toISOString()
-        };
-
-        banco.push(novaMateria);
-
-        await fs.writeFile(
-            CAMINHO_BANCO_MATERIAS,
-            JSON.stringify(banco, null, 2)
-        );
-
-        res.status(201).json({
-            mensagem: "Matéria cadastrada com sucesso!",
-            id: novaMateria.id
-        });
+        await db.execute(`
+    INSERT INTO materias
+    (disciplina, tema, resumo, secoes)
+    VALUES (?, ?, ?, ?)
+`, [
+    disciplina.toLowerCase().trim(),
+    tema.toLowerCase().trim(),
+    resumo.trim(),
+    JSON.stringify(secoesValidadas) // 🔥 ISSO AQUI É O MAIS IMPORTANTE
+]);
+        res.status(201).json({ mensagem: "Matéria cadastrada!" });
 
     } catch (erro) {
-        console.error("❌ Erro ao cadastrar matéria:", erro);
-        res.status(500).json({ mensagem: "Erro interno ao salvar matéria" });
+        console.error("Erro ao salvar matéria:", erro);
+        res.status(500).json({ mensagem: "Erro no servidor" });
+        console.error("Erro ao salvar matéria:", erro.message, erro.sqlMessage); // 🔥 adiciona erro.sqlMessage
+    res.status(500).json({ mensagem: "Erro no servidor", detalhe: erro.sqlMessage || erro.message });
     }
 });
+
 
 // ==========================================
 // 🔒 MIDDLEWARE - SOMENTE PROFESSOR
@@ -271,17 +259,22 @@ async function apenasProfessor(req, res, next) {
             return res.status(401).json({ erro: "Usuário não autenticado" });
         }
 
-        const conteudo = await fs.readFile(CAMINHO_BANCO_USUARIOS, 'utf-8').catch(() => '[]');
-        const usuarios = JSON.parse(conteudo || '[]');
+        // 🔥 busca no banco
+        const [rows] = await db.execute(
+            `SELECT tipo FROM usuarios WHERE id = ?`,
+            [usuarioId]
+        );
 
-        const usuario = usuarios.find(u => String(u.id) === String(usuarioId));
-
-        if (!usuario) {
+        if (rows.length === 0) {
             return res.status(401).json({ erro: "Usuário inválido" });
         }
 
+        const usuario = rows[0];
+
         if (usuario.tipo !== "professor") {
-            return res.status(403).json({ erro: "Apenas professores podem realizar essa ação" });
+            return res.status(403).json({
+                erro: "Apenas professores podem realizar essa ação"
+            });
         }
 
         next();
@@ -305,6 +298,38 @@ app.post('/redacoes', async (req, res) => {
             return res.status(400).json({ mensagem: "Dados incompletos" });
         }
 
+        const id = Date.now();
+
+        const novaRedacao = {
+            id,
+            usuario: String(usuario).toLowerCase().trim(),
+            titulo,
+            conteudo_html,
+            comentarios: Array.isArray(comentarios) ? comentarios : [],
+            status: "pendente",
+            data_envio: new Date().toISOString()
+        };
+
+        // =========================
+        // 🔥 SALVAR NO MYSQL
+        // =========================
+        await db.execute(
+            `INSERT INTO redacoes 
+            (id, usuario, titulo, conteudo_html, status, data_envio, comentarios)
+            VALUES (?, ?, ?, ?, ?, NOW(), ?)`,
+            [
+                id,
+                novaRedacao.usuario,
+                titulo,
+                conteudo_html,
+                "pendente",
+                JSON.stringify(novaRedacao.comentarios)
+            ]
+        );
+
+        // =========================
+        // 🔥 (OPCIONAL) SALVAR JSON
+        // =========================
         const conteudoRaw = await fs.readFile(CAMINHO_BANCO_REDACOES, 'utf-8').catch(() => '[]');
 
         let banco = [];
@@ -313,16 +338,6 @@ app.post('/redacoes', async (req, res) => {
         } catch {
             banco = [];
         }
-
-        const novaRedacao = {
-            id: Date.now(),
-            usuario: String(usuario).toLowerCase().trim(), // 🔥 compatível com sua rota GET /redacoes/aluno
-            titulo,
-            conteudo_html,
-            comentarios: Array.isArray(comentarios) ? comentarios : [], // 🔥 vem do front
-            status: "pendente",
-            data_envio: new Date().toISOString()
-        };
 
         banco.push(novaRedacao);
 
@@ -340,27 +355,22 @@ app.post('/redacoes', async (req, res) => {
 app.get('/redacoes/aluno', async (req, res) => {
     try {
         const { nome } = req.query;
-        if (!nome) return res.status(400).json({ mensagem: "Nome não informado" });
 
-        const conteudoRaw = await fs.readFile(CAMINHO_BANCO_REDACOES, 'utf-8').catch(() => '[]');
-
-        let banco = [];
-        try {
-            banco = JSON.parse((conteudoRaw || '').trim() || '[]');
-        } catch {
-            banco = [];
+        if (!nome) {
+            return res.status(400).json({ mensagem: "Nome não informado" });
         }
 
-        const aluno = String(nome).toLowerCase().trim();
+        const usuario = String(nome).toLowerCase().trim();
 
-        const minhasRedacoes = banco.filter(
-            r => r && r.usuario && String(r.usuario).toLowerCase().trim() === aluno
+        const [rows] = await db.execute(
+            `SELECT * FROM redacoes WHERE LOWER(usuario) = LOWER(?) ORDER BY data_envio DESC`,
+            [usuario]
         );
 
-        res.json(minhasRedacoes);
+        res.json(rows);
 
     } catch (erro) {
-        console.error("Erro ao buscar redações do aluno:", erro);
+        console.error("Erro ao buscar redações:", erro);
         res.status(500).json({ mensagem: "Erro ao buscar" });
     }
 });
@@ -368,22 +378,19 @@ app.get('/redacoes/aluno', async (req, res) => {
 // 2. Professor busca a mais antiga não corrigida (FILA)
 app.get('/redacoes/proxima', async (req, res) => {
     try {
-        const conteudoRaw = await fs.readFile(CAMINHO_BANCO_REDACOES, 'utf-8').catch(() => '[]');
+        const [rows] = await db.execute(`
+            SELECT *
+            FROM redacoes
+            WHERE LOWER(TRIM(status)) = 'pendente'
+            ORDER BY data_envio ASC
+            LIMIT 1
+        `);
 
-        let banco = [];
-        try {
-            banco = JSON.parse((conteudoRaw || '').trim() || '[]');
-        } catch {
-            banco = [];
+        if (!rows.length) {
+            return res.status(200).json(null); // 🔥 evita erro no front
         }
 
-        const fila = banco
-            .filter(r => r && r.status === "pendente" && r.data_envio)
-            .sort((a, b) => new Date(a.data_envio) - new Date(b.data_envio));
-
-        if (!fila.length) return res.status(404).json({ mensagem: "Fila vazia" });
-
-        res.json(fila[0]);
+        res.json(rows[0]);
 
     } catch (erro) {
         console.error("Erro ao buscar próxima redação:", erro);
@@ -394,39 +401,28 @@ app.get('/redacoes/proxima', async (req, res) => {
 // 3. Professor envia redação corrigida
 app.put('/redacoes/corrigir/:id', async (req, res) => {
     try {
-        const idParaCorrigir = Number(req.params.id);
-        if (!idParaCorrigir) {
-            return res.status(400).json({ mensagem: "ID inválido" });
-        }
+        const id = Number(req.params.id);
+        const { conteudo_html, comentarios } = req.body;
 
-        const { conteudo_html, comentarios } = req.body || {};
+        await db.execute(
+            `UPDATE redacoes 
+             SET conteudo_html = ?, 
+                 comentarios = ?, 
+                 status = 'corrigida',
+                 data_correcao = NOW()
+             WHERE id = ?`,
+            [
+                conteudo_html,
+                JSON.stringify(comentarios || []),
+                id
+            ]
+        );
 
-        const conteudoRaw = await fs.readFile(CAMINHO_BANCO_REDACOES, 'utf-8').catch(() => '[]');
-
-        let banco = [];
-        try {
-            banco = JSON.parse((conteudoRaw || '').trim() || '[]');
-        } catch {
-            banco = [];
-        }
-
-        const index = banco.findIndex(r => r && r.id === idParaCorrigir);
-        if (index === -1) return res.status(404).json({ mensagem: "Não encontrada" });
-
-        banco[index] = {
-            ...banco[index],
-            conteudo_html: conteudo_html ?? banco[index].conteudo_html,
-            comentarios: comentarios ?? banco[index].comentarios,
-            status: "corrigida",
-            data_correcao: new Date().toISOString()
-        };
-
-        await fs.writeFile(CAMINHO_BANCO_REDACOES, JSON.stringify(banco, null, 2));
         res.json({ mensagem: "Redação corrigida com sucesso!" });
 
     } catch (erro) {
-        console.error("Erro ao salvar correção:", erro);
-        res.status(500).json({ mensagem: "Erro ao salvar correção" });
+        console.error(erro);
+        res.status(500).json({ mensagem: "Erro ao corrigir" });
     }
 });
 
@@ -450,55 +446,77 @@ function normalizarTexto(txt) {
 // 🔹 GET – listar disciplinas únicas (para o select de matéria)
 app.get('/materias', async (req, res) => {
     try {
-        const conteudo = await fs.readFile(CAMINHO_BANCO_MATERIAS, 'utf-8')
-            .catch(() => '[]');
+        const [rows] = await db.execute(`
+            SELECT * FROM materias
+            ORDER BY criado_em DESC
+        `);
 
-        let banco = [];
+        const materias = rows.map(m => {
+            let secoes = [];
 
-        try {
-            banco = JSON.parse(conteudo.trim() || '[]');
-        } catch {
-            banco = [];
-        }
+            try {
+               secoes = safeJSONParse(m.secoes, []);
+            } catch (e) {
+                console.warn("⚠️ JSON inválido na matéria ID:", m.id);
+                secoes = [];
+            }
 
-        // 🔥 Ordenar mais recentes primeiro
-        banco.sort((a, b) =>
-            new Date(b.criadoEm || 0) - new Date(a.criadoEm || 0)
-        );
+            return {
+                ...m,
+                secoes
+            };
+        });
 
-        res.json(banco);
+        res.json(materias);
 
     } catch (erro) {
         console.error("Erro ao buscar matérias:", erro);
-        res.status(500).json([]);
+        res.status(500).json({ erro: "Erro ao buscar matérias" });
+    }
+});
+
+app.get('/materias/:id', async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+
+        const [rows] = await db.execute(`
+            SELECT * FROM materias WHERE id = ?
+        `, [id]);
+
+        if (!rows.length) {
+            return res.status(404).json({ mensagem: "Não encontrada" });
+        }
+
+        const materia = rows[0];
+
+        // 🔥 converter JSON
+        materia.secoes = JSON.parse(materia.secoes || '[]'); // ← ESSE É O PROBLEMA
+
+        res.json(materia);
+
+    } catch (erro) {
+        console.error(erro);
+        res.status(500).json({ mensagem: "Erro ao buscar matéria" });
     }
 });
 
 app.get('/disciplinas', async (req, res) => {
-    const conteudo = await fs.readFile(CAMINHO_BANCO_MATERIAS, 'utf-8').catch(() => '[]');
-    const banco = JSON.parse(conteudo || '[]');
+    try {
+        const [rows] = await db.execute(`
+            SELECT DISTINCT disciplina FROM materias
+            ORDER BY disciplina ASC
+        `);
 
-    const disciplinasUnicas = [
-        ...new Set(banco.map(m => m.disciplina))
-    ];
+        const disciplinas = rows
+            .map(r => r.disciplina)
+            .filter(d => d);
 
-    res.json(disciplinasUnicas);
-});
+        res.json(disciplinas);
 
-app.get("/materias/:id", async (req, res) => {
-
-    const id = Number(req.params.id);
-
-    const conteudo = await fs.readFile(CAMINHO_BANCO_MATERIAS, "utf-8");
-    const banco = JSON.parse(conteudo || "[]");
-
-    const materia = banco.find(m => m.id === id);
-
-    if (!materia) {
-        return res.status(404).json({ erro: "Não encontrada" });
+    } catch (erro) {
+        console.error(erro);
+        res.status(500).json([]);
     }
-
-    res.json(materia);
 });
 
 // ==========================================
@@ -560,6 +578,8 @@ app.get('/temas', async (req, res) => {
 // ==========================================
 
 // 1. Professor cadastra aula 
+
+
 app.post('/aulas', apenasProfessor, async (req, res) => {
     try {
         const { disciplina, tema, url, url2 = "" } = req.body;
@@ -568,41 +588,28 @@ app.post('/aulas', apenasProfessor, async (req, res) => {
             return res.status(400).json({ mensagem: "Disciplina, tema e URL são obrigatórios" });
         }
 
-        const conteudo = await fs.readFile(CAMINHO_BANCO_AULAS, 'utf-8').catch(() => '[]');
-
-        let banco = [];
-        try {
-            banco = JSON.parse(conteudo.trim() || '[]');
-        } catch {
-            banco = [];
-        }
-
         const d = normalizarTexto(disciplina);
         const t = normalizarTexto(tema);
 
-        const jaExiste = banco.find(a =>
-            normalizarTexto(a.disciplina) === d &&
-            normalizarTexto(a.tema) === t &&
-            a.url === url
+        // 🔍 Verifica se já existe
+        const [existe] = await db.execute(
+            `SELECT * FROM aulas WHERE disciplina = ? AND tema = ? AND aula_url = ?`,
+            [d, t, url]
         );
 
-        if (jaExiste) {
+        if (existe.length > 0) {
             return res.status(400).json({ mensagem: "Essa aula já foi cadastrada" });
         }
 
-        const novaAula = {
-    id: Date.now(),
-    disciplina: d,
-    tema: t,
-    aula_url: url,
-    aula_url_2: url2 || "",
-    data_cadastro: new Date().toISOString()
-};
-
-        banco.push(novaAula);
-        await fs.writeFile(CAMINHO_BANCO_AULAS, JSON.stringify(banco, null, 2));
+        // 💾 Inserir no banco
+        await db.execute(
+            `INSERT INTO aulas (disciplina, tema, aula_url, aula_url_2, data_cadastro)
+             VALUES (?, ?, ?, ?, NOW())`,
+            [d, t, url, url2]
+        );
 
         res.status(201).json({ mensagem: "Aula salva com sucesso!" });
+
     } catch (erro) {
         console.error("Erro ao salvar aula:", erro);
         res.status(500).json({ mensagem: "Erro ao salvar aula no servidor" });
@@ -610,48 +617,36 @@ app.post('/aulas', apenasProfessor, async (req, res) => {
 });
 
 app.get('/aulas/buscar', async (req, res) => {
+    try {
+        const disciplina = normalizarTexto(req.query.disciplina || "");
+        const tema = normalizarTexto(req.query.tema || "");
 
-try{
+        if (!disciplina || !tema) {
+            return res.status(400).json({ mensagem: "Disciplina e tema obrigatórios" });
+        }
 
-const disciplina = normalizarTexto(req.query.disciplina || "");
-const tema = normalizarTexto(req.query.tema || "");
+        const [result] = await db.execute(
+            `SELECT * FROM aulas 
+             WHERE LOWER(disciplina) = LOWER(?) 
+             AND LOWER(tema) = LOWER(?) 
+             LIMIT 1`,
+            [disciplina, tema]
+        );
 
-if(!disciplina || !tema){
-return res.status(400).json({ mensagem:"Disciplina e tema obrigatórios"});
-}
+        if (result.length === 0) {
+            return res.json({
+                aula_url: "",
+                aula_url_2: ""
+            });
+        }
 
-const conteudo = await fs.readFile(CAMINHO_BANCO_AULAS,'utf-8')
-.catch(()=> "[]");
+        res.json(result[0]);
 
-const banco = JSON.parse(conteudo || "[]");
-
-const aula = banco.find(a=>{
-
-const d = normalizarTexto(a.disciplina || "");
-const t = normalizarTexto(a.tema || "");
-
-return d === disciplina && t === tema;
-
+    } catch (erro) {
+        console.error("Erro ao buscar aula:", erro);
+        res.status(500).json({ mensagem: "Erro no servidor" });
+    }
 });
-
-if(!aula){
-return res.json({
-aula_url:"",
-aula_url_2:""
-});
-}
-
-res.json(aula);
-
-}catch(erro){
-
-console.error("Erro ao buscar aula:",erro);
-res.status(500).json({ mensagem:"Erro no servidor"});
-
-}
-
-});
-
 // ==========================================
 //        ROTAS DE QUESTÕES
 // ==========================================
@@ -1347,24 +1342,26 @@ app.post('/auth/login', async (req, res) => {
             return res.status(400).json({ erro: "Login e senha obrigatórios" });
         }
 
-        const data = await fs.readFile(CAMINHO_BANCO_USUARIOS, 'utf8').catch(() => '[]');
-
-        let usuarios = [];
-        try {
-            usuarios = JSON.parse((data || '').trim() || '[]');
-        } catch {
-            usuarios = [];
-        }
-
         const loginNormalizado = String(login).toLowerCase().trim();
         const loginCPF = String(login).replace(/[^\d]+/g, '');
 
-        const usuario = usuarios.find(u =>
-            (u.email && u.email.toLowerCase().trim() === loginNormalizado) ||
-            (u.cpf && String(u.cpf).replace(/[^\d]+/g, '') === loginCPF)
+        // 🔍 Busca no banco
+        const [usuarios] = await db.execute(
+            `SELECT * FROM usuarios 
+             WHERE email = ? OR cpf = ?`,
+            [loginNormalizado, loginCPF]
         );
 
-        if (!usuario || !(await bcrypt.compare(senha, usuario.senha))) {
+        if (usuarios.length === 0) {
+            return res.status(401).json({ erro: "Login ou senha inválidos" });
+        }
+
+        const usuario = usuarios[0];
+
+        // 🔐 Compara senha
+        const senhaValida = await bcrypt.compare(senha, usuario.senha);
+
+        if (!senhaValida) {
             return res.status(401).json({ erro: "Login ou senha inválidos" });
         }
 
@@ -1400,7 +1397,7 @@ await garantirArquivo(CAMINHO_BANCO_MATERIAS);
 await garantirArquivo(CAMINHO_BANCO_AULAS);
 await garantirArquivo(CAMINHO_BANCO_USUARIOS);
 await garantirArquivo(CAMINHO_BANCO_MODULOS);
-
+app.use(express.static(__dirname, { index: false }));
 // --- INICIALIZAÇÃO ---
 app.get('/', (req, res) => {
     res.redirect('/inicial.html');

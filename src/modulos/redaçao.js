@@ -7,6 +7,23 @@ let comentarios = [];
 let idRedacaoAtual = null;
 
 // ========================
+// UTIL: NORMALIZAR COMENTÁRIOS (MYSQL)
+// ========================
+function parseComentarios(data) {
+    if (!data) return [];
+
+    if (typeof data === "string") {
+        try {
+            return JSON.parse(data);
+        } catch {
+            return [];
+        }
+    }
+
+    return data;
+}
+
+// ========================
 // 1. DESTACAR TRECHO
 // ========================
 export function destacar() {
@@ -51,6 +68,7 @@ function atualizarVisualComentarios() {
     }
 
     lista.innerHTML = "";
+
     comentarios.forEach(c => {
         const div = document.createElement("div");
         div.className = "comment";
@@ -64,18 +82,19 @@ function atualizarVisualComentarios() {
 }
 
 // ========================
-// 3. ALUNO — ENVIAR REDAÇÃO
+// 3. ENVIAR REDAÇÃO (ALUNO)
 // ========================
 export async function enviarRedacao() {
-    const nomeAluno = prompt("Digite seu nome completo:");
+    const nomeAluno = localStorage.getItem("usuario"); 
     const tituloRedacao = prompt("Título da redação:");
 
     if (!nomeAluno || !tituloRedacao) {
-        alert("Nome e título são obrigatórios.");
+        alert("Usuário não identificado ou título vazio.");
         return;
     }
 
     const editor = document.getElementById("editor");
+
     if (!editor || editor.innerHTML.trim() === "") {
         alert("Escreva sua redação antes de enviar.");
         return;
@@ -85,7 +104,7 @@ export async function enviarRedacao() {
         usuario: nomeAluno,
         titulo: tituloRedacao,
         conteudo_html: editor.innerHTML,
-        comentarios // ✅ mantém os comentários
+        comentarios
     };
 
     try {
@@ -95,32 +114,32 @@ export async function enviarRedacao() {
             body: JSON.stringify(dados)
         });
 
+        const resposta = await res.json();
+
         if (!res.ok) {
-            throw new Error("Erro ao enviar redação");
+            throw new Error(resposta.mensagem || "Erro ao enviar redação");
         }
 
         await registrarProgresso(nomeAluno, "redacoesFeitas");
-        alert(`✅ ${nomeAluno}, sua redação foi enviada com sucesso!`);
+
+        alert(`✅ Redação enviada com sucesso!`);
         location.reload();
 
     } catch (e) {
         console.error(e);
-        alert("❌ Erro ao conectar ou salvar no servidor.");
+        alert("❌ Erro ao enviar redação.");
     }
 }
 
 // ========================
-// 4. CONSULTAR REDAÇÕES DO ALUNO
+// 4. CONSULTAR REDAÇÕES
 // ========================
 export async function consultarMinhaRedacao() {
-    const nome = document.getElementById("consulta-nome")?.value.trim();
+    const nome = localStorage.getItem("usuario");
     const resultadoDiv = document.getElementById("resultado-consulta");
 
-    if (!nome) return alert("Digite seu nome!");
-    if (!resultadoDiv) {
-        alert("Elemento de resultado não encontrado no HTML.");
-        return;
-    }
+    if (!nome) return alert("Usuário não identificado.");
+    if (!resultadoDiv) return;
 
     try {
         const response = await fetch(
@@ -144,12 +163,20 @@ export async function consultarMinhaRedacao() {
         redacoes.forEach(r => {
             const btn = document.createElement("button");
             btn.className = "btn-consulta";
+
             btn.textContent = `${r.titulo} — ${r.status}`;
+
+            // 🔥 cor visual
+            btn.style.background =
+                r.status === "corrigida" ? "#22c55e" : "#facc15";
 
             btn.onclick = () => {
                 document.getElementById("editor").innerHTML = r.conteudo_html;
-                comentarios = r.comentarios || [];
+
+                comentarios = parseComentarios(r.comentarios);
+
                 atualizarVisualComentarios();
+
                 document.getElementById("info-redacao").innerText =
                     `📄 ${r.titulo} (${r.status})`;
             };
@@ -164,7 +191,7 @@ export async function consultarMinhaRedacao() {
 }
 
 // ========================
-// 5. PROFESSOR — PRÓXIMA DA FILA
+// 5. PROFESSOR — FILA
 // ========================
 export async function buscarProximaFila() {
     try {
@@ -183,10 +210,12 @@ export async function buscarProximaFila() {
         idRedacaoAtual = redacao.id;
 
         document.getElementById("editor").innerHTML = redacao.conteudo_html;
+
         document.getElementById("info-redacao").innerText =
             `🧐 Corrigindo: ${redacao.titulo} (${redacao.usuario})`;
 
-        comentarios = redacao.comentarios || [];
+        comentarios = parseComentarios(redacao.comentarios);
+
         atualizarVisualComentarios();
 
     } catch (e) {
@@ -196,7 +225,7 @@ export async function buscarProximaFila() {
 }
 
 // ========================
-// 6. PROFESSOR — SALVAR CORREÇÃO
+// 6. PROFESSOR — SALVAR
 // ========================
 export async function salvarCorrecaoProfessor() {
     if (!idRedacaoAtual) {

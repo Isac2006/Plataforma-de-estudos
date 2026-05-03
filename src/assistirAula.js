@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!disciplina) return;
 
         try {
-            const res = await fetch(`/temas?disciplina=${disciplina}`);
+            const res = await fetch(`/temas?disciplina=${encodeURIComponent(disciplina)}`);
             const temas = await res.json();
 
             temas.forEach(tema => {
@@ -37,6 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             selectTema.disabled = false;
         } catch (e) {
+            console.error(e);
             status.textContent = "Erro ao carregar temas";
         }
     });
@@ -55,31 +56,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             const res = await fetch(
-                `/aulas/buscar?disciplina=${disciplina}&tema=${tema}`
+                `/aulas/buscar?disciplina=${encodeURIComponent(disciplina)}&tema=${encodeURIComponent(tema)}`
             );
 
             if (!res.ok) {
                 status.textContent = "Aula não encontrada";
+                video1.src = "";
+                video2.src = "";
                 return;
             }
 
             const aula = await res.json();
+            console.log("AULA RECEBIDA:", aula);
 
-            // 🎥 Vídeo principal
-            video1.src = converterParaEmbed(aula.url);
+            // 🎥 Vídeo principal (CORRIGIDO)
+            video1.src = converterParaEmbed(aula.aula_url);
 
-            // 🎥 Segundo vídeo (opcional)
-if (aula.url2 && aula.url2.trim() !== "") {
-    video2.src = converterParaEmbed(aula.url2);
-    containerVideo2.classList.remove("hidden");
-} else {
-    video2.src = "";
-    containerVideo2.classList.add("hidden");
-}
-
+            // 🎥 Segundo vídeo (opcional - CORRIGIDO)
+            if (aula.aula_url_2 && aula.aula_url_2.trim() !== "") {
+                video2.src = converterParaEmbed(aula.aula_url_2);
+                containerVideo2.classList.remove("hidden");
+            } else {
+                video2.src = "";
+                containerVideo2.classList.add("hidden");
+            }
 
             status.textContent = "Aula carregada com sucesso ✅";
         } catch (e) {
+            console.error(e);
             status.textContent = "Erro ao carregar vídeo";
         }
     });
