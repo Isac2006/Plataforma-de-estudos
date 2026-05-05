@@ -2,21 +2,21 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import fs from 'fs/promises';
 import fsSync from 'fs';
 import bcrypt from 'bcrypt';
 import multer from 'multer';
-import { pegarquestoesdobanco } from './src/modulos/pegararrayquestoes.js';
 import db from './db.js';
-// 🔥 CRIAR __dirname
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// 🔥 CRIAR APP PRIMEIRO
 const app = express();
 const porta = 3000;
 
-// 🔥 CONFIGURAR UPLOADS
+// ==========================================
+//    UPLOADS
+// ==========================================
+
 const PASTA_UPLOADS = path.join(__dirname, 'uploads');
 
 if (!fsSync.existsSync(PASTA_UPLOADS)) {
@@ -25,12 +25,9 @@ if (!fsSync.existsSync(PASTA_UPLOADS)) {
 
 app.use('/uploads', express.static(PASTA_UPLOADS));
 
-// 🔥 CONFIGURAR MULTER
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, PASTA_UPLOADS);
-    },
-    filename: function (req, file, cb) {
+    destination: (req, file, cb) => cb(null, PASTA_UPLOADS),
+    filename: (req, file, cb) => {
         const nomeUnico = Date.now() + "-" + file.originalname.replace(/\s+/g, "_");
         cb(null, nomeUnico);
     }
@@ -40,94 +37,73 @@ const upload = multer({
     storage,
     limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
-        if (file.mimetype.startsWith("image/")) {
-            cb(null, true);
-        } else {
-            cb(new Error("Apenas imagens são permitidas"));
-        }
+        if (file.mimetype.startsWith("image/")) cb(null, true);
+        else cb(new Error("Apenas imagens são permitidas"));
     }
 });
 
-// 🔥 ROTA DE UPLOAD
 app.post('/upload-imagem', upload.single('imagem'), (req, res) => {
     try {
-        if (!req.file) {
-            return res.status(400).json({ erro: "Nenhuma imagem enviada" });
-        }
-
-        const urlImagem = `/uploads/${req.file.filename}`;
-
-        res.json({
-            mensagem: "Upload realizado com sucesso",
-            url: urlImagem
-        });
-
+        if (!req.file) return res.status(400).json({ erro: "Nenhuma imagem enviada" });
+        res.json({ mensagem: "Upload realizado com sucesso", url: `/uploads/${req.file.filename}` });
     } catch (erro) {
         console.error("Erro no upload:", erro);
         res.status(500).json({ erro: "Erro ao enviar imagem" });
     }
 });
 
-// --- CAMINHOS DOS BANCOS ---
-const CAMINHO_BANCO_QUESTOES = path.join(__dirname, 'banco de dados provisorio', 'bancoquestoes.json');
-const CAMINHO_BANCO_REDACOES = path.join(__dirname, 'banco de dados provisorio', 'redacao.json');
-const CAMINHO_BANCO_MATERIAS = path.join(__dirname, 'banco de dados provisorio', 'bancomaterias.json');
-const CAMINHO_BANCO_AULAS = path.join(__dirname, 'banco de dados provisorio', 'bancoaulas.json');
-const CAMINHO_BANCO_USUARIOS = path.join(__dirname, 'banco de dados provisorio', 'usuarios.json');
-const CAMINHO_BANCO_MODULOS = path.join(__dirname, 'banco de dados provisorio', 'bancomodulos.json');
-
-app.use(cors()); 
-app.use(express.json()); 
-
+app.use(cors());
+app.use(express.json());
 
 // ==========================================
-//    FUNÇÕES AUXILIARES - LOGIN
+//    FUNÇÕES AUXILIARES
 // ==========================================
 
-function validarEmail(email) {
-    if (!email) return false;
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email).trim());
+function normalizarTexto(txt) {
+    const texto = String(txt || "").toLowerCase().trim();
+    if (typeof texto.normalize === "function") {
+        return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    }
+    return texto;
 }
 
-function validarCPF(cpf) {
-    if (!cpf) return false;
-
-    cpf = String(cpf).replace(/[^\d]+/g, '');
-
-    if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
-
-    let soma = 0, resto;
-
-    for (let i = 1; i <= 9; i++) {
-        soma += parseInt(cpf.substring(i - 1, i), 10) * (11 - i);
-    }
-
-    resto = (soma * 10) % 11;
-    if (resto === 10 || resto === 11) resto = 0;
-    if (resto !== parseInt(cpf.substring(9, 10), 10)) return false;
-
-    soma = 0;
-    for (let i = 1; i <= 10; i++) {
-        soma += parseInt(cpf.substring(i - 1, i), 10) * (12 - i);
-    }
-
-    resto = (soma * 10) % 11;
-    if (resto === 10 || resto === 11) resto = 0;
-
-    return resto === parseInt(cpf.substring(10, 11), 10);
-}
 function safeJSONParse(data, fallback = []) {
     if (!data) return fallback;
-
     if (typeof data === "object") return data;
-
     if (typeof data !== "string") return fallback;
-
     try {
         return JSON.parse(data);
     } catch (e) {
         console.warn("⚠️ JSON inválido:", data);
         return fallback;
+    }
+}
+
+// ==========================================
+//    MIDDLEWARE - SOMENTE PROFESSOR
+// ==========================================
+
+async function apenasProfessor(req, res, next) {
+    try {
+        const { usuarioId } = req.body;
+
+        if (!usuarioId) return res.status(401).json({ erro: "Usuário não autenticado" });
+
+        const [rows] = await db.execute(
+            `SELECT tipo FROM usuarios WHERE id = ?`,
+            [usuarioId]
+        );
+
+        if (rows.length === 0) return res.status(401).json({ erro: "Usuário inválido" });
+
+        if (rows[0].tipo !== "professor") {
+            return res.status(403).json({ erro: "Apenas professores podem realizar essa ação" });
+        }
+
+        next();
+    } catch (e) {
+        console.error("Erro middleware professor:", e);
+        res.status(500).json({ erro: "Erro interno" });
     }
 }
 
@@ -151,32 +127,19 @@ app.post('/auth/registrar', async (req, res) => {
             [email, cpf]
         );
 
-        if (existe.length > 0) {
-            return res.status(400).json({ erro: "Usuário já cadastrado" });
-        }
+        if (existe.length > 0) return res.status(400).json({ erro: "Usuário já cadastrado" });
 
         const senhaHash = await bcrypt.hash(senha, 10);
 
         const estatisticasPadrao = {
-            questoes: {
-                totalAcertos: 0,
-                totalErros: 0,
-                porMateria: {}
-            }
+            questoes: { totalAcertos: 0, totalErros: 0, porMateria: {} }
         };
 
         await db.execute(
             `INSERT INTO usuarios 
             (nome, email, senha, cpf, tipo, aulasAssistidas, redacoesFeitas, modulosConcluidos, questoesFeitas, estatisticas, ultimaAtualizacao)
             VALUES (?, ?, ?, ?, ?, 0, 0, 0, 0, ?, NOW())`,
-            [
-                nome,
-                email,
-                senhaHash,
-                cpf,
-                tipo,
-                JSON.stringify(estatisticasPadrao)
-            ]
+            [nome, email, senhaHash, cpf, tipo, JSON.stringify(estatisticasPadrao)]
         );
 
         res.status(201).json({ mensagem: "Cadastro realizado com sucesso!" });
@@ -186,110 +149,44 @@ app.post('/auth/registrar', async (req, res) => {
         res.status(500).json({ erro: "Erro no servidor" });
     }
 });
-app.get("/modulos/:id", async (req, res) => {
-    try {
-        const id = Number(req.params.id);
-
-        const [rows] = await db.execute(`
-            SELECT * FROM modulos WHERE id = ?
-        `, [id]);
-
-        if (!rows.length) {
-            return res.status(404).json({ erro: "Não encontrada" });
-        }
-
-        res.json(rows[0]);
-
-    } catch (erro) {
-        console.error(erro);
-        res.status(500).json({ erro: "Erro ao buscar módulo" });
-    }
-});
-app.post('/materias', apenasProfessor, async (req, res) => {
-    try {
-        const { disciplina, tema, resumo, secoes } = req.body;
-
-        // ✅ validação correta
-        if (!disciplina || !tema || !resumo || !Array.isArray(secoes) || secoes.length === 0) {
-            return res.status(400).json({ mensagem: "Dados incompletos ou inválidos" });
-        }
-
-        // ✅ limpar e validar seções
-        const secoesValidadas = secoes
-            .filter(s => s && s.titulo && s.conteudo)
-            .map(s => ({
-                titulo: String(s.titulo).trim(),
-                conteudo: String(s.conteudo).trim()
-            }));
-
-        if (secoesValidadas.length === 0) {
-            return res.status(400).json({ mensagem: "Nenhuma seção válida" });
-        }
-
-        await db.execute(`
-    INSERT INTO materias
-    (disciplina, tema, resumo, secoes)
-    VALUES (?, ?, ?, ?)
-`, [
-    disciplina.toLowerCase().trim(),
-    tema.toLowerCase().trim(),
-    resumo.trim(),
-    JSON.stringify(secoesValidadas) // 🔥 ISSO AQUI É O MAIS IMPORTANTE
-]);
-        res.status(201).json({ mensagem: "Matéria cadastrada!" });
-
-    } catch (erro) {
-        console.error("Erro ao salvar matéria:", erro);
-        res.status(500).json({ mensagem: "Erro no servidor" });
-        console.error("Erro ao salvar matéria:", erro.message, erro.sqlMessage); // 🔥 adiciona erro.sqlMessage
-    res.status(500).json({ mensagem: "Erro no servidor", detalhe: erro.sqlMessage || erro.message });
-    }
-});
-
 
 // ==========================================
-// 🔒 MIDDLEWARE - SOMENTE PROFESSOR
+//    AUTH - LOGIN
 // ==========================================
 
-async function apenasProfessor(req, res, next) {
+app.post('/auth/login', async (req, res) => {
     try {
-        const { usuarioId } = req.body;
+        const { login, senha } = req.body;
 
-        if (!usuarioId) {
-            return res.status(401).json({ erro: "Usuário não autenticado" });
-        }
+        if (!login || !senha) return res.status(400).json({ erro: "Login e senha obrigatórios" });
 
-        // 🔥 busca no banco
-        const [rows] = await db.execute(
-            `SELECT tipo FROM usuarios WHERE id = ?`,
-            [usuarioId]
+        const loginNormalizado = String(login).toLowerCase().trim();
+        const loginCPF = String(login).replace(/[^\d]+/g, '');
+
+        const [usuarios] = await db.execute(
+            `SELECT * FROM usuarios WHERE email = ? OR cpf = ?`,
+            [loginNormalizado, loginCPF]
         );
 
-        if (rows.length === 0) {
-            return res.status(401).json({ erro: "Usuário inválido" });
-        }
+        if (usuarios.length === 0) return res.status(401).json({ erro: "Login ou senha inválidos" });
 
-        const usuario = rows[0];
+        const usuario = usuarios[0];
+        const senhaValida = await bcrypt.compare(senha, usuario.senha);
 
-        if (usuario.tipo !== "professor") {
-            return res.status(403).json({
-                erro: "Apenas professores podem realizar essa ação"
-            });
-        }
+        if (!senhaValida) return res.status(401).json({ erro: "Login ou senha inválidos" });
 
-        next();
+        res.json({ id: usuario.id, nome: usuario.nome, tipo: usuario.tipo });
 
-    } catch (e) {
-        console.error("Erro middleware professor:", e);
-        res.status(500).json({ erro: "Erro interno" });
+    } catch (err) {
+        console.error("ERRO LOGIN:", err);
+        res.status(500).json({ erro: "Erro ao processar login" });
     }
-}
+});
 
 // ==========================================
-//    ROTAS DE REDAÇÕES (Nova Integração - BLINDADA)
+//    ROTAS DE REDAÇÕES
 // ==========================================
 
-// 1. Aluno envia redação
 app.post('/redacoes', async (req, res) => {
     try {
         const { usuario, titulo, conteudo_html, comentarios } = req.body || {};
@@ -300,48 +197,18 @@ app.post('/redacoes', async (req, res) => {
 
         const id = Date.now();
 
-        const novaRedacao = {
-            id,
-            usuario: String(usuario).toLowerCase().trim(),
-            titulo,
-            conteudo_html,
-            comentarios: Array.isArray(comentarios) ? comentarios : [],
-            status: "pendente",
-            data_envio: new Date().toISOString()
-        };
-
-        // =========================
-        // 🔥 SALVAR NO MYSQL
-        // =========================
         await db.execute(
             `INSERT INTO redacoes 
             (id, usuario, titulo, conteudo_html, status, data_envio, comentarios)
-            VALUES (?, ?, ?, ?, ?, NOW(), ?)`,
+            VALUES (?, ?, ?, ?, 'pendente', NOW(), ?)`,
             [
                 id,
-                novaRedacao.usuario,
+                String(usuario).toLowerCase().trim(),
                 titulo,
                 conteudo_html,
-                "pendente",
-                JSON.stringify(novaRedacao.comentarios)
+                JSON.stringify(Array.isArray(comentarios) ? comentarios : [])
             ]
         );
-
-        // =========================
-        // 🔥 (OPCIONAL) SALVAR JSON
-        // =========================
-        const conteudoRaw = await fs.readFile(CAMINHO_BANCO_REDACOES, 'utf-8').catch(() => '[]');
-
-        let banco = [];
-        try {
-            banco = JSON.parse((conteudoRaw || '').trim() || '[]');
-        } catch {
-            banco = [];
-        }
-
-        banco.push(novaRedacao);
-
-        await fs.writeFile(CAMINHO_BANCO_REDACOES, JSON.stringify(banco, null, 2));
 
         res.status(201).json({ mensagem: "Enviado com sucesso!" });
 
@@ -351,20 +218,14 @@ app.post('/redacoes', async (req, res) => {
     }
 });
 
-// Aluno busca suas redações
 app.get('/redacoes/aluno', async (req, res) => {
     try {
         const { nome } = req.query;
-
-        if (!nome) {
-            return res.status(400).json({ mensagem: "Nome não informado" });
-        }
-
-        const usuario = String(nome).toLowerCase().trim();
+        if (!nome) return res.status(400).json({ mensagem: "Nome não informado" });
 
         const [rows] = await db.execute(
             `SELECT * FROM redacoes WHERE LOWER(usuario) = LOWER(?) ORDER BY data_envio DESC`,
-            [usuario]
+            [String(nome).toLowerCase().trim()]
         );
 
         res.json(rows);
@@ -375,22 +236,16 @@ app.get('/redacoes/aluno', async (req, res) => {
     }
 });
 
-// 2. Professor busca a mais antiga não corrigida (FILA)
 app.get('/redacoes/proxima', async (req, res) => {
     try {
         const [rows] = await db.execute(`
-            SELECT *
-            FROM redacoes
+            SELECT * FROM redacoes
             WHERE LOWER(TRIM(status)) = 'pendente'
             ORDER BY data_envio ASC
             LIMIT 1
         `);
 
-        if (!rows.length) {
-            return res.status(200).json(null); // 🔥 evita erro no front
-        }
-
-        res.json(rows[0]);
+        res.json(rows.length ? rows[0] : null);
 
     } catch (erro) {
         console.error("Erro ao buscar próxima redação:", erro);
@@ -398,7 +253,6 @@ app.get('/redacoes/proxima', async (req, res) => {
     }
 });
 
-// 3. Professor envia redação corrigida
 app.put('/redacoes/corrigir/:id', async (req, res) => {
     try {
         const id = Number(req.params.id);
@@ -406,16 +260,9 @@ app.put('/redacoes/corrigir/:id', async (req, res) => {
 
         await db.execute(
             `UPDATE redacoes 
-             SET conteudo_html = ?, 
-                 comentarios = ?, 
-                 status = 'corrigida',
-                 data_correcao = NOW()
+             SET conteudo_html = ?, comentarios = ?, status = 'corrigida', data_correcao = NOW()
              WHERE id = ?`,
-            [
-                conteudo_html,
-                JSON.stringify(comentarios || []),
-                id
-            ]
+            [conteudo_html, JSON.stringify(comentarios || []), id]
         );
 
         res.json({ mensagem: "Redação corrigida com sucesso!" });
@@ -425,47 +272,67 @@ app.put('/redacoes/corrigir/:id', async (req, res) => {
         res.status(500).json({ mensagem: "Erro ao corrigir" });
     }
 });
-
-// ==========================================
-//        FUNÇÃO PADRÃO (NÃO REMOVE NADA)
-// ==========================================
-function normalizarTexto(txt) {
-    const texto = String(txt || "").toLowerCase().trim();
-
-    if (typeof texto.normalize === "function") {
-        return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+// GET /temas/aleatorio — retorna um tema aleatório
+// GET /redacao/temas/aleatorio
+app.get('/redacao/temas/aleatorio', async (req, res) => {
+    try {
+        const [rows] = await db.query(
+            'SELECT * FROM temas_redacao ORDER BY RAND() LIMIT 1'
+        );
+        if (!rows.length) return res.status(404).json({ mensagem: 'Nenhum tema cadastrado.' });
+        res.json(rows[0]);
+    } catch (e) {
+        res.status(500).json({ mensagem: 'Erro ao buscar tema.' });
     }
+});
 
-    return texto;
-}
+// POST /redacao/temas
+app.post('/redacao/temas', async (req, res) => {
+    const { tema, texto1, texto2, texto3, imagem1, imagem2 } = req.body;
+    if (!tema || !texto1) return res.status(400).json({ mensagem: 'Tema e Texto 1 são obrigatórios.' });
+    try {
+        await db.query(
+            'INSERT INTO temas_redacao (tema, texto1, texto2, texto3, imagem1, imagem2) VALUES (?, ?, ?, ?, ?, ?)',
+            [tema, texto1, texto2 || null, texto3 || null, imagem1 || null, imagem2 || null]
+        );
+        res.status(201).json({ mensagem: 'Tema cadastrado com sucesso!' });
+    } catch (e) {
+        res.status(500).json({ mensagem: 'Erro ao cadastrar tema.' });
+    }
+});
+
+// DELETE /redacao/temas/:id
+app.delete('/redacao/temas/:id', async (req, res) => {
+    try {
+        await db.query('DELETE FROM temas_redacao WHERE id = ?', [req.params.id]);
+        res.json({ mensagem: 'Tema removido.' });
+    } catch (e) {
+        res.status(500).json({ mensagem: 'Erro ao remover tema.' });
+    }
+});
+
+// GET /redacao/temas
+app.get('/redacao/temas', async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT id, tema, criado_em FROM temas_redacao ORDER BY criado_em DESC');
+        res.json(rows);
+    } catch (e) {
+        res.status(500).json({ mensagem: 'Erro ao listar temas.' });
+    }
+});
 
 // ==========================================
-//        ROTAS DE MATÉRIAS
+//    ROTAS DE MATÉRIAS
 // ==========================================
 
-// 🔹 GET – listar disciplinas únicas (para o select de matéria)
 app.get('/materias', async (req, res) => {
     try {
-        const [rows] = await db.execute(`
-            SELECT * FROM materias
-            ORDER BY criado_em DESC
-        `);
+        const [rows] = await db.execute(`SELECT * FROM materias ORDER BY criado_em DESC`);
 
-        const materias = rows.map(m => {
-            let secoes = [];
-
-            try {
-               secoes = safeJSONParse(m.secoes, []);
-            } catch (e) {
-                console.warn("⚠️ JSON inválido na matéria ID:", m.id);
-                secoes = [];
-            }
-
-            return {
-                ...m,
-                secoes
-            };
-        });
+        const materias = rows.map(m => ({
+            ...m,
+            secoes: safeJSONParse(m.secoes, [])
+        }));
 
         res.json(materias);
 
@@ -477,21 +344,11 @@ app.get('/materias', async (req, res) => {
 
 app.get('/materias/:id', async (req, res) => {
     try {
-        const id = Number(req.params.id);
+        const [rows] = await db.execute(`SELECT * FROM materias WHERE id = ?`, [Number(req.params.id)]);
 
-        const [rows] = await db.execute(`
-            SELECT * FROM materias WHERE id = ?
-        `, [id]);
+        if (!rows.length) return res.status(404).json({ mensagem: "Não encontrada" });
 
-        if (!rows.length) {
-            return res.status(404).json({ mensagem: "Não encontrada" });
-        }
-
-        const materia = rows[0];
-
-        // 🔥 converter JSON
-        materia.secoes = JSON.parse(materia.secoes || '[]'); // ← ESSE É O PROBLEMA
-
+        const materia = { ...rows[0], secoes: safeJSONParse(rows[0].secoes, []) };
         res.json(materia);
 
     } catch (erro) {
@@ -500,19 +357,39 @@ app.get('/materias/:id', async (req, res) => {
     }
 });
 
+app.post('/materias', apenasProfessor, async (req, res) => {
+    try {
+        const { disciplina, tema, resumo, secoes } = req.body;
+
+        if (!disciplina || !tema || !resumo || !Array.isArray(secoes) || secoes.length === 0) {
+            return res.status(400).json({ mensagem: "Dados incompletos ou inválidos" });
+        }
+
+        const secoesValidadas = secoes
+            .filter(s => s && s.titulo && s.conteudo)
+            .map(s => ({ titulo: String(s.titulo).trim(), conteudo: String(s.conteudo).trim() }));
+
+        if (secoesValidadas.length === 0) {
+            return res.status(400).json({ mensagem: "Nenhuma seção válida" });
+        }
+
+        await db.execute(
+            `INSERT INTO materias (disciplina, tema, resumo, secoes) VALUES (?, ?, ?, ?)`,
+            [disciplina.toLowerCase().trim(), tema.toLowerCase().trim(), resumo.trim(), JSON.stringify(secoesValidadas)]
+        );
+
+        res.status(201).json({ mensagem: "Matéria cadastrada!" });
+
+    } catch (erro) {
+        console.error("Erro ao salvar matéria:", erro);
+        res.status(500).json({ mensagem: "Erro no servidor", detalhe: erro.sqlMessage || erro.message });
+    }
+});
+
 app.get('/disciplinas', async (req, res) => {
     try {
-        const [rows] = await db.execute(`
-            SELECT DISTINCT disciplina FROM materias
-            ORDER BY disciplina ASC
-        `);
-
-        const disciplinas = rows
-            .map(r => r.disciplina)
-            .filter(d => d);
-
-        res.json(disciplinas);
-
+        const [rows] = await db.execute(`SELECT DISTINCT disciplina FROM materias ORDER BY disciplina ASC`);
+        res.json(rows.map(r => r.disciplina).filter(Boolean));
     } catch (erro) {
         console.error(erro);
         res.status(500).json([]);
@@ -520,48 +397,32 @@ app.get('/disciplinas', async (req, res) => {
 });
 
 // ==========================================
-//    ROTA ÚNICA /temas (QUESTÕES + AULAS)
+//    ROTA /temas — QUESTÕES + AULAS + MÓDULOS
 // ==========================================
+
 app.get('/temas', async (req, res) => {
     const { disciplina } = req.query;
 
-    if (!disciplina) {
-        return res.status(400).json({ mensagem: "Disciplina não informada" });
-    }
+    if (!disciplina) return res.status(400).json({ mensagem: "Disciplina não informada" });
 
     try {
-        const [
-            questoesRaw,
-            aulasRaw,
-            materiasRaw,
-            modulosRaw
-        ] = await Promise.all([
-            fs.readFile(CAMINHO_BANCO_QUESTOES, 'utf-8').catch(() => '[]'),
-            fs.readFile(CAMINHO_BANCO_AULAS, 'utf-8').catch(() => '[]'),
-            fs.readFile(CAMINHO_BANCO_MATERIAS, 'utf-8').catch(() => '[]'),
-            fs.readFile(CAMINHO_BANCO_MODULOS, 'utf-8').catch(() => '[]')
-        ]);
-
-        const bancoQuestoes = JSON.parse(questoesRaw || '[]');
-        const bancoAulas = JSON.parse(aulasRaw || '[]');
-        const bancoMaterias = JSON.parse(materiasRaw || '[]');
-        const bancoModulos = JSON.parse(modulosRaw || '[]');
-
         const disc = normalizarTexto(disciplina);
 
-        const pegarTemas = (banco) =>
-            banco
-                .filter(item =>
-                    item && normalizarTexto(item.disciplina) === disc
-                )
-                .map(item => normalizarTexto(item.tema));
+        const [questoesRows, aulasRows, materiasRows, modulosRows] = await Promise.all([
+            db.execute(`SELECT tema FROM questoes WHERE LOWER(disciplina) = ?`, [disc]),
+            db.execute(`SELECT tema FROM aulas WHERE LOWER(disciplina) = ?`, [disc]),
+            db.execute(`SELECT tema FROM materias WHERE LOWER(disciplina) = ?`, [disc]),
+            db.execute(`SELECT tema FROM modulos WHERE LOWER(disciplina) = ?`, [disc])
+        ]);
+
+        const pegarTemas = ([rows]) => rows.map(r => normalizarTexto(r.tema));
 
         const temasUnicos = [
             ...new Set([
-                ...pegarTemas(bancoQuestoes),
-                ...pegarTemas(bancoAulas),
-                ...pegarTemas(bancoMaterias),
-                ...pegarTemas(bancoModulos)
+                ...pegarTemas(questoesRows),
+                ...pegarTemas(aulasRows),
+                ...pegarTemas(materiasRows),
+                ...pegarTemas(modulosRows)
             ])
         ];
 
@@ -574,11 +435,8 @@ app.get('/temas', async (req, res) => {
 });
 
 // ==========================================
-//    ROTAS DE AULAS (Vídeos YouTube)
+//    ROTAS DE AULAS
 // ==========================================
-
-// 1. Professor cadastra aula 
-
 
 app.post('/aulas', apenasProfessor, async (req, res) => {
     try {
@@ -591,20 +449,15 @@ app.post('/aulas', apenasProfessor, async (req, res) => {
         const d = normalizarTexto(disciplina);
         const t = normalizarTexto(tema);
 
-        // 🔍 Verifica se já existe
         const [existe] = await db.execute(
-            `SELECT * FROM aulas WHERE disciplina = ? AND tema = ? AND aula_url = ?`,
+            `SELECT id FROM aulas WHERE disciplina = ? AND tema = ? AND aula_url = ?`,
             [d, t, url]
         );
 
-        if (existe.length > 0) {
-            return res.status(400).json({ mensagem: "Essa aula já foi cadastrada" });
-        }
+        if (existe.length > 0) return res.status(400).json({ mensagem: "Essa aula já foi cadastrada" });
 
-        // 💾 Inserir no banco
         await db.execute(
-            `INSERT INTO aulas (disciplina, tema, aula_url, aula_url_2, data_cadastro)
-             VALUES (?, ?, ?, ?, NOW())`,
+            `INSERT INTO aulas (disciplina, tema, aula_url, aula_url_2, data_cadastro) VALUES (?, ?, ?, ?, NOW())`,
             [d, t, url, url2]
         );
 
@@ -626,69 +479,48 @@ app.get('/aulas/buscar', async (req, res) => {
         }
 
         const [result] = await db.execute(
-            `SELECT * FROM aulas 
-             WHERE LOWER(disciplina) = LOWER(?) 
-             AND LOWER(tema) = LOWER(?) 
-             LIMIT 1`,
+            `SELECT * FROM aulas WHERE LOWER(disciplina) = LOWER(?) AND LOWER(tema) = LOWER(?) LIMIT 1`,
             [disciplina, tema]
         );
 
-        if (result.length === 0) {
-            return res.json({
-                aula_url: "",
-                aula_url_2: ""
-            });
-        }
-
-        res.json(result[0]);
+        res.json(result.length ? result[0] : { aula_url: "", aula_url_2: "" });
 
     } catch (erro) {
         console.error("Erro ao buscar aula:", erro);
         res.status(500).json({ mensagem: "Erro no servidor" });
     }
 });
+
 // ==========================================
-//        ROTAS DE QUESTÕES
+//    ROTAS DE QUESTÕES
 // ==========================================
 
-// 🔹 POST – cadastrar questão
 app.post('/questoes', apenasProfessor, async (req, res) => {
     try {
-        const novaQuestao = {
-    id: Date.now().toString(), // 🔥 ID OBRIGATÓRIO
-    ...req.body
-};
+        const { disciplina, tema, enunciado, alternativas, resposta_correta, imagem, explicacao } = req.body;
 
-
-        if (
-            !novaQuestao.disciplina ||
-            !novaQuestao.tema ||
-            !novaQuestao.enunciado ||
-            !Array.isArray(novaQuestao.alternativas) ||
-            !novaQuestao.resposta_correta
-        ) {
+        if (!disciplina || !tema || !enunciado || !Array.isArray(alternativas) || !resposta_correta) {
             return res.status(400).json({ mensagem: "Dados incompletos da questão" });
         }
 
-        // ✅ AJUSTE: garantir exatamente 4 alternativas
-        if (novaQuestao.alternativas.length !== 4) {
+        if (alternativas.length !== 4) {
             return res.status(400).json({ mensagem: "A questão deve ter 4 alternativas" });
         }
 
-        const conteudo = await fs.readFile(CAMINHO_BANCO_QUESTOES, 'utf-8').catch(() => '[]');
+        await db.execute(
+            `INSERT INTO questoes (disciplina, tema, enunciado, alternativas, resposta_correta, imagem, explicacao, criado_em)
+             VALUES (?, ?, ?, ?, ?, ?, ?, NOW())`,
+            [
+                normalizarTexto(disciplina),
+                normalizarTexto(tema),
+                enunciado,
+                JSON.stringify(alternativas),
+                resposta_correta,
+                imagem || null,
+                explicacao || null   // ✅ novo campo
+            ]
+        );
 
-        let banco = [];
-        try {
-            banco = JSON.parse((conteudo || '').trim() || '[]');
-        } catch {
-            banco = [];
-        }
-
-        banco.push(novaQuestao);
-
-        await fs.writeFile(CAMINHO_BANCO_QUESTOES, JSON.stringify(banco, null, 2));
-
-        console.log("✅ Questão salva no bancoquestoes.json");
         res.status(201).json({ mensagem: "Questão salva com sucesso!" });
 
     } catch (erro) {
@@ -697,56 +529,42 @@ app.post('/questoes', apenasProfessor, async (req, res) => {
     }
 });
 
-// ==========================================
-//    GET – Buscar questões por disciplina/tema
-// ==========================================
 app.get('/api/questoes', async (req, res) => {
     try {
-        const { ids } = req.query;
+        const { ids, disciplina, tema } = req.query;
 
-        const conteudo = await fs.readFile(CAMINHO_BANCO_QUESTOES, 'utf-8')
-            .catch(() => '[]');
-
-        let banco = [];
-        try {
-            banco = JSON.parse((conteudo || '').trim() || '[]');
-        } catch {
-            banco = [];
-        }
-
-        /* ===============================
-           🔥 BUSCA POR IDS (MÓDULOS)
-        =============================== */
+        // 🔥 BUSCA POR IDS (MÓDULOS)
         if (ids) {
-            const listaIds = String(ids)
-                .split(',')
-                .map(id => id.trim());
+            const listaIds = String(ids).split(',').map(id => id.trim()).filter(Boolean);
 
-            const filtradasPorId = banco.filter(q => {
-                const idQuestao = String(q.id ?? q._id ?? q.questao_id ?? '');
-                return listaIds.includes(idQuestao);
-            });
+            if (listaIds.length === 0) return res.json([]);
 
-            return res.json(filtradasPorId);
+            const placeholders = listaIds.map(() => '?').join(',');
+            const [rows] = await db.execute(
+                `SELECT * FROM questoes WHERE id IN (${placeholders})`,
+                listaIds
+            );
+
+            return res.json(rows.map(q => ({ ...q, alternativas: safeJSONParse(q.alternativas, []) })));
         }
 
-        /* ===============================
-           🔹 MODO ANTIGO (DISCIPLINA / TEMA)
-        =============================== */
-        const d = normalizarTexto(req.query.disciplina || '');
-        const t = normalizarTexto(req.query.tema || '');
+        // 🔹 BUSCA POR DISCIPLINA / TEMA
+        const d = normalizarTexto(disciplina || '');
+        const t = normalizarTexto(tema || '');
 
-        let filtradas = banco.filter(q =>
-            normalizarTexto(q.disciplina) === d
-        );
+        if (!d) return res.json([]);
+
+        let query = `SELECT * FROM questoes WHERE LOWER(disciplina) = ?`;
+        const params = [d];
 
         if (t) {
-            filtradas = filtradas.filter(q =>
-                normalizarTexto(q.tema) === t
-            );
+            query += ` AND LOWER(tema) = ?`;
+            params.push(t);
         }
 
-        return res.json(filtradas);
+        const [rows] = await db.execute(query, params);
+
+        return res.json(rows.map(q => ({ ...q, alternativas: safeJSONParse(q.alternativas, []) })));
 
     } catch (erro) {
         console.error('❌ Erro ao buscar questões:', erro);
@@ -754,77 +572,113 @@ app.get('/api/questoes', async (req, res) => {
     }
 });
 
+
+// ✏️ EDITAR QUESTÃO
+app.put('/questoes/:id', apenasProfessor, async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+        const { enunciado, alternativas, resposta_correta } = req.body;
+
+        if (!enunciado || !Array.isArray(alternativas) || !resposta_correta) {
+            return res.status(400).json({ mensagem: "Dados incompletos" });
+        }
+
+        if (alternativas.length !== 4) {
+            return res.status(400).json({ mensagem: "A questão deve ter 4 alternativas" });
+        }
+
+        const [result] = await db.execute(
+            `UPDATE questoes 
+             SET enunciado = ?, alternativas = ?, resposta_correta = ?
+             WHERE id = ?`,
+            [enunciado, JSON.stringify(alternativas), resposta_correta, id]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ mensagem: "Questão não encontrada" });
+        }
+
+        res.json({ mensagem: "Questão atualizada com sucesso!" });
+
+    } catch (erro) {
+        console.error("❌ Erro ao editar questão:", erro);
+        res.status(500).json({ mensagem: "Erro interno ao editar questão" });
+    }
+});
+
+// 🗑️ APAGAR QUESTÃO
+app.delete('/questoes/:id', apenasProfessor, async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+
+        const [result] = await db.execute(
+            `DELETE FROM questoes WHERE id = ?`,
+            [id]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ mensagem: "Questão não encontrada" });
+        }
+
+        res.json({ mensagem: "Questão apagada com sucesso!" });
+
+    } catch (erro) {
+        console.error("❌ Erro ao apagar questão:", erro);
+        res.status(500).json({ mensagem: "Erro interno ao apagar questão" });
+    }
+});
 // ==========================================
-//    ROTAS DO CONSTRUTOR DE MÓDULOS
+//    CONSTRUTOR DE MÓDULOS
 // ==========================================
 
 app.get('/construtor/dados', async (req, res) => {
     const d = normalizarTexto(req.query.disciplina);
     const t = normalizarTexto(req.query.tema);
 
-    if (!d || !t) {
-        return res.status(400).json({ mensagem: "Disciplina e Tema são obrigatórios" });
-    }
+    if (!d || !t) return res.status(400).json({ mensagem: "Disciplina e Tema são obrigatórios" });
 
     try {
-        const [aulasRaw, materiasRaw, questoesRaw] = await Promise.all([
-            fs.readFile(CAMINHO_BANCO_AULAS, 'utf-8').catch(() => '[]'),
-            fs.readFile(CAMINHO_BANCO_MATERIAS, 'utf-8').catch(() => '[]'),
-            fs.readFile(CAMINHO_BANCO_QUESTOES, 'utf-8').catch(() => '[]')
+        const [[aulas], [materias], modulo] = await Promise.all([
+            db.execute(`SELECT * FROM aulas WHERE LOWER(disciplina) = ? AND LOWER(tema) = ? LIMIT 1`, [d, t]),
+            db.execute(`SELECT * FROM materias WHERE LOWER(disciplina) = ? AND LOWER(tema) = ? ORDER BY criado_em DESC LIMIT 1`, [d, t]),
+            db.execute(`SELECT * FROM modulos WHERE LOWER(disciplina) = ? AND LOWER(tema) = ? LIMIT 1`, [d, t])
         ]);
 
-        let aulas = [];
-        let materias = [];
-        let questoes = [];
+        const aulaEncontrada = aulas[0] || null;
+        const materiaEncontrada = materias[0] || null;
+        const moduloEncontrado = modulo[0]?.[0] || null;
 
-        try { aulas = JSON.parse(aulasRaw.trim() || '[]'); } catch {}
-        try { materias = JSON.parse(materiasRaw.trim() || '[]'); } catch {}
-        try { questoes = JSON.parse(questoesRaw.trim() || '[]'); } catch {}
-
-        const aulaEncontrada = aulas.find(a =>
-            normalizarTexto(a.disciplina) === d &&
-            normalizarTexto(a.tema) === t
-        );
-
-        const materiaEncontrada = materias
-            .filter(m =>
-                normalizarTexto(m.disciplina) === d &&
-                normalizarTexto(m.tema) === t
-            )
-            .at(-1);
-
-        // 🔹 Filtra apenas as questões do módulo usando os IDs
         let questoesDisponiveis = [];
 
-if (
-    materiaEncontrada &&
-    Array.isArray(materiaEncontrada.questoes_ids) &&
-    materiaEncontrada.questoes_ids.length > 0
-) {
-    // 🔹 Garantia de comparação correta (Number x Number)
-    const idsModulo = materiaEncontrada.questoes_ids.map(id => Number(id));
+        if (moduloEncontrado) {
+            const questoes_ids = safeJSONParse(moduloEncontrado.questoes_ids, []);
 
-    questoesDisponiveis = questoes.filter(q =>
-        idsModulo.includes(Number(q.id))
-    );
-} else {
-    // 🔹 Fallback: todas as questões do tema
-    questoesDisponiveis = questoes.filter(q =>
-        normalizarTexto(q.disciplina) === d &&
-        normalizarTexto(q.tema) === t
-    );
-}
-console.log("Módulo:", materiaEncontrada?.tema);
-console.log("IDs do módulo:", materiaEncontrada?.questoes_ids);
-console.log("Questões encontradas:", questoesDisponiveis.length);
+            if (questoes_ids.length > 0) {
+                const placeholders = questoes_ids.map(() => '?').join(',');
+                const [questoesRows] = await db.execute(
+                    `SELECT * FROM questoes WHERE id IN (${placeholders})`,
+                    questoes_ids.map(Number)
+                );
+                questoesDisponiveis = questoesRows.map(q => ({ ...q, alternativas: safeJSONParse(q.alternativas, []) }));
+            }
+        }
+
+        // Fallback: todas as questões do tema
+        if (questoesDisponiveis.length === 0) {
+            const [fallbackRows] = await db.execute(
+                `SELECT * FROM questoes WHERE LOWER(disciplina) = ? AND LOWER(tema) = ?`,
+                [d, t]
+            );
+            questoesDisponiveis = fallbackRows.map(q => ({ ...q, alternativas: safeJSONParse(q.alternativas, []) }));
+        }
 
         res.json({
-    aula: aulaEncontrada || null,
-    resumo: materiaEncontrada ? materiaEncontrada.resumo || "" : "",
-    secoes: materiaEncontrada ? materiaEncontrada.secoes || [] : [],
-    questoes: questoesDisponiveis
-    });
-    
+            aula: aulaEncontrada,
+            resumo: materiaEncontrada?.resumo || "",
+            secoes: safeJSONParse(materiaEncontrada?.secoes, []),
+            questoes: questoesDisponiveis
+        });
+
     } catch (erro) {
         console.error("Erro no Construtor:", erro);
         res.status(500).json({ mensagem: "Erro ao compilar dados" });
@@ -832,160 +686,46 @@ console.log("Questões encontradas:", questoesDisponiveis.length);
 });
 
 // ==========================================
-//    ROTA DE CRONOGRAMA (Salvamento JSON)
+//    ROTAS DE MÓDULOS
 // ==========================================
 
-app.post('/salvar', async (req, res) => {
-    try {
-        const { usuario, totalHoras, cronograma } = req.body;
-
-        // 1. Validação de entrada
-        if (!usuario) {
-            return res.status(400).send("Usuário não identificado.");
-        }
-
-        // 2. Leitura segura do arquivo
-        const conteudo = await fs.readFile(CAMINHO_BANCO_USUARIOS, 'utf-8').catch(() => '[]');
-        let usuarios = [];
-
-        try {
-            usuarios = JSON.parse(conteudo.trim() || '[]');
-        } catch (e) {
-            console.error("JSON de usuários corrompido, recriando arquivo:", e);
-            usuarios = [];
-        }
-
-        // 3. Busca padronizada (evita duplicados por maiúscula/minúscula/espaços)
-const chaveBusca = String(usuario).toLowerCase().trim();
-
-const index = usuarios.findIndex(u => 
-    (u.email && String(u.email).toLowerCase().trim() === chaveBusca) ||
-    (u.nome && String(u.nome).toLowerCase().trim() === chaveBusca)
-);
-
-let usuarioEncontrado = usuarios[index];
-
-
-
-
-        if (index !== -1) {
-            // --- MODO ATUALIZAÇÃO ---
-            // Spread vem primeiro para NÃO apagar dados do usuário
-            usuarios[index] = {
-                ...usuarios[index],
-                totalHoras: Number.isFinite(+totalHoras)
-                    ? +totalHoras
-                    : (usuarios[index].totalHoras || 0),
-
-                cronograma: Array.isArray(cronograma) && cronograma.length
-                ? cronograma.filter(i => i && i.dia && i.hora && i.materia)
-                : (usuarios[index].cronograma || []),
-
-                ultimaAtualizacao: new Date().toISOString()
-            };
-        } else {
-            // --- MODO CRIAÇÃO ---
-            usuarios.push({
-                id: Date.now(),
-                nome: String(usuario).toLowerCase().trim(),
-                email: "",
-                aulasAssistidas: 0,
-                redacoesFeitas: 0,
-                modulosConcluidos: 0,
-                questoesFeitas: 0,
-                estatisticas: {
-                    questoes: {
-                        totalAcertos: 0,
-                        totalErros: 0,
-                        porMateria: {}
-                    }
-                },
-                cronograma: Array.isArray(cronograma) && cronograma.length
-                ? cronograma.filter(i => i && i.dia && i.hora && i.materia): [],
-                totalHoras: Number.isFinite(+totalHoras) ? +totalHoras : 0,
-                ultimaAtualizacao: new Date().toISOString()
-            });
-        }
-
-        // 4. Gravação segura
-        await fs.writeFile(CAMINHO_BANCO_USUARIOS, JSON.stringify(usuarios, null, 2));
-
-        console.log(`✅ Cronograma de "${usuario}" salvo sem perder outros dados.`);
-        res.status(200).send("Salvo com sucesso!");
-
-    } catch (e) {
-        console.error("❌ Erro na rota /salvar:", e);
-        res.status(500).send("Erro interno ao salvar.");
-    }
-});
-
-// ==========================================
-//    ROTA ÚNICA PARA CRIAR OU ATUALIZAR MÓDULO
-// ==========================================
 app.post('/modulos/salvar', apenasProfessor, async (req, res) => {
     try {
-        const {
-            disciplina,
-            tema,
-            aula_url,
-            aula_url_1,
-            aula_url_2,
-            resumo,
-            questoes_ids
-        } = req.body;
+        const { disciplina, tema, aula_url, aula_url_1, aula_url_2, resumo, questoes_ids } = req.body;
 
         if (!disciplina || !tema) {
             return res.status(400).json({ mensagem: "Disciplina e Tema são obrigatórios" });
         }
 
-        const conteudoRaw = await fs.readFile(CAMINHO_BANCO_MODULOS, 'utf-8').catch(() => '[]');
-        let modulos = [];
-
-        try {
-            modulos = JSON.parse((conteudoRaw || '').trim() || '[]');
-        } catch {
-            modulos = [];
-        }
-
         const d = normalizarTexto(disciplina);
         const t = normalizarTexto(tema);
 
-        const indexExistente = modulos.findIndex(m =>
-            normalizarTexto(m.disciplina) === d &&
-            normalizarTexto(m.tema) === t
+        const urlFinal = aula_url || aula_url_1 || "";
+        const url2Final = aula_url_2 || "";
+        const questoesIdsJSON = JSON.stringify(Array.isArray(questoes_ids) ? questoes_ids.map(String) : []);
+        const resumoFinal = resumo || "";
+
+        const [existe] = await db.execute(
+            `SELECT id FROM modulos WHERE LOWER(disciplina) = ? AND LOWER(tema) = ?`,
+            [d, t]
         );
 
-        const moduloAtualizado = {
-            disciplina: d,
-            tema: t,
-
-            // aceita aula_url OU aula_url_1
-            aula_url: aula_url || aula_url_1 || "",
-            aula_url_2: aula_url_2 || "",
-
-            resumo: resumo || "",
-            questoes_ids: Array.isArray(questoes_ids) ? questoes_ids.map(String) : [],
-
-            ultimaAtualizacao: new Date().toISOString()
-        };
-
-        if (indexExistente !== -1) {
-            modulos[indexExistente] = {
-                ...modulos[indexExistente],
-                ...moduloAtualizado
-            };
-
-            await fs.writeFile(CAMINHO_BANCO_MODULOS, JSON.stringify(modulos, null, 2));
+        if (existe.length > 0) {
+            await db.execute(
+                `UPDATE modulos 
+                 SET aula_url = ?, aula_url_2 = ?, resumo = ?, questoes_ids = ?, ultima_atualizacao = NOW()
+                 WHERE LOWER(disciplina) = ? AND LOWER(tema) = ?`,
+                [urlFinal, url2Final, resumoFinal, questoesIdsJSON, d, t]
+            );
             return res.json({ mensagem: "Módulo atualizado com sucesso!" });
         }
 
-        modulos.push({
-            id: Date.now(),
-            ...moduloAtualizado,
-            criadoEm: new Date().toISOString()
-        });
+        await db.execute(
+            `INSERT INTO modulos (disciplina, tema, aula_url, aula_url_2, resumo, questoes_ids, criado_em, ultima_atualizacao)
+             VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+            [d, t, urlFinal, url2Final, resumoFinal, questoesIdsJSON]
+        );
 
-        await fs.writeFile(CAMINHO_BANCO_MODULOS, JSON.stringify(modulos, null, 2));
         res.json({ mensagem: "Módulo criado com sucesso!" });
 
     } catch (e) {
@@ -994,35 +734,26 @@ app.post('/modulos/salvar', apenasProfessor, async (req, res) => {
     }
 });
 
-// ==========================================
-//    GET – LISTAR MÓDULOS (POR MATÉRIA OPCIONAL)
-// ==========================================
 app.get('/modulos', async (req, res) => {
     try {
         const { disciplina } = req.query;
 
-        const conteudoRaw = await fs.readFile(CAMINHO_BANCO_MODULOS, 'utf-8').catch(() => '[]');
-        let modulos = [];
-
-        try {
-            modulos = JSON.parse((conteudoRaw || '').trim() || '[]');
-        } catch {
-            modulos = [];
-        }
+        let query = `SELECT * FROM modulos`;
+        const params = [];
 
         if (disciplina) {
-            const d = normalizarTexto(disciplina);
-            modulos = modulos.filter(m => normalizarTexto(m.disciplina) === d);
+            query += ` WHERE LOWER(disciplina) = ?`;
+            params.push(normalizarTexto(disciplina));
         }
 
-        // 🔥 GARANTIA DE DATA VÁLIDA
-        modulos = modulos.map(m => ({
-            ...m,
-            criadoEm: m.criadoEm || m.ultimaAtualizacao || "1970-01-01T00:00:00.000Z"
-        }));
+        query += ` ORDER BY criado_em DESC`;
 
-        // 🔥 ORDENA DO MAIS NOVO PARA O MAIS ANTIGO
-        modulos.sort((a, b) => new Date(b.criadoEm) - new Date(a.criadoEm));
+        const [rows] = await db.execute(query, params);
+
+        const modulos = rows.map(m => ({
+            ...m,
+            questoes_ids: safeJSONParse(m.questoes_ids, [])
+        }));
 
         res.json(modulos);
 
@@ -1032,9 +763,64 @@ app.get('/modulos', async (req, res) => {
     }
 });
 
+app.get('/modulos/:id', async (req, res) => {
+    try {
+        const [rows] = await db.execute(`SELECT * FROM modulos WHERE id = ?`, [Number(req.params.id)]);
+
+        if (!rows.length) return res.status(404).json({ erro: "Não encontrado" });
+
+        res.json({ ...rows[0], questoes_ids: safeJSONParse(rows[0].questoes_ids, []) });
+
+    } catch (erro) {
+        console.error(erro);
+        res.status(500).json({ erro: "Erro ao buscar módulo" });
+    }
+});
+
 // ==========================================
-//    ROTA PARA REGISTRO AUTOMÁTICO (CHAMAR AO ESTUDAR)
+//    ROTAS DE CRONOGRAMA
 // ==========================================
+
+app.post('/salvar', async (req, res) => {
+    try {
+        const { usuario, totalHoras, cronograma } = req.body;
+
+        if (!usuario) return res.status(400).send("Usuário não identificado.");
+
+        const chaveBusca = String(usuario).toLowerCase().trim();
+
+        const [rows] = await db.execute(
+            `SELECT id FROM usuarios WHERE LOWER(email) = ? OR LOWER(nome) = ? LIMIT 1`,
+            [chaveBusca, chaveBusca]
+        );
+
+        if (!rows.length) return res.status(404).send("Usuário não encontrado.");
+
+        const id = rows[0].id;
+
+        const cronogramaFinal = Array.isArray(cronograma) && cronograma.length
+            ? cronograma.filter(i => i && i.dia && i.hora && i.materia)
+            : [];
+
+        await db.execute(
+            `UPDATE usuarios 
+             SET totalHoras = ?, cronograma = ?, ultimaAtualizacao = NOW()
+             WHERE id = ?`,
+            [
+                Number.isFinite(+totalHoras) ? +totalHoras : 0,
+                JSON.stringify(cronogramaFinal),
+                id
+            ]
+        );
+
+        console.log(`✅ Cronograma de "${usuario}" salvo no MySQL`);
+        res.status(200).send("Salvo com sucesso!");
+
+    } catch (e) {
+        console.error("❌ Erro na rota /salvar:", e);
+        res.status(500).send("Erro interno ao salvar.");
+    }
+});
 
 app.post('/registrar-estudo-agora', async (req, res) => {
     try {
@@ -1050,70 +836,35 @@ app.post('/registrar-estudo-agora', async (req, res) => {
         const diaAtual = diasMap[agora.getDay()];
         const horaAtual = String(agora.getHours()).padStart(2, '0') + ':00';
 
-        // Leitura segura do banco
-        const conteudo = await fs.readFile(CAMINHO_BANCO_USUARIOS, 'utf-8').catch(() => '[]');
-        let usuarios = [];
+        const [rows] = await db.execute(
+            `SELECT id, cronograma FROM usuarios WHERE LOWER(email) = ? OR LOWER(nome) = ? LIMIT 1`,
+            [usuario, usuario]
+        );
 
-        try {
-            usuarios = JSON.parse(conteudo.trim() || '[]');
-        } catch (e) {
-            console.error("JSON de usuários corrompido:", e);
-            usuarios = [];
-        }
+        if (!rows.length) return res.status(404).json({ mensagem: "Usuário não encontrado" });
 
-        // Busca padronizada
-        // 3. Busca padronizada (evita duplicados por maiúscula/minúscula/espaços)
-const chaveBusca = String(usuario).toLowerCase().trim();
-
-const index = usuarios.findIndex(u => 
-    (u.email && String(u.email).toLowerCase().trim() === chaveBusca) ||
-    (u.nome && String(u.nome).toLowerCase().trim() === chaveBusca)
-);
-
-let usuarioEncontrado = usuarios[index];
-
-        if (index === -1) {
-            return res.status(404).json({ mensagem: "Usuário não encontrado" });
-        }
-
-        // Garante estrutura
-        if (!usuarios[index].cronograma || !Array.isArray(usuarios[index].cronograma)) {
-            usuarios[index].cronograma = [];
-        }
+        const user = rows[0];
+        let cronograma = safeJSONParse(user.cronograma, []);
 
         let encontrou = false;
-
-        usuarios[index].cronograma = usuarios[index].cronograma.map(item => {
+        cronograma = cronograma.map(item => {
             if (item.dia === diaAtual && item.hora === horaAtual) {
                 encontrou = true;
-                return { 
-                    ...item, 
-                    materia: String(materia), 
-                    status: "concluido" 
-                };
+                return { ...item, materia: String(materia), status: "concluido" };
             }
             return item;
         });
 
         if (!encontrou) {
-            usuarios[index].cronograma.push({
-                dia: diaAtual,
-                hora: horaAtual,
-                materia: String(materia),
-                status: "concluido"
-            });
+            cronograma.push({ dia: diaAtual, hora: horaAtual, materia: String(materia), status: "concluido" });
         }
 
-        // Atualiza timestamp (não quebra login, progresso, etc.)
-        usuarios[index].ultimaAtualizacao = new Date().toISOString();
+        await db.execute(
+            `UPDATE usuarios SET cronograma = ?, ultimaAtualizacao = NOW() WHERE id = ?`,
+            [JSON.stringify(cronograma), user.id]
+        );
 
-        await fs.writeFile(CAMINHO_BANCO_USUARIOS, JSON.stringify(usuarios, null, 2));
-
-        res.json({
-            mensagem: `Sucesso! Registrado: ${materia}`,
-            dia: diaAtual,
-            hora: horaAtual
-        });
+        res.json({ mensagem: `Sucesso! Registrado: ${materia}`, dia: diaAtual, hora: horaAtual });
 
     } catch (erro) {
         console.error("ERRO NO CRONOGRAMA:", erro);
@@ -1122,7 +873,7 @@ let usuarioEncontrado = usuarios[index];
 });
 
 // ==========================================
-//    ROTAS DE ESTATÍSTICAS E DESEMPENHO
+//    ROTAS DE ESTATÍSTICAS / USUÁRIO
 // ==========================================
 
 app.get('/usuario/dados', async (req, res) => {
@@ -1133,72 +884,38 @@ app.get('/usuario/dados', async (req, res) => {
             return res.status(400).json({ mensagem: "Informe id ou nome" });
         }
 
-        const conteudoRaw = await fs.readFile(CAMINHO_BANCO_USUARIOS, 'utf-8').catch(() => '[]');
-        let usuarios = [];
-
-        try {
-            usuarios = JSON.parse(conteudoRaw.trim() || '[]');
-        } catch {
-            usuarios = [];
-        }
-
         const chaveBusca = String(id || nome).toLowerCase().trim();
 
-        let usuario = usuarios.find(u =>
-            String(u.id) === chaveBusca ||
-            (u.email && u.email.toLowerCase().trim() === chaveBusca) ||
-            (u.nome && u.nome.toLowerCase().trim() === chaveBusca)
+        const [rows] = await db.execute(
+            `SELECT * FROM usuarios 
+             WHERE id = ? OR LOWER(email) = ? OR LOWER(nome) = ?
+             LIMIT 1`,
+            [isNaN(chaveBusca) ? 0 : Number(chaveBusca), chaveBusca, chaveBusca]
         );
 
-        // 🧱 Se não existir, cria
-        if (!usuario) {
-            usuario = {
-                id: Date.now(),
-                nome: nome || "",
-                email: "",
-                cpf: "",
-                tipo: "aluno",
-
-                aulasAssistidas: 0,
-                redacoesFeitas: 0,
-                modulosConcluidos: 0,
-                questoesFeitas: 0,
-
-                estatisticas: { 
-                    questoes: { totalAcertos: 0, totalErros: 0, porMateria: {} } 
-                },
-
-                cronograma: [],
-                criadoEm: new Date().toISOString(),
-                ultimaAtualizacao: new Date().toISOString()
-            };
-
-            usuarios.push(usuario);
-            await fs.writeFile(CAMINHO_BANCO_USUARIOS, JSON.stringify(usuarios, null, 2));
+        if (!rows.length) {
+            return res.status(404).json({ mensagem: "Usuário não encontrado" });
         }
 
-        // 🛡️ BLINDAGEM + GARANTIA DE ESTRUTURA PADRÃO
-        usuario.aulasAssistidas = Number(usuario.aulasAssistidas) || 0;
-        usuario.redacoesFeitas = Number(usuario.redacoesFeitas) || 0;
-        usuario.modulosConcluidos = Number(usuario.modulosConcluidos) || 0;
-        usuario.questoesFeitas = Number(usuario.questoesFeitas) || 0;
+        const usuario = rows[0];
 
-        if (!usuario.estatisticas) usuario.estatisticas = {};
-        if (!usuario.estatisticas.questoes) {
-            usuario.estatisticas.questoes = { totalAcertos: 0, totalErros: 0, porMateria: {} };
-        }
-        if (!usuario.estatisticas.questoes.porMateria) {
-            usuario.estatisticas.questoes.porMateria = {};
-        }
+        // Garantia de estrutura
+        const estatisticas = safeJSONParse(usuario.estatisticas, {
+            questoes: { totalAcertos: 0, totalErros: 0, porMateria: {} }
+        });
 
-        // 🔥 NOVO: salva de volta no arquivo se o usuário já existia sem estrutura completa
-        const indexUsuario = usuarios.findIndex(u => u.id === usuario.id);
-        if (indexUsuario !== -1) {
-            usuarios[indexUsuario] = usuario;
-            await fs.writeFile(CAMINHO_BANCO_USUARIOS, JSON.stringify(usuarios, null, 2));
-        }
+        if (!estatisticas.questoes) estatisticas.questoes = { totalAcertos: 0, totalErros: 0, porMateria: {} };
+        if (!estatisticas.questoes.porMateria) estatisticas.questoes.porMateria = {};
 
-        res.json(usuario);
+        res.json({
+            ...usuario,
+            cronograma: safeJSONParse(usuario.cronograma, []),
+            estatisticas,
+            aulasAssistidas: Number(usuario.aulasAssistidas) || 0,
+            redacoesFeitas: Number(usuario.redacoesFeitas) || 0,
+            modulosConcluidos: Number(usuario.modulosConcluidos) || 0,
+            questoesFeitas: Number(usuario.questoesFeitas) || 0
+        });
 
     } catch (e) {
         console.error("ERRO NA ROTA /usuario/dados:", e);
@@ -1206,57 +923,41 @@ app.get('/usuario/dados', async (req, res) => {
     }
 });
 
-// 2. Incrementar contadores simples (Aulas, Redações, Módulos)
 app.post('/usuario/incrementar', async (req, res) => {
     try {
         const { usuario, campo } = req.body;
         if (!usuario || !campo) return res.status(400).json({ erro: "Dados incompletos" });
 
-        const camposPermitidos = [
-            "aulasAssistidas",
-            "redacoesFeitas",
-            "modulosConcluidos",
-            "questoesFeitas"
-        ];
+        const camposPermitidos = ["aulasAssistidas", "redacoesFeitas", "modulosConcluidos", "questoesFeitas"];
 
         if (!camposPermitidos.includes(campo)) {
             return res.status(400).json({ erro: "Campo inválido para incremento" });
         }
 
-        const conteudoRaw = await fs.readFile(CAMINHO_BANCO_USUARIOS, 'utf-8').catch(() => '[]');
-        let usuarios = [];
-
-        try {
-            usuarios = JSON.parse(conteudoRaw.trim() || '[]');
-        } catch (e) {
-            console.error("Erro ao ler JSON de usuários, resetando arquivo.");
-            usuarios = [];
-        }
-
         const nomeBusca = String(usuario).toLowerCase().trim();
-        const user = usuarios.find(u => 
-        (u.nome && u.nome.toLowerCase().trim() === nomeBusca) ||
-        (u.email && u.email.toLowerCase().trim() === nomeBusca)
+
+        const [rows] = await db.execute(
+            `SELECT id, ${campo} FROM usuarios WHERE LOWER(nome) = ? OR LOWER(email) = ? LIMIT 1`,
+            [nomeBusca, nomeBusca]
         );
 
+        if (!rows.length) return res.status(404).json({ erro: "Usuário não encontrado" });
 
-        if (!user) {
-            return res.status(404).json({ erro: "Usuário não encontrado" });
-        }
+        const novoValor = (Number(rows[0][campo]) || 0) + 1;
 
-        user[campo] = (Number(user[campo]) || 0) + 1;
-        user.ultimaAtualizacao = new Date().toISOString();
+        await db.execute(
+            `UPDATE usuarios SET ${campo} = ?, ultimaAtualizacao = NOW() WHERE id = ?`,
+            [novoValor, rows[0].id]
+        );
 
-        await fs.writeFile(CAMINHO_BANCO_USUARIOS, JSON.stringify(usuarios, null, 2));
-        res.json({ sucesso: true, novoValor: user[campo] });
+        res.json({ sucesso: true, novoValor });
 
     } catch (e) {
-        console.error("ERRO NO INCREMENTAR:", e); 
+        console.error("ERRO NO INCREMENTAR:", e);
         res.status(500).json({ erro: "Erro interno no servidor" });
     }
 });
 
-// 3. Registrar respostas de questões (Acertos/Erros por Matéria)
 app.post('/usuario/registrar-resposta', async (req, res) => {
     try {
         const { usuario, disciplina, acertou, questao_id } = req.body;
@@ -1265,152 +966,71 @@ app.post('/usuario/registrar-resposta', async (req, res) => {
             return res.status(400).json({ mensagem: "Dados incompletos" });
         }
 
-        const conteudoRaw = await fs.readFile(CAMINHO_BANCO_USUARIOS, 'utf-8').catch(() => '[]');
-        let usuarios = [];
-        try {
-            usuarios = JSON.parse((conteudoRaw || '').trim() || '[]');
-        } catch (e) {
-            console.error("JSON de usuários corrompido, resetando:", e);
-            usuarios = [];
-        }
-        
         const chaveBusca = String(usuario).toLowerCase().trim();
 
-        const index = usuarios.findIndex(u => 
-        (u.nome && u.nome.toLowerCase().trim() === chaveBusca) ||
-        (u.email && u.email.toLowerCase().trim() === chaveBusca)
+        const [rows] = await db.execute(
+            `SELECT id, estatisticas, questoesFeitas, questoesRespondidas 
+             FROM usuarios WHERE LOWER(nome) = ? OR LOWER(email) = ? LIMIT 1`,
+            [chaveBusca, chaveBusca]
         );
 
-        if (index === -1) return res.status(404).json({ mensagem: "Usuário não encontrado" });
+        if (!rows.length) return res.status(404).json({ mensagem: "Usuário não encontrado" });
 
-        let user = usuarios[index];
+        const user = rows[0];
 
-        // --- BLINDAGEM DA ESTRUTURA (Evita Erro 500) ---
-        if (!user.estatisticas) user.estatisticas = {};
-        if (!user.estatisticas.questoes) {
-            user.estatisticas.questoes = { totalAcertos: 0, totalErros: 0, porMateria: {} };
-        }
-        if (!user.estatisticas.questoes.porMateria) {
-            user.estatisticas.questoes.porMateria = {};
-        }
+        const estatisticas = safeJSONParse(user.estatisticas, {
+            questoes: { totalAcertos: 0, totalErros: 0, porMateria: {} }
+        });
+
+        if (!estatisticas.questoes) estatisticas.questoes = { totalAcertos: 0, totalErros: 0, porMateria: {} };
+        if (!estatisticas.questoes.porMateria) estatisticas.questoes.porMateria = {};
 
         const disc = String(disciplina).toLowerCase().trim();
-        if (!user.estatisticas.questoes.porMateria[disc]) {
-            user.estatisticas.questoes.porMateria[disc] = { acertos: 0, erros: 0 };
+
+        if (!estatisticas.questoes.porMateria[disc]) {
+            estatisticas.questoes.porMateria[disc] = { acertos: 0, erros: 0 };
         }
 
-        // --- LÓGICA DE INCREMENTO SEGURA ---
         const isCorrect = acertou === true || String(acertou) === 'true';
 
         if (isCorrect) {
-            user.estatisticas.questoes.totalAcertos = (Number(user.estatisticas.questoes.totalAcertos) || 0) + 1;
-            user.estatisticas.questoes.porMateria[disc].acertos = (Number(user.estatisticas.questoes.porMateria[disc].acertos) || 0) + 1;
+            estatisticas.questoes.totalAcertos = (Number(estatisticas.questoes.totalAcertos) || 0) + 1;
+            estatisticas.questoes.porMateria[disc].acertos = (Number(estatisticas.questoes.porMateria[disc].acertos) || 0) + 1;
         } else {
-            user.estatisticas.questoes.totalErros = (Number(user.estatisticas.questoes.totalErros) || 0) + 1;
-            user.estatisticas.questoes.porMateria[disc].erros = (Number(user.estatisticas.questoes.porMateria[disc].erros) || 0) + 1;
+            estatisticas.questoes.totalErros = (Number(estatisticas.questoes.totalErros) || 0) + 1;
+            estatisticas.questoes.porMateria[disc].erros = (Number(estatisticas.questoes.porMateria[disc].erros) || 0) + 1;
         }
 
-        // Atualiza o contador global de questões feitas
-        user.questoesFeitas = (Number(user.questoesFeitas) || 0) + 1;
+        const questoesFeitas = (Number(user.questoesFeitas) || 0) + 1;
 
-        // --- (OPCIONAL) REGISTRA QUAIS QUESTÕES O USUÁRIO FEZ ---
-        if (!Array.isArray(user.questoesRespondidas)) {
-            user.questoesRespondidas = [];
-        }
-        if (questao_id) {
-            user.questoesRespondidas.push(String(questao_id));
-        }
+        const questoesRespondidas = safeJSONParse(user.questoesRespondidas, []);
+        if (questao_id) questoesRespondidas.push(String(questao_id));
 
-        await fs.writeFile(CAMINHO_BANCO_USUARIOS, JSON.stringify(usuarios, null, 2));
+        await db.execute(
+            `UPDATE usuarios 
+             SET estatisticas = ?, questoesFeitas = ?, questoesRespondidas = ?, ultimaAtualizacao = NOW()
+             WHERE id = ?`,
+            [JSON.stringify(estatisticas), questoesFeitas, JSON.stringify(questoesRespondidas), user.id]
+        );
+
         res.json({ sucesso: true });
 
     } catch (e) {
-        console.error("ERRO DETALHADO NO REGISTRAR-RESPOSTA:", e); 
+        console.error("ERRO DETALHADO NO REGISTRAR-RESPOSTA:", e);
         res.status(500).json({ erro: "Erro interno no servidor", detalhe: e.message });
     }
 });
 
+// ==========================================
+//    INICIALIZAÇÃO
+// ==========================================
 
-// =======================
-// LOGIN (EMAIL OU CPF)
-// =======================
-app.post('/auth/login', async (req, res) => {
-    try {
-        const { login, senha } = req.body;
-
-        if (!login || !senha) {
-            return res.status(400).json({ erro: "Login e senha obrigatórios" });
-        }
-
-        const loginNormalizado = String(login).toLowerCase().trim();
-        const loginCPF = String(login).replace(/[^\d]+/g, '');
-
-        // 🔍 Busca no banco
-        const [usuarios] = await db.execute(
-            `SELECT * FROM usuarios 
-             WHERE email = ? OR cpf = ?`,
-            [loginNormalizado, loginCPF]
-        );
-
-        if (usuarios.length === 0) {
-            return res.status(401).json({ erro: "Login ou senha inválidos" });
-        }
-
-        const usuario = usuarios[0];
-
-        // 🔐 Compara senha
-        const senhaValida = await bcrypt.compare(senha, usuario.senha);
-
-        if (!senhaValida) {
-            return res.status(401).json({ erro: "Login ou senha inválidos" });
-        }
-
-        res.json({
-            id: usuario.id,
-            nome: usuario.nome,
-            tipo: usuario.tipo
-        });
-
-    } catch (err) {
-        console.error("ERRO LOGIN:", err);
-        res.status(500).json({ erro: "Erro ao processar login" });
-    }
-});
-
-const PASTA_BANCO = path.join(__dirname, 'banco de dados provisorio');
-
-if (!fsSync.existsSync(PASTA_BANCO)) {
-    fsSync.mkdirSync(PASTA_BANCO, { recursive: true });
-}
-
-async function garantirArquivo(caminho) {
-    try {
-        await fs.access(caminho);
-    } catch {
-        await fs.writeFile(caminho, '[]');
-    }
-}
-
-await garantirArquivo(CAMINHO_BANCO_QUESTOES);
-await garantirArquivo(CAMINHO_BANCO_REDACOES);
-await garantirArquivo(CAMINHO_BANCO_MATERIAS);
-await garantirArquivo(CAMINHO_BANCO_AULAS);
-await garantirArquivo(CAMINHO_BANCO_USUARIOS);
-await garantirArquivo(CAMINHO_BANCO_MODULOS);
 app.use(express.static(__dirname, { index: false }));
-// --- INICIALIZAÇÃO ---
-app.get('/', (req, res) => {
-    res.redirect('/inicial.html');
-});
 
-app.use((req, res) => {
-    res.status(404).json({ erro: "Rota não encontrada" });
-});
+app.get('/', (req, res) => res.redirect('/inicial.html'));
+
+app.use((req, res) => res.status(404).json({ erro: "Rota não encontrada" }));
 
 app.listen(porta, () => {
     console.log(`🚀 Servidor rodando em http://localhost:${porta}`);
-    console.log(`📂 Questoes: ${CAMINHO_BANCO_QUESTOES}`);
-    console.log(`📂 Redações: ${CAMINHO_BANCO_REDACOES}`);
-    console.log(`📂 Matérias: ${CAMINHO_BANCO_MATERIAS}`);
-    console.log(`📂 Aulas: ${CAMINHO_BANCO_AULAS}`); 
 });

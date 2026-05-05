@@ -1,46 +1,30 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import db from '../../db.js';
 
-// 1. Configuração necessária para módulos ES (import/export) encontrar caminhos no Node.js
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-export function pegarquestoesdobanco(disciplina, tema) {
-    
-    // 2. Ajuste do Caminho Dinâmico
-    // '..' sai de 'modulos', '..' sai de 'src' e entra na pasta do banco
-    const caminhoArquivo = path.join(__dirname, '..', '..', 'banco de dados provisorio', 'bancoquestoes.json');
-
+export async function pegarquestoesdobanco(disciplina, tema) {
     try {
-        // 3. Verificação de existência (evita erro de 'file not found')
-        if (!fs.existsSync(caminhoArquivo)) {
-            console.error("❌ Arquivo não encontrado em:", caminhoArquivo);
-            return [];
+        const d = disciplina?.toLowerCase().trim() || '';
+
+        if (!d) return [];
+
+        let query = `SELECT * FROM questoes WHERE LOWER(disciplina) = ?`;
+        const params = [d];
+
+        if (tema) {
+            query += ` AND LOWER(tema) LIKE ?`;
+            params.push(`%${tema.toLowerCase().trim()}%`);
         }
 
-        // 4. Leitura síncrona (compatível com a chamada sem 'await' no server)
-        const dadosRaw = fs.readFileSync(caminhoArquivo, 'utf-8');
+        const [rows] = await db.execute(query, params);
 
-        // 5. Tratamento de JSON vazio
-        const todasAsQuestoes = JSON.parse(dadosRaw.trim() || '[]');
-
-        return todasAsQuestoes.filter(questao => {
-    const disciplinaOk =
-        questao.disciplina?.toLowerCase().trim() ===
-        disciplina?.toLowerCase().trim();
-
-    const temaOk =
-        !tema || questao.tema?.toLowerCase().includes(
-            tema.toLowerCase().trim()
-        );
-
-    return disciplinaOk && temaOk;
-});
-
+        return rows.map(q => ({
+            ...q,
+            alternativas: typeof q.alternativas === 'string'
+                ? JSON.parse(q.alternativas)
+                : q.alternativas
+        }));
 
     } catch (erro) {
-        console.error("❌ Erro no módulo de banco:", erro.message);
+        console.error("❌ Erro ao buscar questões no banco:", erro.message);
         return [];
     }
 }

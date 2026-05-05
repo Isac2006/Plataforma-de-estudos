@@ -5,10 +5,7 @@
     <title>Página Inicial</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- CSS BASE (MENU / SIDEBAR / LAYOUT) -->
     <link rel="stylesheet" href="css/layout.css">
-
-    <!-- CSS ESPECÍFICO DA PÁGINA INICIAL -->
     <link rel="stylesheet" href="css/inicial.css">
     <link rel="stylesheet" href="css/responsive/responsive-inicial.css">
 </head>
@@ -37,20 +34,18 @@
     <!-- CONTEÚDO -->
     <main class="content">
         <button id="btn-menu" class="btn-menu">
-    <span></span>
-    <span></span>
-    <span></span>
-    </button>
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
 
-        <!-- TOPO DA PÁGINA / USUÁRIO LOGADO -->
-<div class="topo-inicial">
-    <h1>Olá, <span id="nomeUsuario">Carregando...</span> 👋</h1>
-    <p>Bem-vindo(a) de volta à sua plataforma de estudos</p>
-</div>
+        <!-- TOPO -->
+        <div class="topo-inicial">
+            <h1>Olá, <span id="nomeUsuario">Carregando...</span> 👋</h1>
+            <p>Bem-vindo(a) de volta à sua plataforma de estudos</p>
+        </div>
 
-        <!-- ========================= -->
-        <!-- 📊 MEU DESEMPENHO -->
-        <!-- ========================= -->
+        <!-- DESEMPENHO -->
         <section class="bloco">
             <h1>📊 Meu Desempenho</h1>
 
@@ -59,17 +54,14 @@
                     <span>Questões feitas:</span>
                     <strong id="questoesFeitas">0</strong>
                 </div>
-
                 <div class="card verde">
                     <span>Taxa de acerto:</span>
                     <strong id="taxaAcerto">0%</strong>
                 </div>
-
                 <div class="card laranja">
                     <span>Aulas assistidas:</span>
                     <strong id="aulasAssistidas">0</strong>
                 </div>
-
                 <div class="card roxo">
                     <span>Redações:</span>
                     <strong id="redacoesFeitas">0</strong>
@@ -77,152 +69,132 @@
             </div>
         </section>
 
+        <!-- CONSTRUTOR DE MÓDULO -->
         <section class="bloco modulo">
-    <div class="modulo-card">
+            <div class="modulo-card">
 
-        <h1 class="modulo-titulo">🔨 Construtor de Módulo Dinâmico</h1>
-        <p class="modulo-descricao">
-            Selecione os filtros para montar um módulo personalizado com aulas,
-            resumo e questões já existentes na plataforma.
-        </p>
+                <h1 class="modulo-titulo">🔨 Construtor de Módulo Dinâmico</h1>
+                <p class="modulo-descricao">
+                    Selecione os filtros para montar um módulo personalizado com aulas,
+                    resumo e questões já existentes na plataforma.
+                </p>
 
-        <!-- FILTROS -->
-        <div class="modulo-grid">
+                <!-- FILTROS -->
+                <div class="modulo-grid">
 
-            <div class="campo">
-                <label for="selectMateria">📘 Matéria</label>
-                <select id="selectMateria">
-    <option value="">Escolha a matéria...</option>
-</select>
+                    <div class="campo">
+                        <label for="selectMateria">📘 Matéria</label>
+                        <select id="selectMateria">
+                            <option value="">Escolha a matéria...</option>
+                        </select>
+                    </div>
+
+                    <div class="campo">
+                        <label for="selectTema">📚 Tema</label>
+                        <select id="selectTema" disabled>
+                            <option value="">Aguardando disciplina...</option>
+                        </select>
+                    </div>
+
+                    <div class="campo">
+                        <label for="aula1">🎥 Link da Aula 1</label>
+                        <input id="aula1" type="text" placeholder="Cole o link da aula principal">
+                    </div>
+
+                    <div class="campo">
+                        <label for="aula2">🎥 Link da Aula 2 (opcional)</label>
+                        <input id="aula2" type="text" placeholder="Cole o segundo link">
+                    </div>
+
+                    <div class="campo campo-grande">
+                        <label for="resumo">📝 Resumo do Conteúdo</label>
+                        <textarea id="resumo" placeholder="Escreva um resumo para o aluno..."></textarea>
+                    </div>
+
+                </div>
+
+                <!-- QUESTÕES -->
+                <div class="modulo-questoes">
+                    <h2>📌 Seleção de Questões</h2>
+                    <div id="selectQuestoes" class="lista-questoes-check"></div>
+                </div>
+
+                <!-- AÇÃO -->
+                <button id="btnSalvarModulo" class="btn-salvar-modulo">
+                    🚀 Salvar módulo para o aluno
+                </button>
+
             </div>
+        </section>
 
-            <div class="campo">
-                <label for="selectTema">📚 Tema</label>
-                <select id="selectTema" disabled>
-    <option value="">Aguardando disciplina...</option>
-</select>
+        <br>
+
+        <!-- PLANOS -->
+        <section class="bloco">
+            <h1>💳 Planos</h1>
+
+            <div class="planos planos-vivo">
+
+                <!-- BÁSICO -->
+                <div class="plano-card">
+                    <div class="plano-badge roxo">OFERTA EXCLUSIVA</div>
+                    <h2>Básico</h2>
+                    <p class="plano-destaque">📘 Ideal para começar</p>
+                    <div class="plano-preco">
+                        <span class="valor">R$ 29,90</span>
+                        <span class="periodo">/ mês</span>
+                    </div>
+                    <ul class="plano-beneficios">
+                        <li>✔ Acesso às questões</li>
+                        <li>✔ Estatísticas básicas</li>
+                        <li>✔ Suporte simples</li>
+                    </ul>
+                    <button class="btn-plano">Escolher Básico</button>
+                    <span class="plano-detalhes">Mais detalhes ▾</span>
+                </div>
+
+                <!-- PRO -->
+                <div class="plano-card destaque">
+                    <div class="plano-badge azul">PLANO MAIS ESCOLHIDO</div>
+                    <h2>Pro</h2>
+                    <p class="plano-destaque">🚀 Desempenho máximo</p>
+                    <div class="plano-preco">
+                        <span class="valor">R$ 59,90</span>
+                        <span class="periodo">/ mês</span>
+                    </div>
+                    <ul class="plano-beneficios">
+                        <li>✔ Questões ilimitadas</li>
+                        <li>✔ Módulos dinâmicos</li>
+                        <li>✔ Relatórios completos</li>
+                    </ul>
+                    <button class="btn-plano destaque">Escolher Pro</button>
+                    <span class="plano-detalhes">Mais detalhes ▾</span>
+                </div>
+
+                <!-- PREMIUM -->
+                <div class="plano-card">
+                    <div class="plano-badge verde">OFERTA DE VERÃO</div>
+                    <h2>Premium</h2>
+                    <p class="plano-destaque">👑 Experiência completa</p>
+                    <div class="plano-preco">
+                        <span class="valor">R$ 99,90</span>
+                        <span class="periodo">/ mês</span>
+                    </div>
+                    <ul class="plano-beneficios">
+                        <li>✔ Tudo do plano Pro</li>
+                        <li>✔ Correção de redações</li>
+                        <li>✔ Mentoria exclusiva</li>
+                    </ul>
+                    <button class="btn-plano">Escolher Premium</button>
+                    <span class="plano-detalhes">Mais detalhes ▾</span>
+                </div>
 
             </div>
-
-            <div class="campo">
-                <label for="aula1">🎥 Link da Aula 1</label>
-<input id="aula1" type="text" placeholder="Cole o link da aula principal">
-            </div>
-
-            <div class="campo">
-                <label for="aula2">🎥 Link da Aula 2 (opcional)</label>
-                <input id="aula2" type="text" placeholder="Cole o segundo link">
-            </div>
-
-            <div class="campo campo-grande">
-                <label for="resumo">📝 Resumo do Conteúdo</label>
-                <textarea id="resumo" placeholder="Escreva um resumo para o aluno..."></textarea>
-            </div>
-
-        </div>
-
-        <!-- QUESTÕES -->
-        <div class="modulo-questoes">
-            <h2>📌 Seleção de Questões</h2>
-
-            <select id="selectQuestoes" multiple>
-    <option value="">Selecione um tema...</option>
-</select>
-        </div>
-
-        <!-- AÇÃO -->
-        <button id="btnSalvarModulo" class="btn-salvar-modulo">
-    🚀 Salvar módulo para o aluno
-</button>
-
-
-    </div>
-</section>
-
-<br>
-
-        <!-- ========================= -->
-<!-- 💳 PLANOS -->
-<!-- ========================= -->
-<section class="bloco">
-    <h1>💳 Planos</h1>
-
-    <div class="planos planos-vivo">
-        
-        <!-- PLANO BÁSICO -->
-        <div class="plano-card">
-            <div class="plano-badge roxo">OFERTA EXCLUSIVA</div>
-
-            <h2>Básico</h2>
-            <p class="plano-destaque">📘 Ideal para começar</p>
-
-            <div class="plano-preco">
-                <span class="valor">R$ 29,90</span>
-                <span class="periodo">/ mês</span>
-            </div>
-
-            <ul class="plano-beneficios">
-                <li>✔ Acesso às questões</li>
-                <li>✔ Estatísticas básicas</li>
-                <li>✔ Suporte simples</li>
-            </ul>
-
-            <button class="btn-plano">Escolher Básico</button>
-            <span class="plano-detalhes">Mais detalhes ▾</span>
-        </div>
-
-        <!-- PLANO PRO -->
-        <div class="plano-card destaque">
-            <div class="plano-badge azul">PLANO MAIS ESCOLHIDO</div>
-
-            <h2>Pro</h2>
-            <p class="plano-destaque">🚀 Desempenho máximo</p>
-
-            <div class="plano-preco">
-                <span class="valor">R$ 59,90</span>
-                <span class="periodo">/ mês</span>
-            </div>
-
-            <ul class="plano-beneficios">
-                <li>✔ Questões ilimitadas</li>
-                <li>✔ Módulos dinâmicos</li>
-                <li>✔ Relatórios completos</li>
-            </ul>
-
-            <button class="btn-plano destaque">Escolher Pro</button>
-            <span class="plano-detalhes">Mais detalhes ▾</span>
-        </div>
-
-        <!-- PLANO PREMIUM -->
-        <div class="plano-card">
-            <div class="plano-badge verde">OFERTA DE VERÃO</div>
-
-            <h2>Premium</h2>
-            <p class="plano-destaque">👑 Experiência completa</p>
-
-            <div class="plano-preco">
-                <span class="valor">R$ 99,90</span>
-                <span class="periodo">/ mês</span>
-            </div>
-
-            <ul class="plano-beneficios">
-                <li>✔ Tudo do plano Pro</li>
-                <li>✔ Correção de redações</li>
-                <li>✔ Mentoria exclusiva</li>
-            </ul>
-
-            <button class="btn-plano">Escolher Premium</button>
-            <span class="plano-detalhes">Mais detalhes ▾</span>
-        </div>
-
-    </div>
-</section>
-
+        </section>
 
     </main>
 </div>
 
-<!-- JS DA PÁGINA INICIAL -->
 <script type="module" src="src/modulos/inicial.js"></script>
 <script src="src/menu.js"></script>
 </body>

@@ -1,6 +1,9 @@
 // src/aulas.js
 console.log("🎥 aulas.js carregado");
 
+import { obterUsuarioLogado } from './auth.js';
+import { registrarProgresso } from './modulos/estatisticas.js';
+
 document.addEventListener("DOMContentLoaded", () => {
     const selectDisciplina = document.getElementById("select-disciplina");
     const selectTema = document.getElementById("select-tema-aula");
@@ -69,10 +72,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const aula = await res.json();
             console.log("AULA RECEBIDA:", aula);
 
-            // 🎥 Vídeo principal (CORRIGIDO)
             video1.src = converterParaEmbed(aula.aula_url);
 
-            // 🎥 Segundo vídeo (opcional - CORRIGIDO)
             if (aula.aula_url_2 && aula.aula_url_2.trim() !== "") {
                 video2.src = converterParaEmbed(aula.aula_url_2);
                 containerVideo2.classList.remove("hidden");
@@ -82,6 +83,18 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             status.textContent = "Aula carregada com sucesso ✅";
+
+            // 🔥 REGISTRA QUE O ALUNO ASSISTIU A AULA
+            try {
+                const usuario = obterUsuarioLogado();
+                if (usuario?.nome) {
+                    await registrarProgresso(usuario.nome, "aulasAssistidas");
+                    console.log("📊 Aula registrada nas estatísticas");
+                }
+            } catch (e) {
+                console.error("Erro ao registrar aula nas estatísticas:", e);
+            }
+
         } catch (e) {
             console.error(e);
             status.textContent = "Erro ao carregar vídeo";
@@ -94,14 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
 =============================== */
 function converterParaEmbed(url) {
     if (!url) return "";
-
-    if (url.includes("watch?v=")) {
-        return url.replace("watch?v=", "embed/");
-    }
-
-    if (url.includes("youtu.be/")) {
-        return url.replace("youtu.be/", "www.youtube.com/embed/");
-    }
-
+    if (url.includes("watch?v=")) return url.replace("watch?v=", "embed/");
+    if (url.includes("youtu.be/")) return url.replace("youtu.be/", "www.youtube.com/embed/");
     return url;
 }

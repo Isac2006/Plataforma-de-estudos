@@ -1,5 +1,6 @@
 let listaDeQuestoesLocal = [];
 import { registrarRespostaQuestao } from './estatisticas.js';
+import { obterUsuarioLogado } from '../auth.js';
 
 /* =========================================================
    🎯 BUSCAR E EXIBIR QUESTÕES
@@ -16,21 +17,20 @@ export async function aparecerquestoes() {
 
     try {
         const url = `http://localhost:3000/api/questoes?disciplina=${encodeURIComponent(disciplinaPedido)}`;
-        
         const resposta = await fetch(url);
 
         if (!resposta.ok) throw new Error("Erro ao buscar questões");
 
         const lista = await resposta.json();
-
         listaDeQuestoesLocal = lista;
-
         divQuestao.innerHTML = "";
 
         if (!lista.length) {
             divQuestao.innerHTML = "<p>Nenhuma questão encontrada.</p>";
             return;
         }
+
+        const usuario = obterUsuarioLogado();
 
         lista.forEach((q, i) => {
             divQuestao.innerHTML += `
@@ -48,20 +48,41 @@ export async function aparecerquestoes() {
                     <br>
                     <button class="btn-responder" data-index="${i}">Responder</button>
                     <button class="btn-ver" data-index="${i}">Ver Resposta</button>
-                    <button class="btn-editar" data-index="${i}">Editar</button>
-                    <button class="btn-apagar" data-id="${q.id}">Apagar</button>
+                    <button onclick="editarQuestao(${q.id})">✏️ Editar</button>
+                    <button onclick="excluirQuestao(${q.id})">🗑️ Excluir</button>
 
                     <div id="res-${i}" style="margin-top:8px;"></div>
                 </div>
             `;
         });
 
-        configurarEventosDosBotoes();
+        // ✅ configurar eventos depois que o HTML foi todo inserido
+        configurarEventosDosBotoes(usuario?.nome || "");
 
     } catch (erro) {
         console.error("Erro:", erro);
         alert("Erro ao conectar com servidor");
     }
+}
+
+/* =========================================================
+   🔘 CONFIGURAR EVENTOS DOS BOTÕES
+========================================================= */
+
+function configurarEventosDosBotoes(nomeUsuario) {
+    document.querySelectorAll(".btn-responder").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const indice = parseInt(btn.dataset.index);
+            responder(indice, nomeUsuario);
+        });
+    });
+
+    document.querySelectorAll(".btn-ver").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const indice = parseInt(btn.dataset.index);
+            verResposta(indice);
+        });
+    });
 }
 
 /* =========================================================
@@ -93,6 +114,9 @@ export function iniciarEdicao(indice) {
 }
 
 export async function salvarEdicao(indice, id) {
+    const usuario = obterUsuarioLogado();
+    if (!usuario) return alert("Você precisa estar logado.");
+
     const enunciado = document.getElementById(`edit-enunciado-${indice}`).value;
     const alternativas = Array.from(document.querySelectorAll(`.edit-alt-${indice}`)).map(i => i.value);
     const resposta_correta = document.getElementById(`edit-correta-${indice}`).value;
@@ -101,7 +125,12 @@ export async function salvarEdicao(indice, id) {
         const response = await fetch(`http://localhost:3000/questoes/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ enunciado, alternativas, resposta_correta })
+            body: JSON.stringify({
+                usuarioId: usuario.id,
+                enunciado,
+                alternativas,
+                resposta_correta
+            })
         });
 
         if (!response.ok) throw new Error("Erro ao atualizar");
@@ -142,17 +171,29 @@ export function responder(indice, nomeUsuario) {
 }
 
 export function verResposta(indice) {
+    const questao = listaDeQuestoesLocal[indice];
     const feedback = document.getElementById(`res-${indice}`);
-    feedback.innerHTML = `Gabarito: ${listaDeQuestoesLocal[indice].resposta_correta}`;
+
+    if (!questao) {
+        feedback.innerHTML = "Questão não encontrada.";
+        return;
+    }
+
+    feedback.innerHTML = `📖 Gabarito: <strong>${questao.resposta_correta}</strong>`;
     feedback.style.color = "blue";
 }
 
 export async function apagarQuestao(id) {
+    const usuario = obterUsuarioLogado();
+    if (!usuario) return alert("Você precisa estar logado.");
+
     if (!confirm("Tem certeza que deseja excluir esta questão?")) return;
 
     try {
         const response = await fetch(`http://localhost:3000/questoes/${id}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ usuarioId: usuario.id })
         });
 
         if (!response.ok) throw new Error("Erro ao apagar");

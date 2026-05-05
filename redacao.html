@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Redação</title>
-
     <link rel="stylesheet" href="css/layout.css">
     <link rel="stylesheet" href="css/redacao.css">
     <link rel="stylesheet" href="css/responsive/responsive-redacao.css">
@@ -17,28 +16,51 @@
         <a href="inicial.html" class="logo">
             📚 <span>Plataforma</span>
         </a>
-
         <nav class="menu">
             <a href="inicial.html" class="menu-item">Início</a>
-            <a href="materias.html" class="menu-item ">Matérias</a>
+            <a href="materias.html" class="menu-item">Matérias</a>
             <a href="questoes.html" class="menu-item">Questões</a>
             <a href="cronograma.html" class="menu-item">Cronograma</a>
             <a href="redacao.html" class="menu-item active">Redação</a>
             <a href="login.html" class="menu-item">🔐 Login</a>
         </nav>
     </aside>
+
     <div id="overlay" class="overlay"></div>
 
     <!-- CONTEÚDO -->
     <main class="content">
         <button id="btn-menu" class="btn-menu">
-    <span></span>
-    <span></span>
-    <span></span>
-    </button>
-        <h1>✍️ Redação</h1>
+            <span></span><span></span><span></span>
+        </button>
 
+        <h1>✍️ Redação</h1>
         <p id="info-redacao" class="info-redacao"></p>
+
+        <!-- ===== TEMA ALEATÓRIO (visível para todos) ===== -->
+        <section class="tema-section">
+            <h3>📋 Tema da Redação</h3>
+            <button id="btnSortearTema">🎲 Sortear Tema</button>
+            <div id="tema-container">
+                <p class="tema-vazio">Clique em "Sortear Tema" para ver o tema proposto.</p>
+            </div>
+        </section>
+
+        <!-- ===== CADASTRO DE TEMAS (apenas professor) ===== -->
+        <section class="cadastro-tema-section professores" id="secaoCadastroTemas">
+            <h3>📚 Gerenciar Temas (Professor)</h3>
+            <div class="form-tema">
+                <input type="text" id="input-tema"    placeholder="Título do tema *" />
+                <textarea         id="input-texto1"  rows="4" placeholder="Texto de apoio 1 *"></textarea>
+                <textarea         id="input-texto2"  rows="4" placeholder="Texto de apoio 2 (opcional)"></textarea>
+                <textarea         id="input-texto3"  rows="4" placeholder="Texto de apoio 3 (opcional)"></textarea>
+                <input type="url" id="input-imagem1" placeholder="URL da imagem 1 (opcional)" />
+                <input type="url" id="input-imagem2" placeholder="URL da imagem 2 (opcional)" />
+                <button id="btnCadastrarTema">➕ Cadastrar Tema</button>
+            </div>
+            <h4>Temas cadastrados:</h4>
+            <div id="lista-temas-professor"></div>
+        </section>
 
         <!-- CONTROLES -->
         <div class="redacao-toolbar">
@@ -48,7 +70,6 @@
                 <option value="#bfdbfe">Azul</option>
                 <option value="#fecaca">Vermelho</option>
             </select>
-
             <button id="btnDestacar" class="professores">✏️ Destacar</button>
             <button id="btnEnviar">📤 Enviar</button>
             <button id="btnProxima" class="professores">🧑‍🏫 Próxima (Professor)</button>
@@ -74,7 +95,6 @@
     </main>
 </div>
 
-<!-- SCRIPT ÚNICO E CORRETO -->
 <script type="module">
     import {
         destacar,
@@ -84,12 +104,29 @@
         salvarCorrecaoProfessor
     } from "./src/modulos/moduloRedacao.js";
 
+    import {
+        sortearTema,
+        cadastrarTema,
+        listarTemasProfessor
+    } from "./src/modulos/moduloTemas.js";
+
+    // Redação
     document.getElementById("btnDestacar").addEventListener("click", destacar);
     document.getElementById("btnEnviar").addEventListener("click", enviarRedacao);
     document.getElementById("btnConsultar").addEventListener("click", consultarMinhaRedacao);
     document.getElementById("btnProxima").addEventListener("click", buscarProximaFila);
     document.getElementById("btnSalvar").addEventListener("click", salvarCorrecaoProfessor);
+
+    // Temas
+    document.getElementById("btnSortearTema").addEventListener("click", sortearTema);
+    document.getElementById("btnCadastrarTema").addEventListener("click", cadastrarTema);
+
+    // Carrega lista de temas cadastrados se for professor
+    if (localStorage.getItem("perfil") === "professor") {
+        listarTemasProfessor();
+    }
 </script>
+
 <script src="src/menu.js"></script>
 
 </body>

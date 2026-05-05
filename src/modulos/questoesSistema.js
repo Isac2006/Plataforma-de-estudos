@@ -3,10 +3,7 @@ import { buscarDadosParaModulo, finalizarModulo } from './construtor.js';
 import { somenteProfessor } from "./controleAcesso.js";
 
 document.addEventListener("DOMContentLoaded", () => {
-
-    // 🔒 Oculta área inteira
     somenteProfessor(".professores", "ocultar");
-
 });
 
 const usuario = obterUsuarioLogado();
@@ -35,9 +32,7 @@ function exibirMensagemSistema(texto, tipo = "erro") {
         msg.style.border = "1px solid #ffb3b3";
     }
 
-    setTimeout(() => {
-        msg.style.display = "none";
-    }, 4000);
+    setTimeout(() => { msg.style.display = "none"; }, 4000);
 }
 
 // ================= CARREGAR TEMAS =================
@@ -73,14 +68,11 @@ async function carregarTemasPorDisciplina() {
 // ================= GERAR QUESTÕES =================
 export async function gerarQuestoes() {
     const disciplina = document.getElementById("sistema-disciplina")?.value;
-    const tema = document.getElementById("sistema-tema")?.value;
+    const tema       = document.getElementById("sistema-tema")?.value;
     const quantidade = document.getElementById("sistema-quantidade")?.value;
 
     if (!disciplina || !quantidade) {
-        exibirMensagemSistema(
-            "⚠️ Selecione a disciplina e informe a quantidade de questões.",
-            "erro"
-        );
+        exibirMensagemSistema("⚠️ Selecione a disciplina e informe a quantidade de questões.", "erro");
         return;
     }
 
@@ -88,20 +80,15 @@ export async function gerarQuestoes() {
 
     try {
         const resposta = await fetch(
-        `http://localhost:3000/api/questoes?disciplina=${encodeURIComponent(disciplina)}&tema=${encodeURIComponent(tema || "")}`
+            `http://localhost:3000/api/questoes?disciplina=${encodeURIComponent(disciplina)}&tema=${encodeURIComponent(tema || "")}`
         );
 
-        if (!resposta.ok) {
-            throw new Error("Falha ao buscar questões");
-        }
+        if (!resposta.ok) throw new Error("Falha ao buscar questões");
 
         const questoes = await resposta.json();
 
         if (!questoes.length) {
-            exibirMensagemSistema(
-                "⚠️ Nenhuma questão encontrada para esse tema.",
-                "erro"
-            );
+            exibirMensagemSistema("⚠️ Nenhuma questão encontrada para esse tema.", "erro");
             return;
         }
 
@@ -109,13 +96,11 @@ export async function gerarQuestoes() {
 
     } catch (erro) {
         console.error("Erro real:", erro);
-        exibirMensagemSistema(
-            "❌ Erro ao carregar o banco de questões.",
-            "erro"
-        );
+        exibirMensagemSistema("❌ Erro ao carregar o banco de questões.", "erro");
     }
 }
 
+// ================= RENDERIZAR QUESTÕES =================
 function renderizarQuestoes(lista) {
     const container = document.getElementById("resultado-questoes");
     if (!container) return;
@@ -147,11 +132,10 @@ function renderizarQuestoes(lista) {
         `;
 
         const alternativasEls = div.querySelectorAll(".alternativa");
-        const explicacaoEl = div.querySelector(".explicacao");
+        const explicacaoEl    = div.querySelector(".explicacao");
 
         alternativasEls.forEach(alt => {
             alt.addEventListener("click", async () => {
-
                 if (div.classList.contains("respondida")) return;
                 div.classList.add("respondida");
 
@@ -160,32 +144,28 @@ function renderizarQuestoes(lista) {
                 const acertou = letraEscolhida === correta;
 
                 alternativasEls.forEach(a => {
-                    const letra = a.dataset.letra;
-
-                    if (letra === correta) a.classList.add("correta");   // 🟢
-                    if (letra === letraEscolhida && letra !== correta) a.classList.add("errada"); // 🔴
+                    if (a.dataset.letra === correta) a.classList.add("correta");
+                    if (a.dataset.letra === letraEscolhida && a.dataset.letra !== correta) a.classList.add("errada");
                 });
 
-                // 👉 MOSTRA A EXPLICAÇÃO
                 explicacaoEl.classList.add("mostrar");
 
-                // 🔥 REGISTRA NO BACKEND (usuario.json)
+                // 🔥 REGISTRA NO BACKEND
                 try {
-                    const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
+                    const usuarioAtual = obterUsuarioLogado(); // ✅ padrão do projeto
 
-                    if (!usuario?.id) return;
+                    if (!usuarioAtual?.nome) return;
 
                     await fetch("http://localhost:3000/usuario/registrar-resposta", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-        usuario: usuario.nome,   // backend busca por nome/email
-        disciplina: q.disciplina,
-        acertou,
-        questao_id: q.id || null
-    })
-});
-
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            usuario:    usuarioAtual.nome,
+                            disciplina: q.disciplina,
+                            acertou,
+                            questao_id: q.id || null
+                        })
+                    });
 
                     console.log("📊 Questão registrada para o usuário");
 
@@ -202,7 +182,6 @@ function renderizarQuestoes(lista) {
 // ================= INICIALIZAÇÃO =================
 document.addEventListener("DOMContentLoaded", () => {
     const selectDisciplina = document.getElementById("sistema-disciplina");
-
     if (selectDisciplina) {
         selectDisciplina.addEventListener("change", carregarTemasPorDisciplina);
     }

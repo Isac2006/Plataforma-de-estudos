@@ -464,5 +464,26 @@
     "cronograma": [],
     "criadoEm": "2026-05-03T02:05:02.428Z",
     "ultimaAtualizacao": "2026-05-03T02:05:02.428Z"
+  },
+  {
+    "id": 1777859372895,
+    "nome": "",
+    "email": "",
+    "cpf": "",
+    "tipo": "aluno",
+    "aulasAssistidas": 0,
+    "redacoesFeitas": 0,
+    "modulosConcluidos": 0,
+    "questoesFeitas": 0,
+    "estatisticas": {
+      "questoes": {
+        "totalAcertos": 0,
+        "totalErros": 0,
+        "porMateria": {}
+      }
+    },
+    "cronograma": [],
+    "criadoEm": "2026-05-04T01:49:32.895Z",
+    "ultimaAtualizacao": "2026-05-04T01:49:32.895Z"
   }
 ]

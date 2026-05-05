@@ -878,6 +878,19 @@ window.iniciarPagamento = iniciarPagamento;
       console.error(err);
     }
   }
+import {
+    sortearTema,
+    cadastrarTema,
+    listarTemasProfessor
+} from "./src/modulos/moduloTemas.js";
 
+document.getElementById("btnSortearTema").addEventListener("click", sortearTema);
+document.getElementById("btnCadastrarTema").addEventListener("click", cadastrarTema);
+
+// Carrega a lista de temas se for professor
+const perfil = localStorage.getItem("perfil"); // "professor" ou "aluno"
+if (perfil === "professor") {
+    listarTemasProfessor();
+}
 // Iniciar Aplicação
 carregarDados();

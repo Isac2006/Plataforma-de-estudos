@@ -1,15 +1,22 @@
 export function cadastrarQuestao() {
-    const disciplinaEl = document.getElementById("questao-disciplina");
-    const temaEl = document.getElementById("questao-tema");
-    const enunciadoEl = document.getElementById("questao-enunciado");
-    const corretaEl = document.getElementById("questao-correta");
-    const explicacaoEl = document.getElementById("questao-explicacao");
-    const mensagem = document.getElementById("mensagem-questoes");
+    const disciplinaEl  = document.getElementById("questao-disciplina");
+    const temaEl        = document.getElementById("questao-tema");
+    const enunciadoEl   = document.getElementById("questao-enunciado");
+    const corretaEl     = document.getElementById("questao-correta");
+    const explicacaoEl  = document.getElementById("questao-explicacao");
+    const mensagem      = document.getElementById("mensagem-questoes");
 
     if (!disciplinaEl || !temaEl || !enunciadoEl || !corretaEl || !mensagem) {
         console.error("❌ Elementos da questão não encontrados no HTML");
         return;
     }
+
+    const alternativas = [
+        document.getElementById("alternativa-a").value.trim(),
+        document.getElementById("alternativa-b").value.trim(),
+        document.getElementById("alternativa-c").value.trim(),
+        document.getElementById("alternativa-d").value.trim()
+    ];
 
     if (
         !disciplinaEl.value ||
@@ -21,31 +28,38 @@ export function cadastrarQuestao() {
         return;
     }
 
-    const alternativas = [
-    document.getElementById("alternativa-a").value.trim(),
-    document.getElementById("alternativa-b").value.trim(),
-    document.getElementById("alternativa-c").value.trim(),
-    document.getElementById("alternativa-d").value.trim()
-];
-
-
-    if (Object.values(alternativas).some(a => a === "")) {
+    if (alternativas.some(a => a === "")) {
         exibirMensagem("⚠️ Preencha todas as alternativas.", "erro");
         return;
     }
 
+    // ✅ Converte a letra selecionada para o texto da alternativa
+    const mapaLetra = { A: 0, B: 1, C: 2, D: 3 };
+    const indiceCorreto = mapaLetra[corretaEl.value];
+
+    if (indiceCorreto === undefined) {
+        exibirMensagem("⚠️ Selecione a alternativa correta.", "erro");
+        return;
+    }
+
+    const resposta_correta = alternativas[indiceCorreto]; // ✅ texto completo
+
+    if (!resposta_correta) {
+        exibirMensagem("⚠️ A alternativa correta está vazia.", "erro");
+        return;
+    }
+
     const questao = {
-        id: Date.now(),
-        disciplina: disciplinaEl.value,
-        tema: temaEl.value.trim(),
-        enunciado: enunciadoEl.value.trim(),
+        disciplina:      disciplinaEl.value,
+        tema:            temaEl.value.trim(),
+        enunciado:       enunciadoEl.value.trim(),
         alternativas,
-        resposta_correta: corretaEl.value, // ✅ padrão do banco
-        explicacao: explicacaoEl.value.trim()
+        resposta_correta,                    // ✅ texto da alternativa, não a letra
+        explicacao:      explicacaoEl?.value.trim() || ""
     };
 
-    salvarQuestaoLocal(questao);      // ✅ mantém
-    enviarQuestaoServidor(questao);   // ✅ mantém
+    salvarQuestaoLocal(questao);
+    enviarQuestaoServidor(questao);
     exibirMensagem("✅ Questão cadastrada com sucesso!", "sucesso");
     limparFormularioQuestao();
 }
