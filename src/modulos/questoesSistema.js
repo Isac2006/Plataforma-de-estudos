@@ -14,6 +14,9 @@ if (!usuario) {
     throw new Error('Usuário não autenticado');
 }
 
+// 🔑 usuarioId reutilizado em todas as requisições protegidas
+const usuarioId = usuario?.id;
+
 // ================= MENSAGEM =================
 function exibirMensagemSistema(texto, tipo = "erro") {
     const msg = document.getElementById("mensagem-sistema-questoes");
@@ -43,13 +46,26 @@ async function carregarTemasPorDisciplina() {
     if (!disciplina || !selectTema) return;
 
     try {
+        // ✅ usuarioId adicionado — rota usa middleware apenasAutorizado
         const resposta = await fetch(
-            `http://localhost:3000/temas?disciplina=${encodeURIComponent(disciplina)}`
+            `/temas?disciplina=${encodeURIComponent(disciplina)}&usuarioId=${usuarioId}`
         );
 
-        if (!resposta.ok) throw new Error("Erro ao buscar temas");
+        if (!resposta.ok) {
+            const msg = resposta.status === 401 || resposta.status === 403
+                ? "Acesso restrito. Faça login para continuar."
+                : "Erro ao buscar temas.";
+            exibirMensagemSistema(msg, "erro");
+            return;
+        }
 
         const temas = await resposta.json();
+
+        // ✅ Proteção contra resposta não-array
+        if (!Array.isArray(temas)) {
+            console.error("Resposta inesperada ao buscar temas:", temas);
+            return;
+        }
 
         selectTema.innerHTML = `<option value="">Selecione o Tema (opcional)</option>`;
 
@@ -79,11 +95,18 @@ export async function gerarQuestoes() {
     exibirMensagemSistema("⏳ Buscando questões...", "sucesso");
 
     try {
+        // ✅ usuarioId adicionado — rota usa middleware apenasAutorizado
         const resposta = await fetch(
-            `http://localhost:3000/api/questoes?disciplina=${encodeURIComponent(disciplina)}&tema=${encodeURIComponent(tema || "")}`
+            `/api/questoes?disciplina=${encodeURIComponent(disciplina)}&tema=${encodeURIComponent(tema || "")}&usuarioId=${usuarioId}`
         );
 
-        if (!resposta.ok) throw new Error("Falha ao buscar questões");
+        if (!resposta.ok) {
+            const msg = resposta.status === 401 || resposta.status === 403
+                ? "Acesso restrito. Faça login para continuar."
+                : "Falha ao buscar questões.";
+            exibirMensagemSistema(msg, "erro");
+            return;
+        }
 
         const questoes = await resposta.json();
 
@@ -152,15 +175,13 @@ function renderizarQuestoes(lista) {
 
                 // 🔥 REGISTRA NO BACKEND
                 try {
-                    const usuarioAtual = obterUsuarioLogado(); // ✅ padrão do projeto
+                    if (!usuario?.nome) return;
 
-                    if (!usuarioAtual?.nome) return;
-
-                    await fetch("http://localhost:3000/usuario/registrar-resposta", {
+                    await fetch("/usuario/registrar-resposta", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
-                            usuario:    usuarioAtual.nome,
+                            usuario:    usuario.nome,
                             disciplina: q.disciplina,
                             acertou,
                             questao_id: q.id || null

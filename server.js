@@ -81,11 +81,13 @@ function safeJSONParse(data, fallback = []) {
 
 // ==========================================
 //    MIDDLEWARE - SOMENTE PROFESSOR
+//    Usado em: POST, PUT, DELETE de conteúdo
+//    Aceita usuarioId via body ou query
 // ==========================================
 
 async function apenasProfessor(req, res, next) {
     try {
-        const { usuarioId } = req.body;
+        const usuarioId = req.body?.usuarioId || req.query?.usuarioId;
 
         if (!usuarioId) return res.status(401).json({ erro: "Usuário não autenticado" });
 
@@ -103,6 +105,39 @@ async function apenasProfessor(req, res, next) {
         next();
     } catch (e) {
         console.error("Erro middleware professor:", e);
+        res.status(500).json({ erro: "Erro interno" });
+    }
+}
+
+// ==========================================
+//    MIDDLEWARE - PROFESSOR OU PAGANTE
+//    Usado em: GET de conteúdo protegido
+//    Aceita usuarioId via body ou query
+// ==========================================
+
+async function apenasAutorizado(req, res, next) {
+    try {
+        const usuarioId = req.body?.usuarioId || req.query?.usuarioId;
+
+        if (!usuarioId) return res.status(401).json({ erro: "Usuário não autenticado" });
+
+        const [rows] = await db.execute(
+            `SELECT tipo, pago FROM usuarios WHERE id = ?`,
+            [usuarioId]
+        );
+
+        if (rows.length === 0) return res.status(401).json({ erro: "Usuário inválido" });
+
+        const { tipo, pago } = rows[0];
+
+        if (tipo === "professor" || pago == 1) {
+            return next();
+        }
+
+        return res.status(403).json({ erro: "Acesso restrito a professores ou assinantes" });
+
+    } catch (e) {
+        console.error("Erro middleware autorizado:", e);
         res.status(500).json({ erro: "Erro interno" });
     }
 }
@@ -175,7 +210,8 @@ app.post('/auth/login', async (req, res) => {
 
         if (!senhaValida) return res.status(401).json({ erro: "Login ou senha inválidos" });
 
-        res.json({ id: usuario.id, nome: usuario.nome, tipo: usuario.tipo });
+        // Retorna pago e tipo para o frontend controlar acesso
+        res.json({ id: usuario.id, nome: usuario.nome, tipo: usuario.tipo, pago: usuario.pago });
 
     } catch (err) {
         console.error("ERRO LOGIN:", err);
@@ -272,13 +308,10 @@ app.put('/redacoes/corrigir/:id', async (req, res) => {
         res.status(500).json({ mensagem: "Erro ao corrigir" });
     }
 });
-// GET /temas/aleatorio — retorna um tema aleatório
-// GET /redacao/temas/aleatorio
+
 app.get('/redacao/temas/aleatorio', async (req, res) => {
     try {
-        const [rows] = await db.query(
-            'SELECT * FROM temas_redacao ORDER BY RAND() LIMIT 1'
-        );
+        const [rows] = await db.query('SELECT * FROM temas_redacao ORDER BY RAND() LIMIT 1');
         if (!rows.length) return res.status(404).json({ mensagem: 'Nenhum tema cadastrado.' });
         res.json(rows[0]);
     } catch (e) {
@@ -286,7 +319,6 @@ app.get('/redacao/temas/aleatorio', async (req, res) => {
     }
 });
 
-// POST /redacao/temas
 app.post('/redacao/temas', async (req, res) => {
     const { tema, texto1, texto2, texto3, imagem1, imagem2 } = req.body;
     if (!tema || !texto1) return res.status(400).json({ mensagem: 'Tema e Texto 1 são obrigatórios.' });
@@ -301,7 +333,6 @@ app.post('/redacao/temas', async (req, res) => {
     }
 });
 
-// DELETE /redacao/temas/:id
 app.delete('/redacao/temas/:id', async (req, res) => {
     try {
         await db.query('DELETE FROM temas_redacao WHERE id = ?', [req.params.id]);
@@ -311,7 +342,6 @@ app.delete('/redacao/temas/:id', async (req, res) => {
     }
 });
 
-// GET /redacao/temas
 app.get('/redacao/temas', async (req, res) => {
     try {
         const [rows] = await db.query('SELECT id, tema, criado_em FROM temas_redacao ORDER BY criado_em DESC');
@@ -323,19 +353,15 @@ app.get('/redacao/temas', async (req, res) => {
 
 // ==========================================
 //    ROTAS DE MATÉRIAS
+//    GET → livre
+//    POST → somente professor
 // ==========================================
 
 app.get('/materias', async (req, res) => {
     try {
         const [rows] = await db.execute(`SELECT * FROM materias ORDER BY criado_em DESC`);
-
-        const materias = rows.map(m => ({
-            ...m,
-            secoes: safeJSONParse(m.secoes, [])
-        }));
-
+        const materias = rows.map(m => ({ ...m, secoes: safeJSONParse(m.secoes, []) }));
         res.json(materias);
-
     } catch (erro) {
         console.error("Erro ao buscar matérias:", erro);
         res.status(500).json({ erro: "Erro ao buscar matérias" });
@@ -345,18 +371,16 @@ app.get('/materias', async (req, res) => {
 app.get('/materias/:id', async (req, res) => {
     try {
         const [rows] = await db.execute(`SELECT * FROM materias WHERE id = ?`, [Number(req.params.id)]);
-
         if (!rows.length) return res.status(404).json({ mensagem: "Não encontrada" });
-
         const materia = { ...rows[0], secoes: safeJSONParse(rows[0].secoes, []) };
         res.json(materia);
-
     } catch (erro) {
         console.error(erro);
         res.status(500).json({ mensagem: "Erro ao buscar matéria" });
     }
 });
 
+// POST → somente professor
 app.post('/materias', apenasProfessor, async (req, res) => {
     try {
         const { disciplina, tema, resumo, secoes } = req.body;
@@ -397,10 +421,12 @@ app.get('/disciplinas', async (req, res) => {
 });
 
 // ==========================================
-//    ROTA /temas — QUESTÕES + AULAS + MÓDULOS
+//    ROTA /temas
+//    GET → professor ou pagante
+//    Frontend: GET /temas?disciplina=X&usuarioId=ID
 // ==========================================
 
-app.get('/temas', async (req, res) => {
+app.get('/temas', apenasAutorizado, async (req, res) => {
     const { disciplina } = req.query;
 
     if (!disciplina) return res.status(400).json({ mensagem: "Disciplina não informada" });
@@ -436,8 +462,12 @@ app.get('/temas', async (req, res) => {
 
 // ==========================================
 //    ROTAS DE AULAS
+//    GET  → professor ou pagante
+//    POST → somente professor
+//    Frontend GET: /aulas/buscar?disciplina=X&tema=Y&usuarioId=ID
 // ==========================================
 
+// POST → somente professor
 app.post('/aulas', apenasProfessor, async (req, res) => {
     try {
         const { disciplina, tema, url, url2 = "" } = req.body;
@@ -469,7 +499,8 @@ app.post('/aulas', apenasProfessor, async (req, res) => {
     }
 });
 
-app.get('/aulas/buscar', async (req, res) => {
+// GET → professor ou pagante
+app.get('/aulas/buscar', apenasAutorizado, async (req, res) => {
     try {
         const disciplina = normalizarTexto(req.query.disciplina || "");
         const tema = normalizarTexto(req.query.tema || "");
@@ -493,8 +524,14 @@ app.get('/aulas/buscar', async (req, res) => {
 
 // ==========================================
 //    ROTAS DE QUESTÕES
+//    GET    → professor ou pagante
+//    POST   → somente professor
+//    PUT    → somente professor
+//    DELETE → somente professor
+//    Frontend GET: /api/questoes?disciplina=X&tema=Y&usuarioId=ID
 // ==========================================
 
+// POST → somente professor
 app.post('/questoes', apenasProfessor, async (req, res) => {
     try {
         const { disciplina, tema, enunciado, alternativas, resposta_correta, imagem, explicacao } = req.body;
@@ -517,7 +554,7 @@ app.post('/questoes', apenasProfessor, async (req, res) => {
                 JSON.stringify(alternativas),
                 resposta_correta,
                 imagem || null,
-                explicacao || null   // ✅ novo campo
+                explicacao || null
             ]
         );
 
@@ -529,14 +566,13 @@ app.post('/questoes', apenasProfessor, async (req, res) => {
     }
 });
 
-app.get('/api/questoes', async (req, res) => {
+// GET → professor ou pagante
+app.get('/api/questoes', apenasAutorizado, async (req, res) => {
     try {
         const { ids, disciplina, tema } = req.query;
 
-        // 🔥 BUSCA POR IDS (MÓDULOS)
         if (ids) {
             const listaIds = String(ids).split(',').map(id => id.trim()).filter(Boolean);
-
             if (listaIds.length === 0) return res.json([]);
 
             const placeholders = listaIds.map(() => '?').join(',');
@@ -548,7 +584,6 @@ app.get('/api/questoes', async (req, res) => {
             return res.json(rows.map(q => ({ ...q, alternativas: safeJSONParse(q.alternativas, []) })));
         }
 
-        // 🔹 BUSCA POR DISCIPLINA / TEMA
         const d = normalizarTexto(disciplina || '');
         const t = normalizarTexto(tema || '');
 
@@ -572,8 +607,7 @@ app.get('/api/questoes', async (req, res) => {
     }
 });
 
-
-// ✏️ EDITAR QUESTÃO
+// PUT → somente professor
 app.put('/questoes/:id', apenasProfessor, async (req, res) => {
     try {
         const id = Number(req.params.id);
@@ -588,15 +622,11 @@ app.put('/questoes/:id', apenasProfessor, async (req, res) => {
         }
 
         const [result] = await db.execute(
-            `UPDATE questoes 
-             SET enunciado = ?, alternativas = ?, resposta_correta = ?
-             WHERE id = ?`,
+            `UPDATE questoes SET enunciado = ?, alternativas = ?, resposta_correta = ? WHERE id = ?`,
             [enunciado, JSON.stringify(alternativas), resposta_correta, id]
         );
 
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ mensagem: "Questão não encontrada" });
-        }
+        if (result.affectedRows === 0) return res.status(404).json({ mensagem: "Questão não encontrada" });
 
         res.json({ mensagem: "Questão atualizada com sucesso!" });
 
@@ -606,19 +636,14 @@ app.put('/questoes/:id', apenasProfessor, async (req, res) => {
     }
 });
 
-// 🗑️ APAGAR QUESTÃO
+// DELETE → somente professor
 app.delete('/questoes/:id', apenasProfessor, async (req, res) => {
     try {
         const id = Number(req.params.id);
 
-        const [result] = await db.execute(
-            `DELETE FROM questoes WHERE id = ?`,
-            [id]
-        );
+        const [result] = await db.execute(`DELETE FROM questoes WHERE id = ?`, [id]);
 
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ mensagem: "Questão não encontrada" });
-        }
+        if (result.affectedRows === 0) return res.status(404).json({ mensagem: "Questão não encontrada" });
 
         res.json({ mensagem: "Questão apagada com sucesso!" });
 
@@ -627,11 +652,14 @@ app.delete('/questoes/:id', apenasProfessor, async (req, res) => {
         res.status(500).json({ mensagem: "Erro interno ao apagar questão" });
     }
 });
+
 // ==========================================
 //    CONSTRUTOR DE MÓDULOS
+//    GET → professor ou pagante
+//    Frontend: /construtor/dados?disciplina=X&tema=Y&usuarioId=ID
 // ==========================================
 
-app.get('/construtor/dados', async (req, res) => {
+app.get('/construtor/dados', apenasAutorizado, async (req, res) => {
     const d = normalizarTexto(req.query.disciplina);
     const t = normalizarTexto(req.query.tema);
 
@@ -663,7 +691,6 @@ app.get('/construtor/dados', async (req, res) => {
             }
         }
 
-        // Fallback: todas as questões do tema
         if (questoesDisponiveis.length === 0) {
             const [fallbackRows] = await db.execute(
                 `SELECT * FROM questoes WHERE LOWER(disciplina) = ? AND LOWER(tema) = ?`,
@@ -687,8 +714,12 @@ app.get('/construtor/dados', async (req, res) => {
 
 // ==========================================
 //    ROTAS DE MÓDULOS
+//    GET  → professor ou pagante
+//    POST → somente professor
+//    Frontend GET: /modulos?usuarioId=ID ou /modulos/:id?usuarioId=ID
 // ==========================================
 
+// POST → somente professor
 app.post('/modulos/salvar', apenasProfessor, async (req, res) => {
     try {
         const { disciplina, tema, aula_url, aula_url_1, aula_url_2, resumo, questoes_ids } = req.body;
@@ -734,7 +765,8 @@ app.post('/modulos/salvar', apenasProfessor, async (req, res) => {
     }
 });
 
-app.get('/modulos', async (req, res) => {
+// GET → professor ou pagante
+app.get('/modulos', apenasAutorizado, async (req, res) => {
     try {
         const { disciplina } = req.query;
 
@@ -763,7 +795,8 @@ app.get('/modulos', async (req, res) => {
     }
 });
 
-app.get('/modulos/:id', async (req, res) => {
+// GET → professor ou pagante
+app.get('/modulos/:id', apenasAutorizado, async (req, res) => {
     try {
         const [rows] = await db.execute(`SELECT * FROM modulos WHERE id = ?`, [Number(req.params.id)]);
 
@@ -899,7 +932,6 @@ app.get('/usuario/dados', async (req, res) => {
 
         const usuario = rows[0];
 
-        // Garantia de estrutura
         const estatisticas = safeJSONParse(usuario.estatisticas, {
             questoes: { totalAcertos: 0, totalErros: 0, porMateria: {} }
         });

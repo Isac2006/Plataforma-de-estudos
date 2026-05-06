@@ -1,8 +1,13 @@
 import { normalizarTexto } from "./utils.js";
+import { obterUsuarioLogado } from "../../auth.js";
 
 let listaDisciplinasExplorer;
 let listaModulosExplorer;
 let materiasExplorer = []; // guarda todos os módulos/matérias carregadas
+
+// 🔑 usuarioId reutilizado em todas as requisições protegidas
+const usuario = obterUsuarioLogado();
+const usuarioId = usuario?.id;
 
 /* ==========================================
    CARREGAR DISCIPLINAS
@@ -27,7 +32,14 @@ export async function carregarDisciplinasExplorer() {
    CARREGAR MODULOS/MATERIAS
 ========================================== */
 async function carregarModulosDisciplina(disciplina) {
-    const r = await fetch(`/modulos?disciplina=${disciplina}`);
+    // ✅ usuarioId adicionado — rota usa middleware apenasAutorizado
+    const r = await fetch(`/modulos?disciplina=${encodeURIComponent(disciplina)}&usuarioId=${usuarioId}`);
+
+    if (!r.ok) {
+        console.error("Erro ao carregar módulos:", r.status);
+        return;
+    }
+
     const modulos = await r.json();
 
     console.log("DISCIPLINA:", disciplina);
@@ -60,7 +72,7 @@ function renderizarModulos(modulos) {
    PESQUISA DE MATERIAS/MODULOS
 ========================================== */
 export function iniciarPesquisaModulosExplorer() {
-    const input = document.getElementById("busca-disciplina"); // input usado para pesquisar
+    const input = document.getElementById("busca-disciplina");
     if (!input) return;
 
     input.addEventListener("input", () => {
@@ -92,7 +104,7 @@ async function abrirModulo(modulo) {
     document.querySelectorAll(".aba").forEach(a => a.classList.remove("ativa"));
     document.getElementById("aba-video").classList.add("ativa");
 
-    // Buscar resumo
+    // Buscar resumo — /materias é rota livre, não precisa de usuarioId
     const rMaterias = await fetch("/materias");
     const materias = await rMaterias.json();
 
@@ -104,13 +116,13 @@ async function abrirModulo(modulo) {
     document.getElementById("explorer-resumo").innerHTML =
         materia?.resumo || "Resumo não disponível";
 
-    // Buscar aulas
+    // Buscar aulas — ✅ usuarioId adicionado
     const video1 = document.getElementById("video1");
     const video2 = document.getElementById("video2");
     const status = document.getElementById("explorer-status") || { textContent: "" };
 
-    const rAulas = await fetch("/modulos");
-    const todasAulas = await rAulas.json();
+    const rAulas = await fetch(`/modulos?usuarioId=${usuarioId}`);
+    const todasAulas = rAulas.ok ? await rAulas.json() : [];
 
     const aula = todasAulas.find(m =>
         normalizarTexto(m.disciplina) === normalizarTexto(modulo.disciplina) &&
@@ -131,11 +143,18 @@ async function abrirModulo(modulo) {
 
     status.textContent = aula ? "Aula carregada com sucesso ✅" : "Aula não encontrada";
 
-    // Buscar questões
+    // Buscar questões — ✅ usuarioId adicionado
     if (modulo.questoes_ids?.length) {
-        const rQuestoes = await fetch(`/api/questoes?ids=${modulo.questoes_ids.join(",")}`);
-        const questoes = await rQuestoes.json();
-        renderizarQuestoesExplorer(questoes);
+        const rQuestoes = await fetch(
+            `/api/questoes?ids=${modulo.questoes_ids.join(",")}&usuarioId=${usuarioId}`
+        );
+
+        if (rQuestoes.ok) {
+            const questoes = await rQuestoes.json();
+            renderizarQuestoesExplorer(questoes);
+        } else {
+            console.error("Erro ao buscar questões:", rQuestoes.status);
+        }
     }
 }
 
@@ -199,9 +218,9 @@ function renderizarQuestoesExplorer(questoes) {
 
                 explicacao.classList.remove("hidden");
 
+                // ✅ Usa obterUsuarioLogado() em vez de localStorage direto
                 try {
-                    const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
-                    if (!usuario?.id) return;
+                    if (!usuario?.nome) return;
 
                     await fetch("/usuario/registrar-resposta", {
                         method: "POST",
@@ -263,5 +282,5 @@ export function iniciarExplorer() {
     carregarDisciplinasExplorer();
     iniciarAbasExplorer();
     iniciarBotaoVoltar();
-    iniciarPesquisaModulosExplorer(); // pesquisa por matérias/módulos
+    iniciarPesquisaModulosExplorer();
 }

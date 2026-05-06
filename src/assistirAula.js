@@ -15,6 +15,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!selectDisciplina || !selectTema || !video1) return;
 
+    // 🔑 Obtém o usuarioId uma vez, reutiliza em todas as requisições
+    const usuario = obterUsuarioLogado();
+    const usuarioId = usuario?.id;
+
     /* ===============================
        AO MUDAR DISCIPLINA → BUSCA TEMAS
     ================================ */
@@ -28,8 +32,26 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!disciplina) return;
 
         try {
-            const res = await fetch(`/temas?disciplina=${encodeURIComponent(disciplina)}`);
+            const res = await fetch(
+                `/temas?disciplina=${encodeURIComponent(disciplina)}&usuarioId=${usuarioId}`
+            );
+
+            // ✅ Trata 401/403 antes de tentar usar o JSON
+            if (!res.ok) {
+                status.textContent = res.status === 401 || res.status === 403
+                    ? "Acesso restrito. Faça login para continuar."
+                    : "Erro ao carregar temas.";
+                return;
+            }
+
             const temas = await res.json();
+
+            // ✅ Garante que é um array antes de iterar
+            if (!Array.isArray(temas)) {
+                console.error("Resposta inesperada ao buscar temas:", temas);
+                status.textContent = "Erro ao carregar temas.";
+                return;
+            }
 
             temas.forEach(tema => {
                 const option = document.createElement("option");
@@ -59,11 +81,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             const res = await fetch(
-                `/aulas/buscar?disciplina=${encodeURIComponent(disciplina)}&tema=${encodeURIComponent(tema)}`
+                `/aulas/buscar?disciplina=${encodeURIComponent(disciplina)}&tema=${encodeURIComponent(tema)}&usuarioId=${usuarioId}`
             );
 
             if (!res.ok) {
-                status.textContent = "Aula não encontrada";
+                status.textContent = res.status === 401 || res.status === 403
+                    ? "Acesso restrito. Faça login para continuar."
+                    : "Aula não encontrada.";
                 video1.src = "";
                 video2.src = "";
                 return;
@@ -86,7 +110,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // 🔥 REGISTRA QUE O ALUNO ASSISTIU A AULA
             try {
-                const usuario = obterUsuarioLogado();
                 if (usuario?.nome) {
                     await registrarProgresso(usuario.nome, "aulasAssistidas");
                     console.log("📊 Aula registrada nas estatísticas");
